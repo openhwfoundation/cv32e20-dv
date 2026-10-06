@@ -1,4 +1,9 @@
+<!--
+Copyright 2026, Eclipse Foundation
+SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+-->
 # Spike Tandem Verification for the CV32E20 Core Testbench
+
 
 The "core" testbench (`tb/core`) can optionally run the Spike instruction-set simulator
 in lock-step ("tandem") with the CV32E20 RTL.  Every instruction retired by
@@ -11,40 +16,51 @@ mismatch report.
 
 ```
               +---------------------- tb_top -----------------------+
+              |                                                     |
               |  +----------- cv32e20_tb_wrapper ----------------+  |
+              |  |                                               |  |
    test.hex --+--+--> mm_ram <--OBI--> cve2_top (CV32E20)        |  |
               |  |                        |                      |  |
               |  |                        | RVFI (retirements)   |  |
               |  |                        v                      |  |
               |  |                  spike_tandem  <--------------+--+-- +elf_file=test.elf
+              |  |                        ^                      |  |
               |  |                        |                      |  |
               |  +------------------------+----------------------+  |
+              |                           |                         |
               +---------------------------+-------------------------+
                                           | DPI-C (spike_create/spike_step)
                                           v
                             libriscv.so (tandem-patched Spike)
 ```
 
-Components:
+Spike-tandem module is comprised of the following components:
 
 - **`tb/core/spike_tandem_pkg.sv`** - DPI-C imports and the `st_rvfi`
   exchange type.  The struct layout must match `riscv/Types.h` of the
   tandem-patched Spike word-for-word (34 scalar 64-bit fields followed by six
   4096-entry CSR arrays).
-- **`tb/core/spike_tandem.sv`** - the checker.  Configures Spike at time 0
+- **`tb/core/spike_tandem.sv`** - the checker (also known as the scoreboard).
+  Configures Spike at time 0
   (ISA, privilege modes, memory map, CV32E20-specific CSR reset values /
   ID registers), then on every RVFI retirement calls `spike_step_svLogic()`
   and compares PC, instruction word, trap flag, privilege mode, and rd
   writeback (address and data).
-- **`vendor_lib/openhwgroup_core-v-verif/vendor/riscv/riscv-isa-sim`** - the
-  tandem-patched Spike (`openhw::Simulation`/`openhw::Processor`,
-  `riscv_dpi.cc`), vendored inside the core-v-verif clone.  Built into
-  `tools/spike/lib/libriscv.so` (and sister libraries) by the `spike_lib`
-  target in `mk/Common.mk`.
+
+The implementation of **`libriscv.so`**, the "tandem-patched Spike" in the figure above,
+is documented in spike-implementation.md.
+
+## Operation
 
 The same test-program image is given to both models: the testbench loads the
 Verilog-hex file into `mm_ram` (`+test_program=`), and Spike loads the ELF the
 hex was generated from (`+elf_file=`, added automatically by the Makefile).
+
+<!--
+TODO: add discussion about:
+- DPI-C interface
+- step/compare loop
+-->
 
 ## Usage
 
@@ -162,6 +178,24 @@ Spike instead of being forwarded from the RTL.
 <!--
 TODO: deside if these details are worth keeping in this document...
 
+- **Why `rs1`/`rs2` are populated but not compared**: `st_rvfi` carries
+  `rs1_addr`/`rs1_rdata`/`rs2_addr`/`rs2_rdata` (`spike_tandem.sv:277-280` on
+  the RTL side, `Proc.cc:219-222` on Spike's side), because the struct layout
+  has to match Spike's own `Types.h` word-for-word regardless of what the
+  checker uses - but `compare_retirement()` never checks them. No comment or
+  prior design note explains this, so treat the following as inferred
+  reasoning, not a documented decision: `rd_wdata` is checked on every
+  retirement, and since both models start from identical architectural state,
+  a register's content is entirely determined by the writes made to it -  so
+  for most instructions a corrupted source operand would already show up
+  indirectly as a wrong computed result on that same instruction, making an
+  explicit rs1/rs2 check mostly redundant. The real gap this leaves is
+  instructions whose operands don't feed a GPR write at all - **stores**
+  (`rs2` = the data being stored) and, more weakly, **branches** (the PC
+  comparison already catches a wrong branch decision, just not via rs1/rs2
+  directly). Since memory-write address/data isn't compared either, a
+  corrupted store-data operand specifically could slip through undetected
+  today - a narrow, currently-open corner of phase-1 scope, not a known bug.
 - **Backing storage**: each of the 6 counters gets a real `basic_csr_t`
   register (installed into `csrmap` in `Processor`'s constructor,
   wrapped in `rv32_low_csr_t`/`rv32_high_csr_t` for the RV32 32-bit-half
@@ -300,6 +334,60 @@ mcause (`rvfi_stage_intr[0]`, "Interrupt injection" above):
 In order to support the `coremark` test program, it is necessary to forward
 the "TICKS" platform CSR implemented in the `mm_ram` to the `mcycle` CSR.
 
+## Store verification (datapath check + actual-memory-landed check)
+
+`compare_retirement()` also checks stores now, closing a real gap: nothing
+previously verified that a store computed the right address/data, or that
+the write actually reached memory -- a bug there has no register-writeback
+footprint to catch it (a load's returned value is already covered
+indirectly via the existing `rd_wdata` check, so loads are out of scope
+here).
+
+Two independent checks, not one, because a single RVFI-based comparison
+structurally can't catch everything:
+
+- **Datapath check**: `Proc.cc` independently computes the store
+  address/mask/data from Spike's own decode and register file (SB/SH/SW via
+  the S-type immediate, C.SW via CS-format, C.SWSP via CSS-format with an
+  implicit `x2` base -- architecturally hardwired by the ISA, not a
+  calling-convention assumption), deliberately mirroring CVE2's own RVFI
+  convention: a size-only mask and raw, unshifted `rs2` value, not the real
+  bus's offset-rotated byte-enables/data. This is compared against the
+  RTL's self-reported `rvfi_mem_addr`/`rvfi_mem_wmask`/`rvfi_mem_wdata`.
+- **Landed check**: a whitebox probe in `cv32e20_tb_wrapper.sv` (mirroring
+  `mm_ram.sv`'s own signature-dump technique) reads the testbench RAM's
+  actual post-write byte contents directly and compares them against
+  Spike's same independently-computed expected value -- gated to the real
+  RAM address range, since peripherals aren't backed by that array.
+
+The landed check exists because CVE2's RVFI mem_* signals are captured
+*pre-LSU* (the ALU adder result and raw `rs2`), not tapped from the actual
+OBI bus wires, which are separately byte-rotated by offset inside the
+load-store unit. A bug in that rotation/byte-enable logic is invisible to
+the datapath check -- both RVFI's self-report and Spike's independent
+recompute mirror the same pre-LSU convention and would agree with each
+other regardless -- but corrupts what's actually written, which only a
+real memory readback can catch.
+
+One real bug was found and fixed via this work: `Proc.cc`'s internal
+multi-iteration trap-handling loop only clears its RVFI-mirroring struct
+once before the loop, not per iteration, so a non-store instruction retired
+on a later iteration (e.g. a jump following a trap handler's epilogue
+store) was inheriting a stale nonzero store address/mask/data from an
+earlier iteration's real store. Fixed by explicitly zeroing these fields on
+the non-store path instead of relying on the outer clear.
+
+## Random OBI stalls and random Interrupt injection
+
+- Random OBI data/instruction-phase stalls can be enabled by default for any test.
+  This implies that each run of any test will be distinct, even for a static
+  test-program.
+- `riscv_random_interrupt_generator` (a (non-UVM) class-based `.randomize() with
+  {...}` constrained-random interrupt generator, instantiated in
+  `mm_ram.sv`) is unguarded too.
+- Legacy, entirely unreferenced RI5CY/Zeroriscy-era files
+  have been moved to `tb_riscv/deprecated/`.
+
 ## Relationship to the RVVI-API
 
 We re-use the CVA6-style `spike_create()`/`spike_step()`
@@ -313,13 +401,13 @@ written so that only `spike_tandem_init()` and `tandem_step()` need to change.
 
 ```bash
 cd sim/core
-make spike_lib            # builds into <repo>/tools/spike/{lib,include}
+make spike_lib            # builds into <repo>/reference/spike/{lib,include}
 ```
 
 The Spike build needs `svdpi.h`; the Makefile locates it from the Verilator
 in `$PATH` (`verilator --getenv VERILATOR_ROOT`).
 
-`spike_lib`'s targets are plain files (`tools/spike/lib/{libriscv,libfesvr}.so`)
+`spike_lib`'s targets are plain files (`reference/spike/lib/{libriscv,libfesvr}.so`)
 with no dependency on Spike's own sources, so it only rebuilds when those
 `.so`s don't exist yet -- editing `Proc.cc` and re-running `make spike_lib`
 does nothing.  Force a rebuild either by removing the `.so`s first:

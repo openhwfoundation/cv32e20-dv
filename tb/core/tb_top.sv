@@ -17,8 +17,6 @@
 // Contributor: Robert Balas <balasr@student.ethz.ch>
 //              Jeremy Bennett <jeremy.bennett@embecosm.com>
 
-`timescale 1ns/100ps
-
 module tb_top;
 
     const int CLK_PHASE_HI        = 5;
@@ -72,6 +70,13 @@ module tb_top;
             $dumpfile(wave_file);
             $dumpvars(0, tb_top);
         end
+    end
+
+    // seed management
+    initial begin
+        int current_seed;
+        current_seed = $get_initial_random_seed();
+        $display("[%s] @ t=%0t: Simulation running with seed: %0d", id, $time, current_seed);
     end
 
     // Remap a byte address exactly as mm_ram does (see instr_addr_remap and

@@ -14,11 +14,6 @@
 *.sve
 *.sdb
 test_build
-dsim.env
-dsim.log
-dsim_results
-metrics.db
-metrics_history.db
 xrun_results
 vsim_results
 vmgr_sessions
@@ -46,8 +41,6 @@ vsim.dbg
 transcript
 .lib-rtl
 .opt-rtl
-tools/spike
-tools/verilator*
 *_results/
 *.signature_output
 ucli.key

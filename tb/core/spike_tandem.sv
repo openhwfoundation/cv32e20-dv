@@ -15,13 +15,11 @@
 //     simulator's library path (built by 'make spike_lib', linked in by
 //     SPIKE_TANDEM=1 in sim/core/Makefile).
 //
-// Known phase-1 limitations (documented in docs/spike-tandem.md):
+// Known limitations:
 //   - Loads from testbench virtual peripherals (e.g. the mm_ram timer) return
 //     testbench-specific values that Spike cannot predict.
 //   - Reads of free-running counter CSRs (cycle/mcycle/mip) are handled by
 //     injecting the RTL value into Spike (csr_counters_injection).
-
-`timescale 1ns/100ps
 
 module spike_tandem
   import spike_tandem_pkg::*;
@@ -68,12 +66,18 @@ module spike_tandem
 
     // Whitebox probe of cve2_core.sv's internal rvfi_stage_dbg -- a one-shot
     // debug-entry cause tag used to inject debug-mode entry into Spike. See
-    // tandem_step() and docs/spike-tandem.md.
+    // tandem_step() and reference/spike-tandem.md.
     input logic [ 3:0] rvfi_dbg_cause,
 
     // Whitebox probe of the RTL's own debug_mode, for an independent
     // cross-check in compare_retirement() at every retirement (not just entry).
-    input logic        rvfi_dbg_mode
+    input logic        rvfi_dbg_mode,
+
+    // Whitebox probe from cv32e20_tb_wrapper.sv: actual bytes at
+    // rvfi_mem_addr in the testbench RAM's backing store (dp_ram_inst.mem[]),
+    // used to verify a store's write actually landed in memory -- see
+    // compare_retirement() below.
+    input logic [31:0] rvfi_mem_actual_wdata
    );
 
     // ID CSR values of the CV32E20.  Must match cve2_pkg.sv:
@@ -206,6 +210,12 @@ module spike_tandem
         spike_tandem_init();
     end
 
+    // Number of bytes a store touches, given its size-only RVFI mask
+    // (4'b0001/4'b0011/4'b1111 -- always contiguous from bit 0).
+    function automatic logic [31:0] store_size_bytes(logic [3:0] wmask);
+        return (wmask == 4'b1111) ? 32'd4 : (wmask == 4'b0011) ? 32'd2 : 32'd1;
+    endfunction
+
     // Compare one retirement against one Spike step.  Returns the number of
     // mismatching fields; prints one line per mismatch.
     function automatic int unsigned compare_retirement(const ref st_rvfi s_ref);
@@ -252,6 +262,51 @@ module spike_tandem
         end else if ((rvfi_rd_addr != 0) && (s_ref.rd1_wdata[31:0] !== (rvfi_rd_wdata ^ inject_mask))) begin
             $display("[%s] MISMATCH rd_wdata: rtl=0x%08h spike=0x%08h (rd=x%0d)", id, rvfi_rd_wdata ^ inject_mask, s_ref.rd1_wdata[31:0], rvfi_rd_addr);
             errors++;
+        end
+
+        // Store verification, part 1 of 2 (see Proc.cc for the independent
+        // computation this compares against): the RTL's self-reported
+        // rvfi_mem_addr/wmask/wdata vs. Spike's independently-computed
+        // expected values -- verifies the core's address-generation/
+        // operand-fetch datapath. s_ref.mem_wmask != 0 is the
+        // store-happened gate; Proc.cc only sets it for a non-trapping
+        // store.
+        if (s_ref.mem_wmask[3:0] != 4'b0) begin
+            if (s_ref.mem_addr[31:0] !== rvfi_mem_addr) begin
+                $display("[%s] MISMATCH mem_addr:  rtl=0x%08h spike=0x%08h", id, rvfi_mem_addr, s_ref.mem_addr[31:0]);
+                errors++;
+            end
+            if (s_ref.mem_wmask[3:0] !== rvfi_mem_wmask) begin
+                $display("[%s] MISMATCH mem_wmask: rtl=0x%01h spike=0x%01h", id, rvfi_mem_wmask, s_ref.mem_wmask[3:0]);
+                errors++;
+            end
+            if (s_ref.mem_wdata[31:0] !== rvfi_mem_wdata) begin
+                $display("[%s] MISMATCH mem_wdata: rtl=0x%08h spike=0x%08h", id, rvfi_mem_wdata, s_ref.mem_wdata[31:0]);
+                errors++;
+            end
+
+            // Part 2 of 2: compare the RAM's actual byte contents at the
+            // store address (rvfi_mem_actual_wdata, a hierarchical
+            // readback wired in cv32e20_tb_wrapper.sv) against Spike's
+            // expected write bytes -- same ground truth as part 1,
+            // deliberately NOT rvfi_mem_wdata, so a bug that corrupts both
+            // the RTL's self-report and the real bus identically still
+            // can't hide. This is the only one of the two checks that
+            // exercises the real OBI/LSU byte-rotation path -- part 1's
+            // RVFI signals are captured pre-LSU and bypass it entirely.
+            // Gated to the real testbench RAM range; peripherals have no
+            // backing dp_ram_inst.mem[] entries.
+            if ((s_ref.mem_addr[31:0] + store_size_bytes(s_ref.mem_wmask[3:0])) <= 32'h0040_0000) begin
+                for (int b = 0; b < 4; b++) begin
+                    if (s_ref.mem_wmask[b] &&
+                        (rvfi_mem_actual_wdata[b*8 +: 8] !== s_ref.mem_wdata[b*8 +: 8])) begin
+                        $display("[%s] MISMATCH mem_landed byte%0d @0x%08h: ram=0x%02h spike=0x%02h",
+                                 id, b, rvfi_mem_addr + b,
+                                 rvfi_mem_actual_wdata[b*8 +: 8], s_ref.mem_wdata[b*8 +: 8]);
+                        errors++;
+                    end
+                end
+            end
         end
 
         return errors;

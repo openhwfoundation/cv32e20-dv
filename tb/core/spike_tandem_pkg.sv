@@ -29,8 +29,6 @@
 // so the SV side can simply read/write csr_*[csr_address] naturally as long
 // as it sets csr_addr[12'h300] = 'h300 in every DUT-side struct it sends.
 
-`timescale 1ns/100ps
-
 package spike_tandem_pkg;
 
   localparam int unsigned MAX_XLEN     = 64;

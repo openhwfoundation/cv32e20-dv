@@ -19,5 +19,5 @@ Components:
 - `spike_tandem_pkg.sv` - DPI-C imports and the st_rvfi exchange type.
 - `spike_tandem.sv` - configures Spike and compares each retirement.
 
-See `../../docs/spike-tandem.md` for the architecture, usage details,
+See `../../reference/spike-tandem.md` for the architecture, usage details,
 plusargs, and current limitations.

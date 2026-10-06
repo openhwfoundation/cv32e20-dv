@@ -27,10 +27,8 @@
 import perturbation_defines::*;
 
 module riscv_random_interrupt_generator
-`ifndef VERILATOR
-  import uvm_pkg::*;
-  `include "uvm_macros.svh"
-`endif
+  // import uvm_pkg::*;
+  // `include "uvm_macros.svh"
 (
     input logic           rst_ni,
     input logic           clk_i,
@@ -51,7 +49,6 @@ module riscv_random_interrupt_generator
     input logic  [31:0]   irq_pc_trig_i
 );
 
-`ifndef VERILATOR
 class rand_irq_cycles;
     rand int n;
 endclass : rand_irq_cycles
@@ -129,13 +126,19 @@ begin
             n >= min_irq_id;
             n <= max_irq_id;
         };
-        if (!rs) `uvm_error("RISCV_RANDOM_INTERRUPT_GENERATOR", "Randomization failure on value.randomize()")
+        if (!rs) begin
+            // `uvm_error("RISCV_RANDOM_INTERRUPT_GENERATOR", "Randomization failure on value.randomize()")
+            $error("Randomization failure on value.randomize()");
+        end
 
         rs = wait_cycles.randomize() with{
             n >= min_irq_cycles;
             n <= max_irq_cycles;
         };
-        if (!rs) `uvm_error("RISCV_RANDOM_INTERRUPT_GENERATOR", "Randomization failure on wait_cycles.randomize()")
+        if (!rs) begin
+            // `uvm_error("RISCV_RANDOM_INTERRUPT_GENERATOR", "Randomization failure on wait_cycles.randomize()")
+            $error("Randomization failure on wait_cycles.randomize()");
+        end
 
         while(wait_cycles.n != 0) begin
             @(posedge clk_i);
@@ -181,5 +184,4 @@ begin
     end
 end
 
-`endif //VERILATOR
 endmodule

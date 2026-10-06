@@ -42,11 +42,11 @@ instruction against the RTL via the core's RVFI interface:
 make test TEST=hello-world SPIKE_TANDEM=1
 ```
 The first tandem run builds the tandem-patched Spike from the core-v-verif
-vendor tree into `../../tools/spike` (see the `spike_lib` target).  On
+vendor tree into `../../reference/spike` (see the `spike_lib` target).  On
 success the log ends with `[spike_tandem] <N> instructions verified in
 tandem with Spike`; any divergence stops the simulation with a
 `TANDEM MISMATCH` report.  Details and current limitations:
-`../../docs/spike-tandem.md`.
+`../../reference/spike-tandem.md`.
 
 Running RISC-V Architectural Certification Tests (ACT4)
 -------------------------------------------------------

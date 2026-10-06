@@ -34,12 +34,24 @@ that setup step fails.
 For corev-dv tests, --run-index also selects which generated program directory
 is used: run_test() passes it through as both RUN_INDEX (where the build/run
 step looks for the program) and GEN_START_INDEX (where gen_corev-dv writes it).
-run_test() also passes SEED=random for every corev-dv test, so each invocation
-uses a fresh RNDSEED (mk/uvmt/uvmt.mk derives it from `date +%N`) for both the
-corev-dv generator and the env-level randomization -- re-running the same
---run-index does NOT reproduce the same generated program/stimulus anymore.
-The actual seed used is recorded in that run's vsim-<name>.log header
-(`-sv_seed <value>`) for later replay via SEED=<value>.
+run_test() also passes SEED=random for every corev-dv test's gen_corev-dv step
+(GEN_SEED; corev-dv/uvmt only -- there's no "generate" step for a hand-written
+test, so GEN_SEED is always "-" for those), so each invocation uses a fresh
+RNDSEED (mk/uvmt/uvmt.mk derives it from `date +%N`) for the corev-dv
+generator -- re-running the same --run-index does NOT reproduce the same
+generated program/stimulus anymore.
+
+run_test() also passes a RUN_SEED (env-level randomization, e.g. OBI stall
+knobs) for EVERY test, corev-dv or not, on both testbenches -- 'random' by
+default. uvmt resolves SEED=random itself (mk/uvmt/uvmt.mk, `date +%N`,
+same as GEN_SEED above); core's Makefile passes SEED straight through as
++verilator+seed+<value>, and Verilator's own convention already treats 0 as
+"pick a random seed" (see verilated.cpp), so run_test() maps the script's
+'random' sentinel to the literal 0 Verilator special-cases. Either way the
+actual seed used is recovered from that run's own output for later replay
+via --run-seed=<value>: uvmt prints it as `-sv_seed <value>` (vsim-<name>.log
+header); core prints it via tb_top.sv's $display of
+$get_initial_random_seed() ("Simulation running with seed: <value>").
 
 Usage
 -----
@@ -85,12 +97,17 @@ PATH, as for a normal `make test`.
     bin/run_tests.py --tb uvmt --gen-seed 363891135 --run-seed 354410829 \
         corev_rand_instr_and_data_stalls
 
+    # Replay a specific prior run's env-level randomization (e.g. OBI stall
+    # knobs) for a hand-written test -- there's no --gen-seed here, since
+    # hand-written tests have no generation step, only the run itself:
+    bin/run_tests.py --run-seed 12345 misalign
+
     # Collect code coverage (uvmt only; equivalent to `make test ... COV=1` per test):
     bin/run_tests.py --tb uvmt --cov hello-world
 
     # Run in tandem with the Spike ISS, comparing every retired instruction
     # (core only; equivalent to `make test ... SPIKE_TANDEM=1` per test; see
-    # docs/spike-tandem.md):
+    # reference/spike-tandem.md):
     bin/run_tests.py --spike-tandem
 
     # Run the ACT4 compliance-ELF sweep (core only; equivalent to
@@ -108,13 +125,16 @@ PATH, as for a normal `make test`.
     # Other options:
     #   --cfg NAME      uvmt config subdirectory                (default: default)
     #   --run-index N   RUN_INDEX subdirectory                  (default: 0)
-    #   --gen-seed SEED corev-dv generator SEED ('random' or a literal value)
-    #   --run-seed SEED test-step SEED ('random' or a literal value)
+    #   --gen-seed SEED corev-dv generator SEED ('random' or a literal
+    #                   value); no effect on hand-written tests (no
+    #                   generation step exists for them)
+    #   --run-seed SEED test-step SEED ('random' or a literal value);
+    #                   applies to every test, on both testbenches
     #   --timeout SECS  per-test timeout                        (default: 1800)
     #   --jobs N, -j N  run up to N tests concurrently           (default: 1)
     #   --cov           collect code coverage (uvmt only)
     #   --spike-tandem  run in tandem with Spike, comparing every retired
-    #                   instruction (core only; see docs/spike-tandem.md).
+    #                   instruction (core only; see reference/spike-tandem.md).
     #                   Builds Spike via `make spike_lib` first if needed --
     #                   can take several minutes the first time.
     #   --certify       run the ACT4 compliance-ELF sweep (`make certify`,
@@ -302,12 +322,19 @@ def gen_log_path(tb, test, run_index, cfg):
 
 
 _SEED_RE = re.compile(r"-sv_seed\s+(\S+)")
+_CORE_SEED_RE = re.compile(r"Simulation running with seed:\s+(\S+)")
 
 
 def extract_seed(text):
-    """Pull the actual -sv_seed a vsim run used from its output/log -- needed
-    when SEED=random, since the Makefile derives the real value internally."""
+    """Pull the actual seed a run used from its output/log -- needed when
+    SEED=random (uvmt) or SEED=0 (core; Verilator's own "pick a random
+    seed" convention), since neither is the literal value actually used.
+    uvmt prints it via vsim's own -sv_seed banner; core via tb_top.sv's
+    $display of $get_initial_random_seed()."""
     m = _SEED_RE.search(text)
+    if m:
+        return m.group(1)
+    m = _CORE_SEED_RE.search(text)
     return m.group(1) if m else None
 
 
@@ -384,7 +411,7 @@ def setup_spike_lib(tb, timeout):
     env = make_env(tbcfg)
 
     print(f"[Setup/{tb}] make spike_lib (tandem-patched Spike; see "
-          "docs/spike-tandem.md) ...")
+          "reference/spike-tandem.md) ...")
     try:
         returncode, _, _ = _run(cmd, tbcfg["sim_dir"], env, timeout, capture=False)
     except subprocess.TimeoutExpired:
@@ -436,7 +463,7 @@ def run_test(tb, test, run_index, cfg, timeout, quiet, extra_make_args=None,
     cov: COV=1 for the firmware build+run only -- skipped for gen_corev-dv,
     which is unrelated to the DUT.
     label: prefixes output when --jobs > 1 so workers stay distinguishable.
-    spike_tandem: SPIKE_TANDEM=1, core only -- see docs/spike-tandem.md.
+    spike_tandem: SPIKE_TANDEM=1, core only -- see reference/spike-tandem.md.
     """
     tbcfg = TESTBENCHES[tb]
     env = make_env(tbcfg)
@@ -471,7 +498,16 @@ def run_test(tb, test, run_index, cfg, timeout, quiet, extra_make_args=None,
                     gen_seed_used, None)
 
     cmd = ["make", "test", f"TEST={test}", f"RUN_INDEX={run_index}"]
-    if test in COREV_DV_TESTS:
+    if tb == "core":
+        # sim/core/Makefile passes SEED straight through as
+        # +verilator+seed+<value>, and Verilator's own convention (not a
+        # Makefile-side thing) already treats 0 as "pick a random seed"
+        # (see verilated.cpp) -- unlike uvmt.mk's SEED=random, which needs
+        # Make-side resolution via `date +%N`. So map the script's "random"
+        # sentinel to the literal 0 Verilator already special-cases, and
+        # pass any other (replay) value straight through.
+        cmd.append(f"SEED={0 if run_seed == 'random' else run_seed}")
+    else:
         cmd.append(f"SEED={run_seed}")
     if cov:
         cmd.append("COV=1")
@@ -653,7 +689,11 @@ def main():
                     help="SEED for the test step (the actual firmware run's "
                          "env-level randomization, e.g. OBI stall knobs). "
                          "'random' (default) or a literal value to replay a "
-                         "specific prior run. No effect on non-corev-dv tests.")
+                         "specific prior run. Applies to every test, on "
+                         "both testbenches -- unlike --gen-seed, there's no "
+                         "corev-dv-only restriction (a hand-written test has "
+                         "no generation step, but its own run is still "
+                         "randomized and seedable).")
     ap.add_argument("--cov", action="store_true",
                     help="collect code coverage (uvmt only; equivalent to "
                          "`make test ... COV=1` per test). Requires "
@@ -665,7 +705,7 @@ def main():
                     help="run in tandem with the Spike ISS, comparing every "
                          "retired instruction (core only; equivalent to "
                          "`make test ... SPIKE_TANDEM=1` per test) -- see "
-                         "docs/spike-tandem.md. Combine with --certify to "
+                         "reference/spike-tandem.md. Combine with --certify to "
                          "run the ACT4 compliance-ELF sweep in tandem too.")
     ap.add_argument("--certify", action="store_true",
                     help="run the ACT4 compliance-ELF sweep (core only; "
@@ -808,7 +848,10 @@ def main():
         # Report in the original --selected order regardless of completion order.
         results = [outcomes[test] for test in selected]
 
-    # GEN_SEED/RUN_SEED are "-" for non-corev-dv tests (see run_test()).
+    # GEN_SEED is "-" for non-corev-dv tests (no generate step -- see
+    # run_test()); RUN_SEED is populated for every test now. Either column
+    # can still show "-" if extract_seed() couldn't find a banner (e.g. a
+    # build failure before the run ever printed one).
     def _fmt_seed(s):
         return s if s is not None else "-"
 
