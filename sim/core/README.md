@@ -34,6 +34,27 @@ make test TEST=illegal
 make test TEST=riscv_ebreak_test_0
 ```
 
+Each run's log and test-program outputs go in `simulation_results/<test>/<seed>/`.
+The seed defaults to 1; set another with `SEED=<n>` (1..2147483647), e.g.
+`make test TEST=misalign SEED=12345`. Re-running with the same seed overwrites
+that directory. `SEED=0` is rejected, because Verilator treats seed 0 as "pick a
+random seed" and the directory name would no longer identify the run.
+`../../bin/run_tests.py --seed random` picks a fresh seed per test.
+
+Running with the Spike reference model in lock-step ("tandem")
+--------------------------------------------------------------
+Any custom test can also be run with the Spike ISS verifying every retired
+instruction against the RTL via the core's RVFI interface:
+```
+make test TEST=hello-world SPIKE_TANDEM=1
+```
+The first tandem run builds the tandem-patched Spike from the core-v-verif
+vendor tree into `../../reference/spike` (see the `spike_lib` target).  On
+success the log ends with `[spike_tandem] <N> instructions verified in
+tandem with Spike`; any divergence stops the simulation with a
+`TANDEM MISMATCH` report.  Details and current limitations:
+`../../reference/spike-tandem.md`.
+
 Running RISC-V Architectural Certification Tests (ACT4)
 -------------------------------------------------------
 CV32E20-DV supports the RISC-V Architectural Certification Tests (ACT4). The ACT4 repository is
@@ -68,7 +89,8 @@ make certify   # run ELFs through Verilator DUT
 ```
 
 Results are written to:
-`simulation_results/certification/test_program/bsp/certification_summary.txt`
+`simulation_results/certification/<seed>/test_program/certification_summary.txt`
+(every ELF in the sweep runs with the same `SEED`, default 1).
 
 ### Prebuilt ELF flow (CI / fast iteration)
 

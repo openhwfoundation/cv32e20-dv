@@ -179,7 +179,9 @@ endif
 # SVLIB repo var end
 
 ###############################################################################
-# Generate command to clone CORE-V-VERIF (OpenHW's UVM Verification Library)
+# Location to clone CORE-V-VERIF (OpenHW's UVM Verification Library)
+export CV_VERIF_PKG ?= $(CV32E20_DV)/vendor_lib/openhwgroup_core-v-verif
+
 ifeq ($(CV_VERIF_BRANCH), master)
   TMP9 = git clone $(CV_VERIF_REPO) --recurse $(CV_VERIF_PKG)
 else
@@ -765,10 +767,13 @@ dpi_dasm: $(DPI_DASM_SPIKE_PKG)
 	$(DPI_DASM_CXX) $(DPI_DASM_CFLAGS) $(DPI_DASM_INC) $(DPI_DASM_SRC) -o $(DPI_DASM_LIB)
 
 ###############################################################################
-# Build vendor/riscv-isa-sim into tools/
+# Build the tandem-patched riscv-isa-sim (Spike) into tools/
+# The Spike source is vendored inside the core-v-verif clone (see the
+# 'core-v-verif' target above), which carries the OpenHW tandem patches
+# (openhw::Simulation/Proc, riscv_dpi.cc) needed for lock-step verification.
 
-export SPIKE_PATH  = $(CV32E20_DV)/vendor/riscv/riscv-isa-sim
-export SPIKE_INSTALL_DIR = $(CV32E20_DV)/tools/spike/
+export SPIKE_PATH  = $(CV32E20_DV)/vendor_lib/openhwgroup_core-v-verif/vendor/riscv/riscv-isa-sim
+export SPIKE_INSTALL_DIR = $(CV32E20_DV)/reference/spike/
 SPIKE_LIBS_DIR = $(SPIKE_INSTALL_DIR)/lib/
 SPIKE_FESVR_LIB = $(SPIKE_LIBS_DIR)/libfesvr
 SPIKE_RISCV_LIB = $(SPIKE_LIBS_DIR)/libriscv
@@ -778,15 +783,43 @@ SPIKE_YAML_LIB = $(SPIKE_LIBS_DIR)/libyaml-cpp
 
 NUM_JOBS ?= 8
 
+# Per-simulator svdpi.h location for Spike's own EDA_INCLUDES formula
+# (riscv-isa-sim/Makefile.in's own EDA_INCLUDES := -I$(VCS_HOME)/include
+# -I/$(QUESTASIM_HOME)/include -I$(XCEL_HOME)/include
+# -I$(VERILATOR_INSTALL_DIR)/share/verilator/include/vltstd/). Only
+# Verilator is wired up by this project today (SIMULATOR is pinned to
+# 'verilator' in sim/core/Makefile), so this only ever supplies the
+# Verilator term. It's additive, not a replacement: SPIKE_EDA_INCLUDES_OVERRIDE
+# reproduces Spike's own formula verbatim (VCS_HOME/QUESTASIM_HOME/XCEL_HOME
+# pass through from whatever the environment already has, same as upstream
+# intends) and appends the corrected Verilator path alongside the existing
+# (and, for a source-tree Verilator build like this environment's,
+# non-resolving) VERILATOR_INSTALL_DIR term - a harmless duplicate -I if
+# that term ever does resolve on its own. For any other SIMULATOR value
+# this expands to nothing, so no EDA_INCLUDES token is passed at all, and
+# Spike's own unmodified default (driven by whatever VCS_HOME/QUESTASIM_HOME/
+# XCEL_HOME/VERILATOR_INSTALL_DIR the environment provides) takes over
+# untouched - a plain override here would otherwise silently discard those
+# other simulators' settings.
+ifeq ($(SIMULATOR),verilator)
+  # The Spike Makefile locates svdpi.h via $(VERILATOR_INSTALL_DIR)/share/verilator/
+  # include/vltstd/, which assumes a 'make install'-style Verilator layout.  Derive
+  # the vltstd path from the Verilator found in $PATH instead, so source-tree
+  # installs (VERILATOR_ROOT/include/vltstd) work too.
+  SPIKE_VLTSTD_DIR = $(shell verilator --getenv VERILATOR_ROOT)/include/vltstd
+  SPIKE_EDA_INCLUDES_OVERRIDE = EDA_INCLUDES="-I$(VCS_HOME)/include -I/$(QUESTASIM_HOME)/include -I$(XCEL_HOME)/include -I$(VERILATOR_INSTALL_DIR)/share/verilator/include/vltstd/ -I$(SPIKE_VLTSTD_DIR)"
+endif
+
 $(SPIKE_FESVR_LIB).so $(SPIKE_RISCV_LIB).so:
 	@echo "$(BANNER)"
 	@echo "Building SPIKE"
 	@echo "$(BANNER)"
+	[ -d $(SPIKE_PATH) ] || $(MAKE) core-v-verif
 	mkdir -p $(SPIKE_PATH)/build;
 	[ ! -f $(SPIKE_PATH)/build/config.log ] && cd $(SPIKE_PATH)/build && ../configure --prefix=$(SPIKE_INSTALL_DIR) || true
 	make -C $(SPIKE_PATH)/build/ -j $(NUM_JOBS) yaml-cpp-static;
 	make -C $(SPIKE_PATH)/build/ -j $(NUM_JOBS) yaml-cpp;
-	make -C $(SPIKE_PATH)/build/ -j $(NUM_JOBS) install;
+	make -C $(SPIKE_PATH)/build/ -j $(NUM_JOBS) $(SPIKE_EDA_INCLUDES_OVERRIDE) OPENHW_CORE=$(CV_CORE_LC) install;
 
 spike_lib: $(SPIKE_FESVR_LIB).so $(SPIKE_RISCV_LIB).so
 
@@ -838,7 +871,7 @@ rvvi_stub:
 	@echo "Building $(RVVI_STUB)"
 	@echo "$(BANNER)"
 	$(RVVI_STUB_CXX) $(RVVI_STUB_CFLAGS) $(RVVI_STUB_SRC) -I$(DPI_INCLUDE) -o $(RVVI_STUB_LIB).$$$$.tmp && \
-	mv -f $(RVVI_STUB_LIB).$$$$.tmp $(RVVI_STUB_LIB)
+ 	mv -f $(RVVI_STUB_LIB).$$$$.tmp $(RVVI_STUB_LIB)
 
 #endend
 
