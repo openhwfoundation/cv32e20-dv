@@ -12,35 +12,18 @@ export SHELL = /bin/bash
 
 #CV_CORE_REPO   ?= https://github.com/openhwgroup/cve2
 #CV_CORE_BRANCH ?= main
-#CV_CORE_HASH   ?= a24bbd2
-
+#CV_CORE_HASH   ?= d079e8c
 CV_CORE_REPO   ?= https://github.com/MikeOpenHWGroup/cve2
-CV_CORE_BRANCH ?= rm_defunct_asserts
-#CV_CORE_BRANCH ?= umode
-CV_CORE_HASH   ?= d9c8b8f
-#CV_CORE_HASH   ?= f217917
-#CV_CORE_HASH   ?= ed46a40ffd552fc7a0a590b242dcf46c4ee9cf42
-#CV_CORE_HASH   ?= facf23c030a57ab1c762968c50a5ef9ec454fd88
+CV_CORE_BRANCH ?= cs_registers
+CV_CORE_HASH   ?= 094e974
 
-#CV_VERIF_REPO   ?= https://github.com/openhwgroup/core-v-verif
-#CV_VERIF_BRANCH ?= cv32e20-dv/dev
-#CV_VERIF_HASH   ?= 6b5a46353bf69baf4f917b9d59c5f0c68a2f529b
-CV_VERIF_REPO   ?= https://github.com/MikeOpenHWGroup/core-v-verif
+CV_VERIF_REPO   ?= https://github.com/openhwfoundation/core-v-verif
 CV_VERIF_BRANCH ?= cv32e20-dv/dev
-CV_VERIF_HASH   ?= e5de68a364fff06572ef3a225bc1bc8af0bdb7e7
+CV_VERIF_HASH   ?= c525ca3
 
 RISCVDV_REPO    ?= https://github.com/google/riscv-dv
 RISCVDV_BRANCH  ?= master
 RISCVDV_HASH    ?= 0b625258549e733082c12e5dc749f05aefb07d5a
-
-EMBENCH_REPO    ?= https://github.com/embench/embench-iot.git
-EMBENCH_BRANCH  ?= master
-EMBENCH_HASH    ?= 6934ddd1ff445245ee032d4258fdeb9828b72af4
-
-COMPLIANCE_REPO   ?= https://github.com/riscv/riscv-compliance
-COMPLIANCE_BRANCH ?= master
-# 2020-08-19
-COMPLIANCE_HASH   ?= c21a2e86afa3f7d4292a2dd26b759f3f29cde497
 
 # This Spike repo is only cloned when the DPI disassembler needs to be rebuilt
 # Typically users can simply use the checked-in shared library
@@ -57,3 +40,14 @@ SVLIB_HASH       ?= c25509a7e54a880fe8f58f3daa2f891d6ecf6428
 ACT4_REPO   ?= https://github.com/riscv/riscv-arch-test
 ACT4_BRANCH ?= act4
 ACT4_HASH   ?= head
+
+###############################################################################
+# The following repos are no longer actively used
+EMBENCH_REPO    ?= https://github.com/embench/embench-iot.git
+EMBENCH_BRANCH  ?= master
+EMBENCH_HASH    ?= 6934ddd1ff445245ee032d4258fdeb9828b72af4
+
+COMPLIANCE_REPO   ?= https://github.com/riscv/riscv-compliance
+COMPLIANCE_BRANCH ?= master
+# 2020-08-19
+COMPLIANCE_HASH   ?= c21a2e86afa3f7d4292a2dd26b759f3f29cde497

@@ -1,6 +1,6 @@
 // MM_RAM: Memory Mapped virtual peripheral and RAM model.
 //
-// Copyright 2025 OpenHW Foundation
+// Copyright 2025, 2026 Eclipse Foundation
 // SPDX-License-Identifier: Apache-2.0 WITH SHL-0.51
 //
 // Copyright 2017 Embecosm Limited <www.embecosm.com>
@@ -18,10 +18,6 @@
 //
 
 module mm_ram
-`ifndef VERILATOR
-  import uvm_pkg::*;
-  `include "uvm_macros.svh"
-`endif
  #(
      parameter RAM_ADDR_WIDTH    =  16,
                INSTR_RDATA_WIDTH = 128, // width of read_data on instruction bus
@@ -62,6 +58,7 @@ module mm_ram
      input logic [31:0]                   pc_core_id_i,
 
      output logic                         debug_req_o,
+     input  logic                         debug_halted_i,
 
      output logic                         tests_passed_o,
      output logic                         tests_failed_o,
@@ -250,12 +247,11 @@ module mm_ram
         for (i = 0; i < RND_STALL_REGS; i=i+1) begin
             rnd_stall_regs[i] = 0;
         end
-`ifndef VERILATOR
         if (!$test$plusargs("rand_stall_obi_disable")) begin
             if ($test$plusargs("max_data_zero_instr_stall")) begin
-                `uvm_info(RNDSTALL_TAG, "Max data stall, zero instruction stall configuration", UVM_LOW)
                 // This "knob" creates maximum stalls on data loads/stores, and
                 // no stalls on instruction fetches.  Used for fence.i testing.
+                $display("File %s at Line %0d: Max data stall, zero instruction stall configuration selected by plusarg", `__FILE__, `__LINE__);
                 rnd_stall_regs[RND_STALL_DATA_EN]     = 1;
                 rnd_stall_regs[RND_STALL_DATA_MODE]   = 2;
                 rnd_stall_regs[RND_STALL_DATA_GNT]    = 2;
@@ -263,54 +259,43 @@ module mm_ram
                 rnd_stall_regs[RND_STALL_DATA_MAX]    = 8;
             end
             else begin
-                randcase
-                    2: begin
-                        // No delays
-                    end
-                    1: begin
-                        // Create RAM stall delays
-                        rnd_stall_regs[RND_STALL_INSTR_EN]    = 1;
-                        rnd_stall_regs[RND_STALL_INSTR_MODE]  = $urandom_range(2,1);
-                        rnd_stall_regs[RND_STALL_INSTR_GNT]   = $urandom_range(3,0);
-                        rnd_stall_regs[RND_STALL_INSTR_VALID] = $urandom_range(3,0);
-                        rnd_stall_regs[RND_STALL_INSTR_MAX]   = $urandom_range(3,0);
-                    end
-                endcase
-
-                randcase
-                    2: begin
-                        // No delays
-                    end
-                    1: begin
-                        // Create RAM stall delays
-                        rnd_stall_regs[RND_STALL_DATA_EN]     = 1;
-                        rnd_stall_regs[RND_STALL_DATA_MODE]   = $urandom_range(2,1);
-                        rnd_stall_regs[RND_STALL_DATA_GNT]    = $urandom_range(2,0);
-                        rnd_stall_regs[RND_STALL_DATA_VALID]  = $urandom_range(2,0);
-                        rnd_stall_regs[RND_STALL_DATA_MAX]    = $urandom_range(3,0);
-                    end
-                endcase
+                $display("File %s at Line %0d: randomizing data and instruction stalls", `__FILE__, `__LINE__);
+                rnd_stall_regs[RND_STALL_INSTR_EN]    = 1;
+                rnd_stall_regs[RND_STALL_INSTR_MODE]  = $urandom_range(2,1);
+                rnd_stall_regs[RND_STALL_INSTR_GNT]   = $urandom_range(3,0);
+                rnd_stall_regs[RND_STALL_INSTR_VALID] = $urandom_range(3,0);
+                rnd_stall_regs[RND_STALL_INSTR_MAX]   = $urandom_range(3,0);
+                rnd_stall_regs[RND_STALL_DATA_EN]     = 1;
+                rnd_stall_regs[RND_STALL_DATA_MODE]   = $urandom_range(2,1);
+                rnd_stall_regs[RND_STALL_DATA_GNT]    = $urandom_range(2,0);
+                rnd_stall_regs[RND_STALL_DATA_VALID]  = $urandom_range(2,0);
+                rnd_stall_regs[RND_STALL_DATA_MAX]    = $urandom_range(3,0);
             end
         end
+        else begin
+            $display("File %s at Line %0d: zero data stall, zero instruction stall configuration", `__FILE__, `__LINE__);
+        end
 
-        `uvm_info(RNDSTALL_TAG, $sformatf("INSTR OBI stall enable: %0d", rnd_stall_regs[RND_STALL_INSTR_EN]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("INSTR OBI stall mode:   %0d", rnd_stall_regs[RND_STALL_INSTR_MODE]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("INSTR OBI stall gnt:    %0d", rnd_stall_regs[RND_STALL_INSTR_GNT]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("INSTR OBI stall valid:  %0d", rnd_stall_regs[RND_STALL_INSTR_VALID]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("INSTR OBI stall max:    %0d", rnd_stall_regs[RND_STALL_INSTR_MAX]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("DATA  OBI stall enable: %0d", rnd_stall_regs[RND_STALL_DATA_EN]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("DATA  OBI stall mode:   %0d", rnd_stall_regs[RND_STALL_DATA_MODE]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("DATA  OBI stall gnt:    %0d", rnd_stall_regs[RND_STALL_DATA_GNT]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("DATA  OBI stall valid:  %0d", rnd_stall_regs[RND_STALL_DATA_VALID]), UVM_LOW)
-        `uvm_info(RNDSTALL_TAG, $sformatf("DATA  OBI stall max:    %0d", rnd_stall_regs[RND_STALL_DATA_MAX]), UVM_LOW)
-`endif
+        $display("\n===============================================================================");
+        $display("Module %m @ %0t:", $time);
+        $display("File %s at Line %0d: INSTR OBI stall configuration", `__FILE__, `__LINE__);
+        $display("OBI stall configuration");
+        $display("  INSTR OBI stall enable: %0d", rnd_stall_regs[RND_STALL_INSTR_EN]);
+        $display("  INSTR OBI stall mode:   %0d", rnd_stall_regs[RND_STALL_INSTR_MODE]);
+        $display("  INSTR OBI stall gnt:    %0d", rnd_stall_regs[RND_STALL_INSTR_GNT]);
+        $display("  INSTR OBI stall valid:  %0d", rnd_stall_regs[RND_STALL_INSTR_VALID]);
+        $display("  INSTR OBI stall max:    %0d", rnd_stall_regs[RND_STALL_INSTR_MAX]);
+        $display("  DATA  OBI stall enable: %0d", rnd_stall_regs[RND_STALL_DATA_EN]);
+        $display("  DATA  OBI stall mode:   %0d", rnd_stall_regs[RND_STALL_DATA_MODE]);
+        $display("  DATA  OBI stall gnt:    %0d", rnd_stall_regs[RND_STALL_DATA_GNT]);
+        $display("  DATA  OBI stall valid:  %0d", rnd_stall_regs[RND_STALL_DATA_VALID]);
+        $display("  DATA  OBI stall max:    %0d", rnd_stall_regs[RND_STALL_DATA_MAX]);
+        $display("===============================================================================\n");
     end : configure_stalls
 
-`ifndef VERILATOR
     function bit is_stall_sim();
         return rnd_stall_regs[RND_STALL_DATA_EN] || rnd_stall_regs[RND_STALL_INSTR_EN];
     endfunction : is_stall_sim
-`endif
 
     // handle the mapping of read and writes to either memory or pseudo
     // peripherals (currently just a redirection of writes to stdout)
@@ -382,12 +367,10 @@ module mm_ram
 
                 end else if (data_addr_i == MMADDR_SIGDUMP) begin
                     // dump signature and halt
-`ifndef VERILATOR
                     if ($value$plusargs("signature=%s", sig_file)) begin
                         sig_fd = $fopen(sig_file, "w");
                         if (sig_fd == 0) begin
-                            errno = $ferror(sig_fd, error_str);
-                            `uvm_error(MM_RAM_TAG, $sformatf("Cannot open signature file %s for writing (error_str: %s).", sig_file, error_str))
+                            $error("Cannot open signature file %s for writing.", sig_file);
                             use_sig_file = 1'b0;
                         end else begin
                             use_sig_file = 1'b1;
@@ -395,26 +378,6 @@ module mm_ram
                     end
 
                     sig_string = "";
-                    for (logic [31:0] addr = sig_begin_q; addr < sig_end_q; addr +=4) begin
-                        sig_string = {sig_string, $sformatf("%x%x%x%x\n", dp_ram_inst.mem[addr+3], dp_ram_inst.mem[addr+2],
-                                                                          dp_ram_inst.mem[addr+1], dp_ram_inst.mem[addr+0])};
-                        if (use_sig_file) begin
-                            $fdisplay(sig_fd, "%x%x%x%x", dp_ram_inst.mem[addr+3], dp_ram_inst.mem[addr+2],
-                                                          dp_ram_inst.mem[addr+1], dp_ram_inst.mem[addr+0]);
-                        end
-                    end
-                    `uvm_info(MM_RAM_TAG, $sformatf("Dumping signature:\n%s", sig_string), UVM_LOW)
-`else
-                    if ($value$plusargs("signature=%s", sig_file)) begin
-                        sig_fd = $fopen(sig_file, "w");
-                        if (sig_fd == 0) begin
-                            $error("can't open file");
-                            use_sig_file = 1'b0;
-                        end else begin
-                            use_sig_file = 1'b1;
-                        end
-                    end
-
                     $display("%m @ %0t: Dumping signature", $time);
                     for (logic [31:0] addr = sig_begin_q; addr < sig_end_q; addr +=4) begin
                         $display("%x%x%x%x", dp_ram_inst.mem[addr+3], dp_ram_inst.mem[addr+2],
@@ -424,7 +387,6 @@ module mm_ram
                                                           dp_ram_inst.mem[addr+1], dp_ram_inst.mem[addr+0]);
                         end
                     end
-`endif // ifndef VERILATOR
                     exit_valid_o = '1; // signal halt to testbench
                     exit_value_o = '0;
 
@@ -514,7 +476,6 @@ module mm_ram
         end
     end
 
-`ifndef VERILATOR
     // signal out of bound writes
     out_of_bounds_write: assert property
     (@(posedge clk_i) disable iff (~rst_ni)
@@ -539,8 +500,8 @@ module mm_ram
          || data_addr_i == MMADDR_MTIME
          || data_addr_i == MMADDR_MTIMEH
          || data_addr_i[31:16] == MMADDR_RNDSTALL))
-           else `uvm_fatal(MM_RAM_TAG, $sformatf("out of bounds write to %08x with %08x", data_addr_i, data_wdata_i))
-`endif
+           else
+             $fatal(1, "out of bounds write to %08x with %08x", data_addr_i, data_wdata_i);
 
     logic[31:0] data_rdata_mux;
 
@@ -552,23 +513,18 @@ module mm_ram
             data_rdata_mux = core_data_rdata;
         end else if(select_rdata_q == RND_STALL) begin
             data_rdata_mux = rnd_stall_rdata;
-`ifndef VERILATOR
-            `uvm_fatal(MM_RAM_TAG, $sformatf("out of bounds read from %08x\nRandom stall generator is not supported with Verilator", data_addr_i));
-`endif
         end else if (select_rdata_q == RND_NUM) begin
             data_rdata_mux = rnd_num;
         end else if (select_rdata_q == CLINT) begin
             data_rdata_mux = clint_rdata_q;
         end else if (select_rdata_q == TICKS) begin
             data_rdata_mux = cycle_count_q;
-`ifndef VERILATOR
             if (cycle_count_overflow_q) begin
-                `uvm_fatal(MM_RAM_TAG, "cycle counter read after overflow");
+                $fatal(1, "cycle counter read after overflow");
             end
         end else if (select_rdata_q == ERR) begin
-            `uvm_error(MM_RAM_TAG, $sformatf("out of bounds read from %08x (RAM_ADDR_WIDTH=%0d; dm_halt_addri=%08x, DBG_ADDR_WIDTH=%0d)",
-                                             data_addr_i, RAM_ADDR_WIDTH, dm_halt_addr_i, DBG_ADDR_WIDTH))
-`endif
+            $error("out of bounds read from %08x (RAM_ADDR_WIDTH=%0d; dm_halt_addri=%08x, DBG_ADDR_WIDTH=%0d)",
+                   data_addr_i, RAM_ADDR_WIDTH, dm_halt_addr_i, DBG_ADDR_WIDTH);
         end
     end
 
@@ -700,6 +656,11 @@ module mm_ram
    // wdata[28:16] = debug pulse duration or pulse random max range
    // wdata[15]    = random start
    // wdata[14:0]  = start delay or start random max range
+   //
+   // A pulse that asserts debug_req is held past its duration until the core
+   // reports Debug Mode (debug_halted_i): like a real debug module's halt
+   // request (RISC-V Debug Spec 1.0.0 §3.5), it must not expire while the
+   // core is still finishing a stalled instruction.
 
    logic [14:0] debugger_start_cnt_q;
    logic        debug_req_value_q;
@@ -745,11 +706,16 @@ module mm_ram
                      debug_req_o <= debug_req_value_q;
                 end
                 // Count down debug_req pulse duration
-                else if(debug_req_duration_q > 0)begin
+                else if(debug_req_duration_q > 1)begin
                    debug_req_duration_q <= debug_req_duration_q - 1;
-                   // At count == 1, then de-assert debug_req
-                   if(debug_req_duration_q == 1)
+                end
+                // At count == 1, de-assert debug_req -- but hold an asserted
+                // request until the core has entered Debug Mode
+                else if(debug_req_duration_q == 1)begin
+                   if(!debug_req_value_q || debug_halted_i) begin
+                     debug_req_duration_q <= 0;
                      debug_req_o <= !debug_req_value_q;
+                   end
                 end
             end
         end
@@ -914,7 +880,6 @@ module mm_ram
     .gnt_stall_i        ( rnd_stall_regs[RND_STALL_DATA_GNT]  )
     );
 
-`ifndef VERILATOR
     riscv_random_interrupt_generator
     random_interrupt_generator_i
     (
@@ -936,6 +901,5 @@ module mm_ram
       .irq_pc_id_i       ( pc_core_id_i                                 ),
       .irq_pc_trig_i     ( rnd_stall_regs[13]                           )
     );
-`endif
 
 endmodule // mm_ram

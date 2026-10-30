@@ -88,7 +88,6 @@ int i;
 // -----------------------------------------------------------------------------------------------
 // Tasks and functions
 // -----------------------------------------------------------------------------------------------
-`ifndef VERILATOR
 function logic [FIFO_DELAY_WL-1:0] get_random_delay();
     if (!en_stall_i)
         get_random_delay = 0;
@@ -99,7 +98,6 @@ function logic [FIFO_DELAY_WL-1:0] get_random_delay();
     else
         get_random_delay = 0;
 endfunction : get_random_delay
-`endif
 
 // -----------------------------------------------------------------------------------------------
 // Begin module code
@@ -131,11 +129,7 @@ always @(posedge clk_i or negedge rst_ni) begin
         if (fifo_push) begin
             fifo[wptr[FIFO_PTR_WL-2:0]] = {
                 we_i,
-`ifdef VERILATOR
-                4'h0,
-`else
                 get_random_delay(),
-`endif
                 32'h0};
 
             wptr_rdata <= wptr[FIFO_PTR_WL-2:0];

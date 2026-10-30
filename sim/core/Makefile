@@ -79,13 +79,21 @@ TEST_FIXED_ELF ?=
 TEST_ACT       ?=
 ACT_MACROS      = $(CV32E20_DV)/bsp/act4
 
+# Seed for constrained-random sims; each run's results written to 'simulation_results/<test>/<seed>/'.
+SEED ?= 1
+ifeq ($(SEED),0)
+  $(error SEED=0 is not allowed (Verilator would pick an unrecorded random seed); use 1..2^31-1)
+endif
+
 # Common output directories
-RUN_INDEX               ?= 0
 SIM_RESULTS              = simulation_results
 SIM_TEST_RESULTS         = $(SIM_RESULTS)/$(TEST)
-SIM_RUN_RESULTS          = $(SIM_TEST_RESULTS)/$(RUN_INDEX)
+SIM_RUN_RESULTS          = $(SIM_TEST_RESULTS)/$(SEED)
 SIM_TEST_PROGRAM_RESULTS = $(SIM_RUN_RESULTS)/test_program
 SIM_BSP_RESULTS          = $(SIM_TEST_PROGRAM_RESULTS)/bsp
+
+# One compiled Verilator executable, shared by every TEST
+VERI_EXECUTABLE          = $(SIM_RESULTS)/verilator_executable
 
 # Compile compile flags for all simulators
 SV_CMP_FLAGS =
@@ -109,9 +117,7 @@ VERI_WAIVERS       += -Wno-COMBDLY -Wno-MULTIDRIVEN -Wno-BLKANDNBLK -Wno-lint --
 VERI_COMPILE_FLAGS += $(VERI_WAIVERS) $(SV_CMP_FLAGS)
 #VERI_RUN_FLAGS      = +verilator+rand+reset+1
 VERI_TRACE         ?=
-VERI_OBJ_DIR       ?= cobj_dir
-#VERI_LOG_DIR       ?= cobj_dir/logs
-VERI_LOG_DIR       ?= $(SIM_TEST_PROGRAM_RESULTS)
+VERI_OBJ_DIR       ?= $(SIM_RESULTS)/cobj_dir
 VERI_CFLAGS        += -O2
 
 # TB source files for the CV32E20 core
@@ -124,7 +130,6 @@ TBSRC       := $(TBSRC_CORE)/tb_top.sv \
                $(TBSRC_CORE)/cv32e20.sv \
                $(TBSRC_CORE)/mm_ram.sv \
                $(TBSRC_CORE)/dp_ram.sv \
-               $(TBSRC_CORE)/tb_riscv/riscv_random_stall.sv \
                $(TBSRC_CORE)/tb_riscv/riscv_random_interrupt_generator.sv \
                $(TBSRC_CORE)/tb_riscv/riscv_rvalid_stall.sv \
                $(TBSRC_CORE)/tb_riscv/riscv_gnt_stall.sv
@@ -139,6 +144,7 @@ TBSRC_VERI  := $(TBSRC_CORE)/tb_top.sv \
                $(TBSRC_CORE)/cv32e20_tb_wrapper.sv \
                $(TBSRC_CORE)/tb_riscv/riscv_rvalid_stall.sv \
                $(TBSRC_CORE)/tb_riscv/riscv_gnt_stall.sv \
+               $(TBSRC_CORE)/tb_riscv/riscv_random_interrupt_generator.sv \
                $(TBSRC_CORE)/mm_ram.sv \
                $(TBSRC_CORE)/dp_ram.sv
 SIM_LIBS    := $(CORE_V_VERIF)/lib/sim_libs
@@ -157,6 +163,41 @@ CV_CORE_RTLSRC        := $(filter-out $(CV_CORE_PKG)/rtl/$(CV_CORE_LC)_register_
 CV_CORE_MANIFEST      := $(CV_CORE_PKG)/cv32e20_manifest.flist
 export DESIGN_RTL_DIR  = $(CV_CORE_PKG)/rtl
 
+###############################################################################
+# Spike tandem (lock-step) verification support.
+#   make test TEST=<name> SPIKE_TANDEM=1
+# Compiles the RVFI-driven spike_tandem checker into the testbench and links
+# the tandem-patched Spike model.
+SPIKE_TANDEM ?= 0
+ifneq ($(SPIKE_TANDEM), 0)
+  SV_CMP_FLAGS += +define+RVFI +define+SPIKE_TANDEM
+  # The package must precede its importers in compile order.
+  TBSRC_VERI   := $(TBSRC_CORE)/spike_tandem_pkg.sv \
+                  $(TBSRC_VERI) \
+                  $(TBSRC_CORE)/spike_tandem.sv
+  # the st_rvfi struct is a ~1.5 Mbit packed vector; -Wno-WIDTHCONCAT helps with that.
+  VERI_COMPILE_FLAGS += -Wno-WIDTHCONCAT
+  # --no-as-needed: the executable itself only calls into libriscv, but
+  # libriscv.so does not record DT_NEEDED entries for its sister libraries,
+  # so they must be force-loaded by the executable.
+  # --allow-shlib-undefined: libfesvr.so leaves vpi_get_vlog_info undefined
+  # (SimDTM.cc's VPI-based JTAG debug-transport shim, pulled in because
+  # EDA_INCLUDES also exposes Verilator's vpi_user.h to fesvr's build -
+  # see the EDA_INCLUDES comment in mk/Common.mk). spike_tandem.sv never
+  # exercises that code path, so the symbol is safe to leave unresolved.
+  # -lopenhw: the openhw:: tandem layer (Simulation/Proc/riscv_dpi/etc.,
+  # see reference/spike-implementation.md) lives in its own subproject,
+  # openhw/{common,cv32e20,cva6}/ - a sibling of riscv/customext/etc., not
+  # nested in either - so it builds into libopenhw.so, not libriscv.so or
+  # libcustomext.so. customext/ itself stays byte-identical to upstream
+  # Spike. Must precede -lriscv: libriscv.so's own csr_t (csrs.h) inherits
+  # openhw::reg, which now lives in libopenhw.so.
+  VERI_COMPILE_FLAGS += -LDFLAGS "-L$(SPIKE_LIBS_DIR) -Wl,--no-as-needed -Wl,--allow-shlib-undefined -lopenhw -lriscv -lfesvr -ldisasm -lsoftfloat -lyaml-cpp -Wl,-rpath,$(SPIKE_LIBS_DIR)"
+  VERI_RUN_FLAGS     += +elf_file=$(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).elf
+# The Spike shared libraries must exist before the Verilator link step.
+$(VERI_EXECUTABLE): $(SPIKE_FESVR_LIB).so $(SPIKE_RISCV_LIB).so
+endif
+
 check:
 	@echo "$(BANNER)"
 	@echo "* Generated variables:"
@@ -174,6 +215,8 @@ check:
 # Shorthand rules for convience
 CV_CORE_pkg: clone_rtl
 
+$(CV_CORE_MANIFEST): clone_rtl
+
 tbsrc_pkg: $(TBSRC_PKG)
 
 tbsrc: $(TBSRC)
@@ -190,6 +233,10 @@ sanity:
 all: clean_all sanity
 
 ###############################################################################
+# Seed management for constrained-random sims (SEED is defined above)
+VERI_RUN_FLAGS += +verilator+seed+$(SEED)
+
+###############################################################################
 # Verilator
 
 # First test if the user wants to dump waves. Nobody ever remembers if it's
@@ -203,33 +250,64 @@ ifneq (${WAVES}, 0)
   VERI_WAVE_CMD   = +wave_file=$(SIM_RUN_RESULTS)/$(WAVE_FILE)
 endif
 
-verilate: CV_CORE_pkg $(TBSRC_VERI) $(TBSRC_PKG)
+# Build-flags fingerprint: SPIKE_TANDEM/WAVE/WAVES change what gets
+# compiled (defines, source list, linker flags, --trace-fst), not just
+# which source files are newer, so a plain file-timestamp dependency can't
+# detect a flag-only change between two `make test` invocations.
+VERI_BUILD_FLAGS_FILE = $(VERI_OBJ_DIR)/.build_flags
+VERI_BUILD_FLAGS      = SPIKE_TANDEM=$(SPIKE_TANDEM) WAVE=$(WAVE) WAVES=$(WAVES)
+
+.PHONY: FORCE
+FORCE:
+
+$(VERI_BUILD_FLAGS_FILE): FORCE
+	@mkdir -p $(VERI_OBJ_DIR)
+	@echo '$(VERI_BUILD_FLAGS)' | cmp -s - $@ || echo '$(VERI_BUILD_FLAGS)' > $@
+
+# $(VERI_EXECUTABLE) is a real, timestamp-tracked target so a `make test`/`make certify`
+# run with nothing changed -- same flags, same sources -- skips recompiling
+# entirely and reuses the existing shared executable.
+$(VERI_EXECUTABLE): $(VERI_BUILD_FLAGS_FILE) $(CV_CORE_MANIFEST) \
+                     $(TBSRC_VERI) $(TBSRC_PKG)
 	@echo "$(BANNER)"
 	@echo "* Compiling CORE TB and CV32E20 with Verilator"
 	@echo "$(BANNER)"
 	$(VERILATOR) --main --binary --cc --sv --exe --build \
 		$(VERI_TRACE) \
 		--top-module tb_top \
-		$(TBSRC_VERI) \
+		--timescale 1ns/100ps \
+		$(TBSRC_PKG) $(TBSRC_VERI) \
 		-f $(CV_CORE_MANIFEST) \
 		--Mdir $(VERI_OBJ_DIR) \
 		-CFLAGS "-std=gnu++14 $(VERI_CFLAGS)" \
 		$(VERI_COMPILE_FLAGS)
 	mkdir -p $(SIM_RESULTS)
-	mkdir -p $(SIM_TEST_RESULTS)
-	mv $(VERI_OBJ_DIR)/Vtb_top $(SIM_TEST_RESULTS)/verilator_executable
+	mv $(VERI_OBJ_DIR)/Vtb_top $(VERI_EXECUTABLE)
+
+.PHONY: verilate
+verilate: $(VERI_EXECUTABLE)
 
 test: verilate $(TEST_PROGRAM_PATH)/$(TEST)/$(TEST).hex
 	@echo "$(BANNER)"
-	@echo "* Running with Verilator: logfile in $(SIM_TEST_RESULTS)/$(TEST).log"
+	@echo "* Running with Verilator"
 	@echo "$(BANNER)"
-	mkdir -p $(VERI_LOG_DIR)
-	$(SIM_TEST_RESULTS)/verilator_executable \
+	mkdir -p $(SIM_TEST_PROGRAM_RESULTS)
+	$(VERI_EXECUTABLE) \
 		$(VERI_RUN_FLAGS) \
 		$(VERI_WAVE_CMD) \
 		+verbose \
 		+test_program=$(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).hex \
-		| tee $(VERI_LOG_DIR)/$(TEST).log
+		| tee $(SIM_RUN_RESULTS)/$(TEST).log
+	$(if $(filter-out 0,$(SPIKE_TANDEM)),@mv tandem.log $(SIM_RUN_RESULTS))
+	@cp $(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).elf $(SIM_RUN_RESULTS)/test_program
+	@cp $(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).hex $(SIM_RUN_RESULTS)/test_program
+	@cp $(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).itb $(SIM_RUN_RESULTS)/test_program
+	@cp $(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).objdump $(SIM_RUN_RESULTS)/test_program
+	@cp $(TEST_PROGRAM_RELPATH)/$(TEST)/$(TEST).readelf $(SIM_RUN_RESULTS)/test_program
+	@echo "$(BANNER)"
+	@echo "* Logfile in $(SIM_RUN_RESULTS)/$(TEST).log"
+	@echo "* Test-program compile outputs in $(SIM_RUN_RESULTS)/test_program"
+	@echo "$(BANNER)"
 
 # verilator specific cleanup
 verilator-clean:
@@ -241,12 +319,13 @@ verilator-clean:
 
 ###############################################################################
 # CV_CORE RTL dependencies
+# Skip re-cloning if the CV_CORE_PKG is already present.
 
 clone_rtl:
 	@echo "$(BANNER)"
 	@echo "* Cloning CV32E20 RTL model"
 	@echo "$(BANNER)"
-	$(CLONE_CV_CORE_CMD)
+	@[ -d $(CV_CORE_PKG) ] || { $(CLONE_CV_CORE_CMD); }
 
 ###############################################################################
 # clean up simulation results
@@ -266,10 +345,12 @@ clean-test-programs:
 clean-act4-unpacked:
 	rm -rf $(CV32E20_DV)/tests/act4/unpacked_tests
 
-clean-all-targets: clean-dist clean-cloned clean-sim-results clean-test-programs verilator-clean clean-act4-unpacked
+clean-all-targets: clean-spike clean-cloned clean-sim-results clean-test-programs verilator-clean clean-act4-unpacked
 
-clean-dist:
-	rm -rf riscv-fesvr riscv-isa-sim
+# Rules for building Spike are in mk/Common.mk
+# TODO: is this where Spike should live?
+clean-spike:
+	rm -rf $(CV32E20_DV)/reference/spike
 
 clean-cloned:
 	rm -rf $(CV_CORE_PKG) $(CORE_V_VERIF)
@@ -280,7 +361,6 @@ clean-all-banner:
 	@echo "$(BANNER)"
 
 clean_all: clean-all-banner clean-all-targets
-#endend
 
 ###############################################################################
 # certification test-program directories (prebuilt elf file copy-pasted from act4)
@@ -305,14 +385,21 @@ gen: $(ACT4_PKG)
 	@echo "* Tests generated in: $(certification_PROGRAM_PATH)"
 
 .PHONY: certify
+# SPIKE_TANDEM=1: unlike `test`, certify runs many ELFs per invocation, so
+# VERI_RUN_FLAGS's compile-time +elf_file (baked from TEST=certification,
+# not a real file) is wrong for every iteration. The loop below passes its
+# own "+elf_file=$$ELF" BEFORE $(VERI_RUN_FLAGS) -- Verilator's
+# $value$plusargs matches the FIRST +elf_file= on the command line.
+# Spike always writes tandem.log to the current directory, so each ELF's copy
+# is moved next to that ELF's log as <name>.tandem.log.
 certify: TEST = certification
 certify: verilate
 	@echo "$(BANNER)"
 	@echo "* Running ALL compliance ELFs with Verilator"
 	@echo "$(BANNER)"
 	@set -e; \
-	mkdir -p "$(VERI_LOG_DIR)"; \
-	SUMMARY="$(VERI_LOG_DIR)/certification_summary.txt"; \
+	mkdir -p "$(SIM_TEST_PROGRAM_RESULTS)"; \
+	SUMMARY="$(SIM_TEST_PROGRAM_RESULTS)/certification_summary.txt"; \
 	echo "RESULT  TEST" > "$$SUMMARY"; \
 	echo "------  ----" >> "$$SUMMARY"; \
 	ROOT="$(certification_PROGRAM_PATH)$(if $(FILTER),/$(FILTER),)"; \
@@ -329,19 +416,22 @@ certify: verilate
 	  REL="$${ELF#$$ROOT/}"; \
 	  BASE="$${ELF%.*}"; \
 	  HEX="$$BASE.hex"; \
-	  LOG="$(VERI_LOG_DIR)/$${REL%.*}.log"; \
+	  LOG="$(SIM_TEST_PROGRAM_RESULTS)/$${REL%.*}.log"; \
 	  mkdir -p "$$(dirname "$$LOG")"; \
 	  if [ ! -f "$$HEX" ] || [ "$$ELF" -nt "$$HEX" ]; then \
 	    riscv64-unknown-elf-objcopy -O verilog "$$ELF" "$$HEX"; \
 	  fi; \
+	  $(if $(filter-out 0,$(SPIKE_TANDEM)),rm -f tandem.log;) \
 	  set +e; \
-	  "$(SIM_TEST_RESULTS)/verilator_executable" \
+	  "$(VERI_EXECUTABLE)" \
+	    "+elf_file=$$ELF" \
 	    $(VERI_RUN_FLAGS) \
 	    $(VERI_WAVE_CMD) \
 	    "+test_program=$$HEX" \
 	    > "$$LOG" 2>&1; \
 	  RC=$$?; \
 	  set -e; \
+	  $(if $(filter-out 0,$(SPIKE_TANDEM)),[ ! -f tandem.log ] || mv tandem.log "$${LOG%.log}.tandem.log";) \
 	  if [ $$RC -eq 0 ] && grep -q "ALL TESTS PASSED" "$$LOG"; then \
 	    echo "PASS    $$REL" | tee -a "$$SUMMARY"; \
 	    PASS=$$((PASS+1)); \

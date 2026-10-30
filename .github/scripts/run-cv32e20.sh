@@ -47,7 +47,7 @@ SIM_TIMEOUT="${SIM_TIMEOUT:-120s}"
     exit 2
 }
 
-SIM="$CVE20_DV_ROOT/sim/core/simulation_results/certification/verilator_executable"
+SIM="$CVE20_DV_ROOT/sim/core/simulation_results/verilator_executable"
 
 [[ -x "$SIM" ]] || {
     echo "verilator_executable not found at $SIM" >&2

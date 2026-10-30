@@ -140,10 +140,6 @@ DV_UVMT_SRCS                  = $(wildcard $(DV_UVMT_PATH)/*.sv))
 UVM_TEST_NAME ?= uvmt_$(CV_CORE_LC)_general_purpose_test_c
 TEST_UVM_TEST ?= $(UVM_TEST_NAME)
 
-# CORE-V-VERIF
-CV_VERIF_PKG        := $(CV32E20_DV)/vendor_lib/openhwgroup_core-v-verif
-export CV_VERIF_PKG  = $(CV32E20_DV)/vendor_lib/openhwgroup_core-v-verif
-
 # Google's random instruction generator
 RISCVDV_PKG         := $(CV32E20_DV)/vendor_lib/google/riscv-dv
 COREVDV_PKG         := $(CV_VERIF_PKG)/lib/corev-dv

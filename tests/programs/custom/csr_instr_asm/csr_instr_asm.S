@@ -1,6 +1,7 @@
 ################################################################################
 #
 # Copyright 2020,2022 OpenHW Group
+# Copyright 2026 Eclipse Foundation
 #
 # Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +18,13 @@
 # SPDX-License-Identifier:Apache-2.0 WITH SHL-2.0
 #
 ################################################################################
-# Script-generated, brute force and ignorance approach to running all legal CSR
-# instructions for the MSCRATCH CSR. Implements all 6 real (not pseudo) CSR
-# access instructions.  THIS TEST IS NOT SELF CHECKING: you must run against a
-# reference model to check results.
+# (Mostly) script-generated, brute force and ignorance approach to running all
+# legal CSR instructions for the MSCRATCH CSR. Implements all 6 real (not pseudo)
+# CSR access instructions. Also reads all implemented (and a couple of non-
+# implemented) CSRs.
+#
+# THIS TEST IS NOT SELF CHECKING!
+# It must run in tandem with a reference model to check results.
 ################################################################################
 .include "user_define.h"
 #include "cv32e20_dv.h"
@@ -37,13 +41,18 @@ _start:
 .section .text
 _start_main:
 
-  #ifdef NO_PULP
-  #define EXP_MISA 0x40001104
-  #else
-  #define EXP_MISA 0x40801104
-  #endif
+  # Install a local trap handler.
+  # CVE2 forces *every* mtvec write unconditionally into vectored mode with the base
+  # masked to a 256-byte boundary (`{csr_wdata_int[31:8], 6'b0, 2'b01}`),
+  # regardless of what's actually written - so csr_sweep_trap_handler below
+  # is deliberately `.balign 256`-ed to match, or CVE2 would silently
+  # truncate the base to some unrelated, unaligned address.
+  # Every instruction in this sweep is a full 4-byte csrrX (no compressed variants),
+  # so the handler's unconditional mepc += 4 is sufficient.
+  la   t0, csr_sweep_trap_handler
+  csrw mtvec, t0
 
-# CSR 0x340 is a 32-bit R/W scratch-pad
+  # CSR 0x340 is a 32-bit R/W scratch-pad
   # Immediates
   csrrci x0,    0x340, 0x0
   csrrsi x0,    0x340, 0x0
@@ -6256,33 +6265,7 @@ _start_main:
   csrrs  x31,    0x340, x31
   csrrw  x31,    0x340, x31
 
-test_done:
-    lui a0,print_port>>12
-    addi a1,zero,'\n'
-    sw a1,0(a0)
-    addi a1,zero,'C'
-    sw a1,0(a0)
-    addi a1,zero,'V'
-    sw a1,0(a0)
-    addi a1,zero,'3'
-    sw a1,0(a0)
-    addi a1,zero,'2'
-    sw a1,0(a0)
-    addi a1,zero,' '
-    sw a1,0(a0)
-    addi a1,zero,'D'
-    sw a1,0(a0)
-    addi a1,zero,'O'
-    sw a1,0(a0)
-    addi a1,zero,'N'
-    sw a1,0(a0)
-    addi a1,zero,'E'
-    sw a1,0(a0)
-    addi a1,zero,'\n'
-    sw a1,0(a0)
-    sw a1,0(a0)
-
-# Coverage-closing block, added 2026-08-12: exercise legal but previously
+# Coverage-closing block: exercise legal but previously
 # untested CSR reads/writes in cve2_cs_registers.sv's read/write case
 # statements (MCONFIGPTR/MSTATUSH/MENVCFG(H)/MCOUNTEREN/SECURESEED reads;
 # unimplemented-but-architecturally-legal HPM counters/events 13-31
@@ -6290,7 +6273,7 @@ test_done:
 # 64-bit HPM counters' upper-word CSRs (*H, both implemented 3-12 and
 # unimplemented 13-31); MTVAL and direct HPM-counter writes). None of
 # these are illegal_csr -- all reach their case item and (for reads)
-# return a real or constant-zero value; see docs/RTL-STATEMENT-COVERAGE-AUDIT.md.
+# return a real or constant-zero value;
 csr_coverage_closing:
     # Reads (csrrs x5,<csr>,x0 -- rs1=x0 so no side effect, real read into x5)
     csrrs x5, 0x323, x0    # mhpmevent3
@@ -6305,9 +6288,9 @@ csr_coverage_closing:
     csrrs x5, 0x32C, x0    # mhpmevent12
     csrrs x5, 0xF15, x0    # mconfigptr
     csrrs x5, 0x310, x0    # mstatush
-    csrrs x5, 0x30A, x0    # menvcfg
-    csrrs x5, 0x31A, x0    # menvcfgh
-    csrrs x5, 0x306, x0    # mcounteren
+    csrrs x5, 0x30A, x0    # menvcfg    .. this is expected to trap (menvcfg is not implemented in CVE2)
+    csrrs x5, 0x31A, x0    # menvcfgh   .. dito
+    csrrs x5, 0x306, x0    # mcounteren .. dito
     csrrs x5, 0x7C1, x0    # secureseed
     csrrs x5, 0x32D, x0    # mhpmevent13
     csrrs x5, 0x32E, x0    # mhpmevent14
@@ -6443,6 +6426,42 @@ csr_coverage_closing:
     csrrw x0, 0xB9E, x0    # mhpmcounter30h
     csrrw x0, 0xB9F, x0    # mhpmcounter31h
 
+test_done:
+    lui a0,print_port>>12
+    addi a1,zero,'\n'
+    sw a1,0(a0)
+    addi a1,zero,'C'
+    sw a1,0(a0)
+    addi a1,zero,'V'
+    sw a1,0(a0)
+    addi a1,zero,'E'
+    sw a1,0(a0)
+    addi a1,zero,'2'
+    sw a1,0(a0)
+    addi a1,zero,' '
+    sw a1,0(a0)
+    addi a1,zero,'T'
+    sw a1,0(a0)
+    addi a1,zero,'E'
+    sw a1,0(a0)
+    addi a1,zero,'S'
+    sw a1,0(a0)
+    addi a1,zero,'T'
+    sw a1,0(a0)
+    addi a1,zero,' '
+    sw a1,0(a0)
+    addi a1,zero,'D'
+    sw a1,0(a0)
+    addi a1,zero,'O'
+    sw a1,0(a0)
+    addi a1,zero,'N'
+    sw a1,0(a0)
+    addi a1,zero,'E'
+    sw a1,0(a0)
+    addi a1,zero,'\n'
+    sw a1,0(a0)
+    sw a1,0(a0)
+
 # extraneous, manually added, store (write) and load (read)
 extra_store_load:
     li  x18, 0x12345678
@@ -6486,3 +6505,21 @@ csr_fail:
 #
 # end
 #
+
+# Minimal trap handler for the CSR sweep above - see the mtvec setup at the
+# top of _start_main. CVE2 forces every mtvec write into vectored mode with
+# the base masked to a 256-byte boundary, so this label must actually land
+# on one - hence the explicit .balign (a bare label here has no alignment
+# guarantee otherwise). This sweep only ever causes synchronous
+# illegal-instruction exceptions on itself (no interrupts expected), and
+# vectored mode still sends synchronous exceptions to the plain base
+# address (entry 0), same as direct mode would - so one unconditional
+# handler at the aligned base is sufficient; no real vector table needed.
+# Every faulting instruction in this sweep is a full-width csrrX, so just
+# skip it and resume.
+.balign 256
+csr_sweep_trap_handler:
+    csrr t0, mepc
+    addi t0, t0, 4
+    csrw mepc, t0
+    mret
