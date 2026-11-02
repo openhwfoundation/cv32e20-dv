@@ -35,6 +35,9 @@ class uvme_cv32e20_cov_model_c extends uvm_component;
    uvme_interrupt_covg   interrupt_covg;
    uvme_debug_covg       debug_covg;
 
+   // Fills isa_covg's interface from the RVFI retire stream
+   uvme_rv32isa_covg_drv_c  isa_covg_drv;
+
    `uvm_component_utils_begin(uvme_cv32e20_cov_model_c)
       `uvm_field_object(cfg  , UVM_DEFAULT)
       `uvm_field_object(cntxt, UVM_DEFAULT)
@@ -111,6 +114,9 @@ function void uvme_cv32e20_cov_model_c::build_phase(uvm_phase phase);
 
    debug_covg = uvme_debug_covg::type_id::create("debug_covg", this);
    uvm_config_db#(uvme_cv32e20_cntxt_c)::set(this, "debug_covg", "cntxt", cntxt);
+
+   isa_covg_drv = uvme_rv32isa_covg_drv_c::type_id::create("isa_covg_drv", this);
+   uvm_config_db#(uvme_cv32e20_cntxt_c)::set(this, "isa_covg_drv", "cntxt", cntxt);
    
 endfunction : build_phase
 

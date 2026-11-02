@@ -44,12 +44,26 @@ USES_DPI = 1
 # b=branch coverage; c=condition coverage; e=expression coverage; s=statement coverage==line; t=toggle; f=Finite State Machine coverage
 COV_TYPES              ?= bcsf
 
-# Default coverage report scope: the DUT and below only, excluding the
-# testbench itself (agents, interfaces, etc.). Used by COV_INST_ARG (below)
-# to build -instance=<path>. for the cov*/trl5_coverage_metrics targets.
+# Coverage scope: the DUT and below only, excluding the testbench itself
+# (agents, interfaces, etc.).  Deliberately not defaulted here: mk/uvmt/uvmt.mk
+# -- the only file that includes this one -- already sets COV_INSTANCE before
+# the include, to
+#   /uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core
+# and bin/run_tests.py keeps a matching copy for its own report scoping.  A
+# second default in this file would therefore be shadowed, and would only give
+# the two copies a chance to disagree.  It is used twice below: by VOPT_COV to
+# scope what gets instrumented, and by COV_INST_ARG to build
+# -instance=<path>. for the cov*/cov_holes* report targets.  The TRL5 metrics
+# themselves are no longer scraped from a report here: bin/run_tests.py reads
+# them out of this database's Questa XML exports (trl5_metrics.json).
 # Override e.g. `make cov_holes COV_INSTANCE=` for whole-design coverage, or
 # to any other subtree.
-COV_INSTANCE           ?= /uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i
+
+# Percent at or above which cov_holes / cov_holes_details omit an
+# instance/coverage-type from their output: the default reports everything
+# short of a fully covered 100%.  Override e.g. `make cov_holes
+# COV_HOLES_THRESHOLD=95` to ask only what is still missing some slack.
+COV_HOLES_THRESHOLD    ?= 100
 
 # Special var to point to tool and installation dependent path of DPI headers.
 # Used to recompile dpi_dasm_spike if needed (by default, not needed).
@@ -424,6 +438,10 @@ gen_corev-dv: $(LIBS) rvvi_stub $(SVLIB_PKG)
 			$(GEN_PLUSARGS)
 	# Copy out final assembler files to test directory
 	for (( idx=${GEN_START_INDEX}; idx < $$((${GEN_START_INDEX} + ${GEN_NUM_TESTS})); idx++ )); do \
+		if [ ! -f ${SIM_COREVDV_RESULTS}/${TEST}/${TEST}_$$idx.S ]; then \
+			echo "ERROR: the generator produced no ${TEST}_$$idx.S in ${SIM_COREVDV_RESULTS}/${TEST}/ (see ${SIM_COREVDV_RESULTS}/${TEST}/${TEST}_$(GEN_START_INDEX)_$(GEN_NUM_TESTS).log)"; \
+			exit 1; \
+		fi; \
 		cp -f ${BSP}/link_corev-dv.ld ${SIM_TEST_RESULTS}/$$idx/test_program/link.ld; \
 		cp ${SIM_COREVDV_RESULTS}/${TEST}/${TEST}_$$idx.S ${SIM_TEST_RESULTS}/$$idx/test_program; \
 	done
@@ -629,6 +647,22 @@ cov_txt: $(COV_MERGE_TARGET)
 			-output $(COV_REPORT)/cov_txt \
 			$(COV_UCDB)
 
+# Functional-coverage HTML report: covergroup bins only, and deliberately
+# WITHOUT $(COV_INST_ARG). The environment's covergroups live in packages
+# (/uvme_cv32e20_pkg, /uvma_isacov_pkg, /uvma_obi_memory_pkg) outside the DUT
+# instance, so a scoped 'fc' report counts the RTL's own cover directives
+# instead and reads near 100% while the real covergroups sit at zero -- the
+# exact bug bin/run_tests.py documents next to its two report scopes. If you
+# are looking for the covergroup holes this reports, see docs/coverage/.
+# Output: <COV_DIR>/$(COV_REPORT)/cov_func
+cov_func: $(COV_MERGE_TARGET)
+	$(MKDIR_P) $(COV_DIR)/$(COV_REPORT)
+	cd $(COV_DIR) && \
+		$(VCOVER) report \
+			-html -details -precision 2 -cvg \
+			-output $(COV_REPORT)/cov_func \
+			$(COV_UCDB)
+
 # Compact "holes" report: instances/coverage-types at or above
 # COV_HOLES_THRESHOLD are omitted entirely, no source-line detail -- just
 # what's still short of the threshold. Output: <COV_DIR>/$(COV_REPORT)/cov_holes
@@ -650,14 +684,6 @@ cov_holes_details: $(COV_MERGE_TARGET)
 			-details -precision 2 -annotate -below $(COV_HOLES_THRESHOLD) $(COV_INST_ARG) -code $(COV_TYPES) \
 			-output $(COV_REPORT)/cov_holes_details \
 			$(COV_UCDB)
-
-# Target to extract TRL5 coverage metrics
-trl5_coverage_metrics: $(VSIM_COV_MERGE_DIR)/merged.ucdb
-	$(MKDIR_P) $(VSIM_COV_MERGE_DIR)
-	cd $(VSIM_COV_MERGE_DIR) && \
-		COV_INSTANCE="$(COV_INSTANCE)" $(VCOVER) \
-		load merged.ucdb -test dummy -run $(VSIM_SCRIPT_DIR)/coverage_extract.tcl \
-		> $(VSIM_COV_MERGE_DIR)/trl5_metrics.txt
 
 ###############################################################################
 # Clean up your mess!

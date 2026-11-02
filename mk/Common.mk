@@ -558,6 +558,19 @@ ifeq ($(TEST_ACT),1)
 
 else
 %.elf: $(TEST_FILES) $(wildcard $(BSP)/*.S $(BSP)/*.c $(BSP)/*.h $(BSP)/link.ld)
+	@test -n "$(strip $(TEST_FILES))" || { \
+		echo "ERROR: no sources for $(TEST): nothing to compile into $@."; \
+		case "$(TEST)" in \
+		corev_*) echo "       A corev-dv program is generated, not committed. Run:"; \
+			echo "         make comp_corev-dv SIMULATOR=<sim>              (once)"; \
+			echo "         make gen_corev-dv test TEST=$(TEST) SIMULATOR=<sim>"; \
+			echo "       (looked for: $(SIM_TEST_PROGRAM_RESULTS)/$(TEST_NAME)$(OPT_RUN_INDEX_SUFFIX).S)"; \
+			;; \
+		*) echo "       Expected .S/.c sources in $(TEST_TEST_DIR)."; \
+			;; \
+		esac; \
+		exit 1; \
+	}
 	mkdir -p $(SIM_TEST_PROGRAM_RESULTS)
 	make bsp
 	@echo "$(BANNER)"

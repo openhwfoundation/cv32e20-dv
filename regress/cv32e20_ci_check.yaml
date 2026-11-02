@@ -1,77 +1,133 @@
-# YAML file to specify the ci_check regression testlist.
+# CV32E20 full CI-check regression.
+#
+# Copyright (c) 2026 Eclipse Foundation
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Consumed by:  bin/run_tests.py --testlist regress/cv32e20_ci_check.yaml --jobs 4
+#
+# Every test this repository knows how to run: the cv32e20_sanity set first, the
+# slower directed test-programs next, then the corev-dv generated-random
+# templates last (they need a gen_corev-dv step each and dominate the runtime --
+# budget hours, and keep the Questa license pool in mind with --jobs, see
+# bin/run_tests.py's "Concurrency" section).
+#
+# The tests that are known not to pass are *not* hidden here: they live in
+# run_tests.py's PARKED / DISCOVERY_EXCLUDES lists and are listed with their
+# reason in docs/regression.md. A test that starts failing belongs in one of
+# those two lists with a note, not in a deleted line here. What *has* been
+# watched passing end to end is the sanity set at the top of this file (see
+# cv32e20_sanity.yaml); the slower directed tests below it and the corev-dv
+# templates are here because the harness supports running them, which is a
+# weaker claim -- docs/regression.md says which is which.
+#
+# NOT consumable by the legacy bin/cv_regress / bin/ci_check utilities, which
+# cannot run in this repository at all -- they import the absent
+# bin/lib/cv_regression.py and expect the old core-v-verif/<core>/... checkout.
+# The file keeps its historical name and location (regress/ is where bin/README.md
+# documents regression testlists), but the format is run_tests.py's; the previous
+# contents of this file could not be run by anything, including a duplicate
+# `cmd:` key in its hello-world entry. See bin/README.md.
+
 name: cv32e20_ci_check
-description: Commit sanity for the cv32e20
-
-builds:
-  corev-dv:
-    cmd: make comp_corev-dv
-    dir: cv32e20/sim/uvmt
-
-  uvmt_cv32e20:
-    cmd: make comp
-    dir: cv32e20/sim/uvmt
+description: >
+  Full CV32E20 UVM regression: directed test-programs plus the corev-dv
+  generated-random templates.
+tb: uvmt
+cfg: default
+timeout: 7200
+jobs: 4
 
 tests:
-  hello-world:
-    build: uvmt_cv32e20
-    description: UVM Hello World Test
-    dir: cv32e20/sim/uvmt
-    cmd: make hello-world
-    cmd: make test COREV=YES TEST=hello-world
+  # ---- sanity set (see cv32e20_sanity.yaml; kept in file order so a truncated
+  # ---- run still says how far it got) ----
+  - name: hello-world
+    description: Boot, execute, and signal pass through the virtual peripheral
+  - name: fibonacci
+    description: Compute the fibonacci sequence
+  - name: branch_zero
+    description: Branch with a zero offset (functional coverage hole filler)
+  - name: csr_instructions
+    description: Execute every CSR access instruction
+  - name: illegal
+    description: Detect illegal instructions
+  - name: illegal_instr_test
+    description: Illegal-instruction trap, assembly version
+  - name: generic_exception_test
+    description: Generic exception entry and return
+  - name: misalign
+    description: Misaligned load/store handling
+  - name: load_store_rs1_zero
+    description: Loads and stores with rs1 == x0
+  - name: interrupt_test
+    description: External timer and software interrupts
+  - name: nmi_test
+    description: Non-maskable interrupt stimulus
+  # The two coverage-stimulus tests below have been watched end to end on
+  # Questa One 2025.3_2 (USE_ISS=NO, COV=1, seed 1 unless stated): mid_run_reset_test
+  # PASSED on all twelve seeds of a sweep (~63 s each), irq_withdraw_test PASSED
+  # in 10 m 34 s. Their verdicts are therefore no longer the open question -- the
+  # coverage bins they were written for are, and they are only partly closed:
+  # 3 of the 16 reset-transition waivers measure covered across the twelve seeds
+  # (1-2 of them with the single seed a regression runs), and the interrupt-
+  # withdrawal window is still a miss. docs/coverage/coverage_review.md and the
+  # measured docs/coverage/raw/phase_c_acceptance.csv keep the per-target detail
+  # and the reason for each. Both tests stay here; cv32e20_sanity.yaml says why
+  # they are not on the blocking list.
+  - name: mid_run_reset_test
+    description: Reset dropped mid-program (3 of 16 FSM ->RESET edges covered, 12/12 seeds PASS)
+  - name: irq_withdraw_test
+    description: Interrupt withdrawn in the commit cycle (IRQ_TAKEN false arm still uncovered, 10.5 min)
 
-  interrupt_test:
-    build: uvmt_cv32e20
-    description: Interrupt directed test
-    dir: cv32e20/sim/uvmt
-    cmd: make test COREV=YES TEST=interrupt_test
+  # ---- directed tests worth running, but too slow or too involved to gate a
+  # ---- change on ----
+  - name: coremark
+    description: CoreMark benchmark (long-running; not coverage-relevant)
+  - name: dhrystone
+    description: Dhrystone benchmark (long-running; not coverage-relevant)
+  - name: hpmcounter_basic_test
+    description: Exercise the HPM counter CSRs
+  - name: interrupt_bootstrap
+    description: Interrupt entry from a cold boot
+  - name: debug_test
+    description: Debug mode, halt, step and resume (needs uvmt stimulus)
+  # csr_instr_asm and riscv_csr are in run_tests.py's PARKED list: they build,
+  # but nobody has watched them print a PASS banner on either testbench. They are
+  # listed here deliberately -- PARKED keeps them out of the *default* selection,
+  # not out of the full regression, which is where a test earns its way back out
+  # of that list. docs/regression.md keeps the list of who is unverified.
+  - name: csr_instr_asm
+    description: CSR access instructions, assembly version (PARKED, unverified)
+  - name: riscv_csr
+    description: Script-generated CSR access-mode test, from riscv-dv (PARKED, unverified)
 
-  corev_rand_interrupt:
-    build: uvmt_cv32e20
-    description: Interrupt random test
-    dir: cv32e20/sim/uvmt
-    cmd: make gen_corev-dv test COREV=YES TEST=corev_rand_interrupt
-    num: 2
-
-  illegal:
-    build: uvmt_cv32e20
-    dir: cv32e20/sim/uvmt
-    cmd: make test COREV=YES TEST=illegal
-
-  debug_test:
-    build: uvmt_cv32e20
-    dir: cv32e20/sim/uvmt
-    cmd: make test COREV=YES TEST=debug_test
-
-  csr_instructions:
-    build: uvmt_cv32e20
-    description: CSR Instruction Test
-    dir: cv32e20/sim/uvmt
-    cmd: make test COREV=YES TEST=csr_instructions
-
-  riscv_arithmetic_basic_test_0:
-    build: uvmt_cv32e20
-    description: Static riscv-dv arithmetic test 0
-    dir: cv32e20/sim/uvmt
-    cmd: make test COREV=YES TEST=riscv_arithmetic_basic_test_0
-
-  corev_rand_arithmetic_base_test:
-    build: uvmt_cv32e20
-    description: Generated corev-dv random arithmetic test
-    dir: cv32e20/sim/uvmt
-    cmd: make gen_corev-dv test COREV=YES TEST=corev_rand_arithmetic_base_test
-#    num: 2
-
-  corev_rand_instr_test:
-    build: uvmt_cv32e20
-    description: Generated corev-dv random instruction test
-    dir: cv32e20/sim/uvmt
-    cmd: make gen_corev-dv test COREV=YES TEST=corev_rand_instr_test
-#    num: 2
-
-  corev_rand_jump_stress_test:
-    build: uvmt_cv32e20
-    description: Generated corev-dv jump stress test
-    dir: cv32e20/sim/uvmt
-    cmd: make gen_corev-dv test COREV=YES TEST=corev_rand_jump_stress_test
-#    num: 2
-
+  # ---- corev-dv generated-random templates ----
+  - name: corev_rand_arithmetic_base_test
+    description: Generated random arithmetic stream
+  - name: corev_rand_instr_test
+    description: Generated random instruction stream
+  - name: corev_rand_interrupt
+    description: Generated stream with interrupt stimulus
+  - name: corev_rand_interrupt_debug
+    description: Generated interrupts hitting debug mode
+  - name: corev_rand_interrupt_exception
+    description: Generated interrupts racing exceptions
+  - name: corev_rand_interrupt_nested
+    description: Generated nested interrupt nesting
+  - name: corev_rand_interrupt_wfi
+    description: Generated interrupts waking WFI
+  - name: corev_rand_interrupt_wfi_mem_stress
+    description: Generated WFI interrupts under memory stress
+  - name: corev_rand_jump_stress_test
+    description: Generated jump-heavy stream
+  - name: corev_rand_debug
+    description: Generated debug-mode stream
+  - name: corev_rand_debug_ebreak
+    description: Generated stream ending in ebreak
+  - name: corev_rand_debug_single_step
+    description: Generated stream under single-step
+  - name: corev_rand_illegal_instr_test
+    description: Generated stream containing illegal instructions
+  - name: corev_rand_instr_long_stall
+    description: Generated stream with long instruction stalls
+  - name: corev_rand_instr_and_data_stalls
+    description: Generated stream with instruction and data stalls

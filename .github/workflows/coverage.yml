@@ -56,9 +56,53 @@ jobs:
           export SIMULATOR=vsim
           python3 bin/run_tests.py --tb uvmt --include-corev-dv --all-custom --timeout 7200 --cov-report --allow-failures
 
-      # Bundle the browsable report (dashboard + Questa HTML + vendor-neutral
-      # formats) into one archive for the release asset. Nothing is committed to
-      # the repo -- it only lives in the workflow artifact and the release.
+      # Validate the chosen report formats: 
+      # - Cobertura and UCIS: vendor-neutral XML formats to report Code Coverage
+      # - summary.json: Summary of the Code and Functional coverage and latest regression numbers
+      - name: Validate the published report formats
+        run: |
+          source venv_cv32e20-dv/bin/activate
+          if command -v xmllint >/dev/null 2>&1; then
+            SGML_CATALOG_FILES="$PWD/schemas" xmllint --noout --nonet --catalogs \
+              --dtdvalid schemas/coverage-04.dtd coverage_report/cobertura.xml
+            xmllint --noout --nonet \
+              --schema schemas/ucis.xsd coverage_report/merged.ucis.xml
+          else
+            echo "::warning::xmllint is not on this runner, so the Cobertura DTD and UCIS schema checks were skipped (python-ci.yml's reports-schema job runs them on a hosted runner)"
+          fi
+          pycobertura show coverage_report/cobertura.xml > /dev/null
+          python3 -c "import json,sys; d=json.load(open('coverage_report/summary.json')); sys.exit(0 if 'code_coverage' in d else 1)"
+
+      # The regression document is written by bin/regression_report.py into the
+      # testbench's sim directory. The dashboard next to it is a copy of the same
+      # data, which is also included in the Pages artifact. All of 
+      # coverage_report/ is included.
+      - name: Check the regression results document
+        run: |
+          python3 - <<'PY'
+          import json
+          import sys
+
+          document = json.load(open("sim/uvmt/regression_results.json"))
+          print(f"{document['summary']['passed']}/{document['summary']['total']} "
+                f"test(s) passed on {document['tb']} "
+                f"(testlist: {document.get('testlist')})")
+          if document.get("schema_version") != 1:
+              sys.exit(f"error: unsupported schema_version "
+                       f"{document.get('schema_version')}")
+          PY
+
+      - name: Upload regression results
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results
+          path: |
+            coverage_report/regression/
+            sim/uvmt/regression_results.json
+            sim/uvmt/test_results.log
+
+      # Bundle the browsable report, comprising dashboard, Questa HTML and vendor-neutral
+      # formats, into one archive for the release asset.
       - name: Archive coverage report
         run: |
           cd coverage_report
@@ -72,6 +116,45 @@ jobs:
         with:
           name: coverage-report
           path: coverage_report/
+
+      # A flat, dereferenced copy of the published tree, staged for download.
+      # `coverage-report` above has to stay exactly what coverage_report/ is,
+      # because the Pages job publishes it verbatim; this one is for the reviewer
+      # who wants the pages and the analysis without unpacking the release
+      # tarball, so the Questa HTML trees stay in the tarball and only what the
+      # pages fetch is copied here. cp -rL because an artifact drops a symlink it
+      # cannot resolve and a Questa HTML export may hold them; a missing item is
+      # a warning and not a failed step, because on a failed run some of these
+      # were never written.
+      - name: Stage the release file set
+        if: always()
+        run: |
+          mkdir -p release-files
+          for item in index.html common.css style.css summary.json analysis regression; do
+            if [ -e "coverage_report/$item" ]; then
+              cp -rL "coverage_report/$item" release-files/
+            else
+              echo "::warning::coverage_report/$item is not in this run, skipped"
+            fi
+          done
+          if [ -f sim/uvmt/test_results.log ]; then
+            cp -L sim/uvmt/test_results.log release-files/
+          else
+            echo "::warning::sim/uvmt/test_results.log was never written, skipped"
+          fi
+          ls -l release-files
+
+      # The job's second artifact, deliberately: the Pages payload above must stay
+      # the verbatim tree, this is the browsable subset of it. if: always() so the
+      # failing run, whose report is the only thing anybody reads, still yields
+      # it. Named without the branch because an artifact name may not contain a
+      # slash; Actions records the run's git ref beside every artifact anyway.
+      - name: Upload the release file set
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cv32e20-dv-coverage-release-files
+          path: release-files/
 
       # Rolling release: a single "coverage-latest" release overwritten each run,
       # so history isn't spammed. Only cut on the default branch / manual runs,

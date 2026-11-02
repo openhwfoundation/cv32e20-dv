@@ -28,11 +28,12 @@ The process exit code is 0 only if every test that was run reported PASS, unless
 still print and are summarized but do not affect the exit code -- useful when a
 coverage/report step must run after the tests regardless of their outcome.
 
-corev-dv tests (see COREV_DV_TESTS below) additionally need `make corev-dv`
-run once beforehand to clone and compile the corev-dv/riscv-dv packages
-(uvmt only). Whenever the selected set includes any corev-dv test, this
-script runs `make corev-dv` itself before running any tests, and aborts if
-that setup step fails.
+corev-dv tests (see COREV_DV_TESTS below) additionally need `make
+comp_corev-dv` run once beforehand to compile the corev-dv/riscv-dv packages
+(uvmt only; the pinned vendor clones are reused when already present).
+Whenever the selected set includes any corev-dv test, this script runs `make
+comp_corev-dv` itself before running any tests, and aborts if that setup step
+fails.
 
 Seeds
 -----
@@ -71,6 +72,11 @@ The script needs no arguments and can be run from anywhere (paths are resolved
 relative to its own location in <repo>/bin).  A working RISC-V toolchain plus
 the relevant simulator (Verilator for core, Questa vsim for uvmt) must be on
 PATH, as for a normal `make test`.
+
+    # Run a regression testlist -- the curated, named, published way to run a
+    # set of tests (regress/*.yaml; see 'Regression testlists' below):
+    bin/run_tests.py --testlist regress/cv32e20_sanity.yaml
+    bin/run_tests.py --testlist regress/cv32e20_ci_check.yaml --jobs 4
 
     # Run the full self-checking set (C + assembly) on the core TB:
     bin/run_tests.py
@@ -153,6 +159,7 @@ PATH, as for a normal `make test`.
     bin/run_tests.py --certify --filter rv32i/Zicsr
 
     # Other options:
+    #   --testlist PATH   run a regress/*.yaml testlist (see below)
     #   --cfg NAME      uvmt config subdirectory                (default: default)
     #   --gen-seed SEED corev-dv generator SEED ('random' or a literal
     #                   value); no effect on hand-written tests (no
@@ -192,13 +199,45 @@ Coverage reports (--cov-report, uvmt only)
 the published artifact set that CI deploys to GitHub Pages:
 
     coverage_report/index.html          dashboard (copied from templates/)
+    coverage_report/common.css          stylesheet shared by both dashboards
     coverage_report/style.css           dashboard stylesheet
-    coverage_report/questasim/          vcover -html report of merged.ucdb
-    coverage_report/merged.ucis.xml     UCIS XML export of merged.ucdb
-    coverage_report/cobertura.xml       Cobertura XML (via ucdb_to_cobertura)
+    coverage_report/questasim/          vcover -html code report, DUT-scoped
+    coverage_report/questasim_func/     vcover -html -cvg report, full hierarchy
+    coverage_report/analysis/           the coverage analysis as a page: the
+                                        viewer, the review sheet and the four
+                                        raw dumps it reads
+    coverage_report/merged.questasim.xml  Questa XML rollup, whole hierarchy
+    coverage_report/dut_rollup.xml      Questa XML rollup, DUT scope
+    coverage_report/cobertura.xml       Cobertura XML (questa_xml_to_cobertura)
+    coverage_report/merged.ucis.xml     UCIS XML (questa_xml_to_ucis_xml)
     coverage_report/summary.json        metrics consumed by index.html
     coverage_report/trl5_metrics.json   TRL5 line/cond/branch/FSM metrics
     sim/uvmt/test_results.log           plain-text pass/fail list
+
+    Every number in them comes from `vcover report -xml` exports of merged.ucdb --
+    never from the generated HTML -- and from two deliberately different scopes:
+
+    * Code coverage (statements, branches, conditions, FSM states/transitions) is
+    DUT-scoped, to TESTBENCHES['uvmt']['cov_instance']: the testbench's own
+    code is not the deliverable.
+    * Functional coverage is covergroup-bin coverage over the whole hierarchy,
+    because the environment's covergroups live in packages (/uvme_cv32e20_pkg,
+    /uvma_isacov_pkg, /uvma_obi_memory_pkg) outside that instance. A DUT-scoped
+    'fc' counts the RTL's cover directives instead, and reported ~100% while
+    every env covergroup sat at 0%.
+
+    coverage_report/analysis/ is a publication mirror, and the direction is
+    one-way: the committed originals under docs/coverage/ are what the analysis
+    tools and the cite checker (bin/coverage_review.py --check-cites) read, and
+    no python reads what this script writes there.
+
+    The two HTML reports follow the same split, and it is the one thing in here
+    that is easy to break by copy-paste: coverage_report/questasim/ is built
+    with -instance=<DUT>. (the dashboard's "Code Coverage" button), while
+    coverage_report/questasim_func/ is built with -cvg and *no* -instance at all
+    (its "Functional Coverage" button and the functional card both point there).
+    Adding -instance to the second, or removing it from the first, makes the two
+    buttons show the same wrong number.
 
 The merge step is `make MERGE=YES TEST=<name> cov` right after each PASS, which
 (mk/uvmt/vsim.mk) makes merged.ucdb a real file target keyed on every .ucdb
@@ -214,6 +253,66 @@ lists above, which is what the coverage CI job uses so a newly added test
 program is picked up without editing this script. PARKED and corev-dv names are
 still skipped unless --include-parked / --include-corev-dv also ask for them,
 and DISCOVERY_EXCLUDES is always skipped.
+
+Regression testlists (--testlist)
+--------------------------------
+A testlist is the named, reviewable answer to "which tests make up a regression
+of this repository?" -- the alternative to a caller re-listing tests in a CI job
+or a second script, which is how bin/ci_check and bin/cv_regress drifted until
+they stopped running at all (see bin/README.md). They live in regress/ and are
+consumed by this script:
+
+    name: cv32e20_sanity           # required; shown on the published dashboard
+    description: >                 # required; free text
+      Fast blocking sanity on the Questa UVMT testbench.
+    tb: uvmt                       # optional; core|uvmt (default core)
+    cfg: default                   # optional; the --cfg equivalent
+    timeout: 3600                  # optional per-test seconds
+    jobs: 4                        # optional --jobs equivalent
+    seed: 1                        # optional --seed equivalent (int or random)
+    make_args: []                  # optional list appended to every make call
+    tests:                         # ordered; each entry:
+      - name: hello-world          # required: dir under tests/programs/{custom,corev-dv}
+        description: UVM hello-world sanity   # optional; dashboard only
+        make_args: []              # optional extra make args for this test
+
+Anything not in those key lists is a hard error rather than silently ignored --
+a typo that quietly changed what a regression ran is the failure mode this whole
+feature exists to remove. A listed name must be a real test-program directory.
+Whether a test needs the gen_corev-dv generation step is read from the tree (its
+corev-dv.yaml, see is_corev_dv()), so no list has to be updated in two places.
+
+The file only supplies defaults: --tb/--cfg/--timeout/--jobs/--seed on the
+command line still win over it. A test cannot be repeated N times under one
+name (the old cv_regress 'num:' key); run the list again with a different
+--seed, which is reproducible and keeps the two runs distinguishable in the
+results document.
+
+Regression results dashboard (--testlist / every run)
+-----------------------------------------------------
+Every batch that runs (or parses) tests also writes regression_results.json in
+the testbench's sim directory and publishes a dashboard of it under
+coverage_report/regression/ -- per-test verdict, generation and run seeds,
+duration and a copy of the simulation log, plus the regression-level summary and
+the git/host/simulator provenance of the run. Two options are excepted because
+neither is a batch of tests in that sense: --report-only launches nothing, and
+--certify short-circuits into make certify's own ELF-sweep summary. bin/regression_report.py
+owns the document and its template (templates/regression_dashboard/), and can
+re-publish an existing document without running anything:
+
+    bin/regression_report.py --results sim/uvmt/regression_results.json \\
+                             --out coverage_report/regression
+
+The dashboard is a copy of the verdict table, never a second verdict: nothing
+here can turn a FAIL into a pass, and publishing failures (or --parse-only rows
+with null durations) is deliberately supported -- the page renders what is
+missing as N/A rather than as zero. The summary's wall window obeys the same
+rule: it is only published when the batch timed something, so a parsed batch
+leaves summary.start/end/duration_s null instead of publishing the couple of
+seconds between two timestamps as a regression's wall time. Since a document
+describes the batch that wrote it, that same re-summarize replaces whatever
+measured window the previous document held -- re-run the batch to measure it
+again, or re-publish the older document from the copy it left behind.
 
 Concurrency (--jobs)
 --------------------
@@ -268,16 +367,22 @@ import signal
 import subprocess
 import sys
 import threading
+import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # Repository layout: this script lives in <repo>/bin.
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parent
 
-# The coverage-report pipeline reuses the Cobertura converter that lives next to
-# this script in <repo>/bin (it remains usable stand-alone).
+# The coverage-report pipeline reuses the converters that live next to this
+# script in <repo>/bin (each of them remains usable stand-alone), and
+# regression_report turns this run's verdict rows into the results document and
+# dashboard that CI publishes.
 sys.path.insert(0, str(SCRIPT_DIR))
-from ucdb_to_cobertura import generate_cobertura_xml  # noqa: E402
+from questa_xml_to_cobertura import generate_cobertura_xml  # noqa: E402
+from questa_xml_to_ucis_xml import generate_ucis_xml  # noqa: E402
+import regression_report  # noqa: E402
 
 # Serializes stdout so concurrent --jobs workers don't interleave output.
 _print_lock = threading.Lock()
@@ -362,7 +467,8 @@ UVMT_TESTS = [
 
 # corev-dv generated regression templates (tests/programs/corev-dv/) -- need
 # `make gen_corev-dv test` instead of plain `make test` (run_test() handles
-# this), and `make corev-dv` run once first (main() does this automatically).
+# this), and `make comp_corev-dv` run once first (main() does this
+# automatically).
 # uvmt only; opt-in via --include-corev-dv/--corev-dv-only.
 COREV_DV_TESTS = [
     "corev_rand_arithmetic_base_test",
@@ -387,7 +493,7 @@ COREV_DV_TESTS = [
 # the opt-in "run whatever is in the tree" mode used by the coverage CI job.
 TESTS_ROOTS = [
     "tests/programs/custom",
-    # "tests/programs/corev-dv", # TODO Not working for now
+    "tests/programs/corev-dv",
 ]
 
 # Directories under TESTS_ROOTS that --all-custom must never select. Everything
@@ -409,6 +515,24 @@ DEFAULT_SEED = 1
 
 # uvmt keeps mk/uvmt/uvmt.mk's default RUN_INDEX/GEN_START_INDEX for now.
 UVMT_RUN_INDEX = 0
+
+# Directory of one test's test-program sources, and of the corev-dv generator
+# template a generated test adds next to them.
+TESTS_PROGRAM_ROOT = REPO / "tests" / "programs"
+
+
+def is_corev_dv(test):
+    """Whether a test needs the gen_corev-dv generation step before it runs.
+
+    The tree is the authority: a test-program directory carrying
+    tests/programs/corev-dv/<name>/corev-dv.yaml is exactly what tells
+    mk/Common.mk's generation targets (and therefore `make gen_corev-dv`) that
+    the program is generated, so a --testlist may name any generation test
+    without also editing COREV_DV_TESTS. The curated list is still consulted so
+    a generated test with an untracked or renamed corev-dv.yaml keeps running
+    the way it always did."""
+    return (test in COREV_DV_TESTS
+            or (TESTS_PROGRAM_ROOT / "corev-dv" / test / "corev-dv.yaml").is_file())
 
 
 def seed_arg(text):
@@ -536,22 +660,26 @@ def _run(cmd, cwd, env, timeout, capture):
 
 
 def setup_corev_dv(tb, timeout):
-    """Run `make corev-dv` once (clones+compiles corev-dv/riscv-dv); aborts
-    the script on failure since no COREV_DV_TESTS entry can build without it."""
+    """Run `make comp_corev-dv` once (compiles the corev-dv/riscv-dv generator,
+    cloning the pinned vendor trees only if they are missing); aborts the script
+    on failure since no COREV_DV_TESTS entry can build without it.
+
+    Not `make corev-dv`: that target starts with clean_riscv-dv and re-clones
+    riscv-dv (rm -rf + git clone) on every call."""
     tbcfg = TESTBENCHES[tb]
-    cmd = ["make", "corev-dv"] + tbcfg["make_args"]
+    cmd = ["make", "comp_corev-dv"] + tbcfg["make_args"]
     env = make_env(tbcfg)
 
-    print(f"[Setup/{tb}] make corev-dv ...")
+    print(f"[Setup/{tb}] make comp_corev-dv ...")
     try:
         returncode, _, _ = _run(cmd, tbcfg["sim_dir"], env, timeout, capture=False)
     except subprocess.TimeoutExpired:
-        sys.exit(f"error: 'make corev-dv' timed out after {timeout}s")
+        sys.exit(f"error: 'make comp_corev-dv' timed out after {timeout}s")
     except OSError as exc:
-        sys.exit(f"error: could not launch 'make corev-dv': {exc}")
+        sys.exit(f"error: could not launch 'make comp_corev-dv': {exc}")
 
     if returncode != 0:
-        sys.exit(f"error: 'make corev-dv' failed (exit {returncode}); "
+        sys.exit(f"error: 'make comp_corev-dv' failed (exit {returncode}); "
                   "no corev-dv test can build without it")
 
 
@@ -625,7 +753,7 @@ def run_test(tb, test, cfg, timeout, quiet, extra_make_args=None,
     env = make_env(tbcfg)
     gen_seed_used = None
 
-    if test in COREV_DV_TESTS:
+    if is_corev_dv(test):
         gen_cmd = (["make", "gen_corev-dv", f"TEST={test}", f"SEED={gen_seed}"]
                     + tbcfg["make_args"])
         if extra_make_args:
@@ -725,7 +853,7 @@ def _parse_log(tb, test, path, cfg, dir_seed):
     text = path.read_text(errors="replace")
     run_seed_used = extract_seed(text) or dir_seed
     gen_seed_used = None
-    if test in COREV_DV_TESTS:
+    if is_corev_dv(test):
         gpath = gen_log_path(tb, test, cfg)
         if gpath.is_file():
             gen_seed_used = extract_seed(gpath.read_text(errors="replace"))
@@ -753,6 +881,118 @@ def discover_all_custom():
         found.extend(entry.name for entry in sorted(root_dir.iterdir())
                      if entry.is_dir() and entry.name not in skip)
     return sorted(found)
+
+
+# Optional keys of a --testlist file, and the keys of one of its test entries.
+# Anything else is rejected rather than ignored: a typo silently changing what a
+# regression runs is the failure mode this format exists to avoid (the curated
+# lists above drifted into exactly that -- csr_instr_asm is both a default test
+# and a parked one).
+TESTLIST_KEYS = ("name", "description", "tb", "cfg", "timeout", "jobs", "seed",
+                 "make_args", "tests")
+TESTLIST_TEST_KEYS = ("name", "description", "make_args")
+
+
+def load_testlist(path):
+    """Read a regression testlist; return (meta, entries).
+
+    regress/*.yaml is where bin/README.md has always told people to put
+    regression testlists, and this is the format bin/run_tests.py -- the repo's
+    one harness -- actually consumes. meta carries the file's run settings (name,
+    description, tb, cfg, timeout, jobs, seed, make_args) and entries one dict
+    per test, in file order.
+
+    Every listed name must be a real test-program directory under
+    tests/programs/{custom,corev-dv}/: catching a renamed or misspelled test at
+    load time beats discovering it as an ERROR row two hours into a regression.
+
+    PyYAML is imported here rather than at module scope so the rest of this
+    script keeps running on a bare interpreter (bin/requirements.txt declares it,
+    and every `make test` already needs it through bin/yaml2make)."""
+    try:
+        import yaml
+    except ImportError:
+        sys.exit("error: --testlist requires PyYAML -- "
+                 "pip install -r bin/requirements.txt")
+
+    path = Path(path)
+    if not path.is_file():
+        sys.exit(f"error: testlist not found: {path}")
+    try:
+        doc = yaml.safe_load(path.read_text())
+    except (OSError, yaml.YAMLError) as exc:
+        sys.exit(f"error: could not read testlist {path}: {exc}")
+
+    def reject_unknown(mapping, allowed, where):
+        unknown = [key for key in mapping if key not in allowed]
+        if unknown:
+            sys.exit(f"error: {path}: unknown key(s) "
+                     f"{', '.join(sorted(unknown))} in {where}; "
+                     f"allowed: {', '.join(allowed)}")
+
+    if not isinstance(doc, dict):
+        sys.exit(f"error: {path}: expected a mapping of testlist settings")
+    reject_unknown(doc, TESTLIST_KEYS, "the testlist")
+    for key in ("name", "tests"):
+        if not doc.get(key):
+            sys.exit(f"error: {path}: '{key}' is required")
+
+    tests = doc["tests"]
+    if not isinstance(tests, list) or not tests:
+        sys.exit(f"error: {path}: 'tests' must be a non-empty list")
+
+    roots = [TESTS_PROGRAM_ROOT / "custom", TESTS_PROGRAM_ROOT / "corev-dv"]
+    entries, seen = [], set()
+    for position, entry in enumerate(tests):
+        where = f"tests[{position}]"
+        if not isinstance(entry, dict) or not entry.get("name"):
+            sys.exit(f"error: {path}: {where} must be a mapping with a 'name'")
+        reject_unknown(entry, TESTLIST_TEST_KEYS, where)
+        name = entry["name"]
+        if name in seen:
+            sys.exit(f"error: {path}: test '{name}' is listed twice")
+        seen.add(name)
+        if not any((root / name).is_dir() for root in roots):
+            where = " or ".join(str(root.relative_to(REPO)) for root in roots)
+            sys.exit(f"error: {path}: test '{name}' has no test-program "
+                     f"directory under {where}")
+        entries.append({"name": name,
+                        "description": entry.get("description"),
+                        "make_args": list(entry.get("make_args") or [])})
+
+    meta = dict(doc)
+    try:
+        meta["path"] = str(path.resolve().relative_to(REPO))
+    except ValueError:
+        meta["path"] = str(path)
+    return meta, entries
+
+
+def regression_document(tb, cfg, results, testlist=None, started=None,
+                        finished=None, descriptions=None):
+    """This batch's rows as a bin/regression_report.py document.
+
+    rows are (test, verdict, detail, gen_seed, run_seed, duration) tuples, the
+    shape main() collects; --parse-only rows carry duration None because nothing
+    was timed. Each row also gets its simulation log's repository-relative path
+    and whether that log is still on disk -- the published dashboard links to a
+    copy of it, so a path that no longer exists must not be offered as one.
+    descriptions come from the --testlist file and are the only human-readable
+    text a reader of the dashboard gets per test."""
+    descriptions = descriptions or {}
+    entries = []
+    for test, verdict, detail, gen_seed, run_seed, duration in results:
+        # Only --tb core keys its log directory by seed, and there the seed is
+        # always known (run_test() falls back to the one it was given).
+        log = log_path(tb, test, run_seed or DEFAULT_SEED, cfg)
+        entries.append(regression_report.test_entry(
+            test, verdict, detail=detail, gen_seed=gen_seed, run_seed=run_seed,
+            duration_s=duration,
+            log=os.path.relpath(log, REPO).replace(os.sep, "/"),
+            log_exists=log.is_file(),
+            description=descriptions.get(test)))
+    return regression_report.build_document(
+        entries, tb, cfg, testlist=testlist, started=started, finished=finished)
 
 
 def merge_test_coverage(tb, test, run_index, cfg, timeout):
@@ -796,79 +1036,226 @@ def merge_test_coverage(tb, test, run_index, cfg, timeout):
     return True
 
 
-def parse_questasim_coverage(report_dir, instance_path):
-    """Pull the headline coverage numbers of one instance out of a Questa HTML
-    report directory (the output of `vcover report -html`).
+# Coverage metrics come from `vcover report -xml`, whose document is a flat list
+# of per-scope rollups:
+#
+#     <coverage_report><code_coverage_report byInstance="1">
+#       <instanceData path="/…/alu_i" du="cve2_alu">
+#         <statements active="66" hits="64" percent="96.96"/>   <- per instance
+#         <branches …/> <fec_conditions …/> <states …/> <transitions …/>
+#         <assertion_successes …/> <cover_directives …/>
+#       </instanceData>
+#       <instanceData path="/uvme_cv32e20_pkg">
+#         <cover_group_types active="109" hits="na" percent="0.00"/>
+#         <coverpoints_crosses active="333" …/>                 <- per package
+#         <cvgbins active="12695" hits="0" percent="0.00"/>
+#       </instanceData>
+#
+# Both kinds of metric therefore come from one real data source. They used to be
+# scraped out of the generated HTML report's files/overalldu.js, which can only
+# ever report the scope that HTML was generated for, and whose 'fc' field counts
+# the handful of cover *directives* in the RTL rather than the covergroup *bins*
+# of the environment -- which is how the dashboard came to advertise 100%
+# functional coverage while the env's bins sat at 0%. hits="na" shows up on
+# metrics nothing hit and has to be tolerated.
 
-    Prefers files/overalldu.js under report_dir, which carries the aggregated
-    numbers as structured data; falls back to scanning the HTML tables for a row naming
-    the instance. Returns None when neither source yields anything."""
-    # The JS file typically holds the overall summary data. `vcover report
-    # -html -output <dir>` writes it as <dir>/files/overalldu.js; `make cov`
-    # nests its own report one level deeper under cov_report/.
-    js_file = next((candidate for candidate in (
-        report_dir / "files" / "overalldu.js",
-        report_dir / "cov_report" / "files" / "overalldu.js") if candidate.exists()),
-        None)
+# <element name> -> metric name, for the code rollups of one instance.
+_CODE_ROLLUPS = (
+    ("statements", "statement"),
+    ("branches", "branch"),
+    ("fec_conditions", "condition"),
+    ("states", "fsm_state"),
+    ("transitions", "fsm_transition"),
+    ("assertion_successes", "assertion"),
+    ("cover_directives", "cover_directive"),
+)
 
-    if js_file:
-        try:
-            content = js_file.read_text(errors='ignore')
-            # The "ds" member of the embedded g_data object holds the overall
-            # metrics, each as [total, covered, percentage]. It is followed by a
-            # comma (more keys), never the ";" an earlier regex assumed -- and its
-            # arrays only use brackets, so [^}]* safely bounds the object.
-            ds_match = re.search(r'"ds":\s*(\{[^}]*\})', content)
-            if ds_match:
-                def get_val(key):
-                    # Look for "s":[..., ..., value]
-                    pattern = rf'"{key}":\s*\[\s*[^\]]*,\s*[^\]]*,\s*([\d\.]+)\s*\]'
-                    match = re.search(pattern, ds_match.group(1))
-                    return match.group(1) if match else "N/A"
+# The five metrics OpenHW TRL5 asks for; "code" below is their unweighted mean.
+_TRL5_METRICS = ("statement", "branch", "condition", "fsm_state", "fsm_transition")
 
-                def get_single_val(key):
-                    # Look for "tc":value
-                    pattern = rf'"{key}":\s*([\d\.]+)'
-                    match = re.search(pattern, ds_match.group(1))
-                    return match.group(1) if match else "N/A"
 
-                return {
-                    "code_coverage": get_single_val("tc"),
-                    "functional_coverage": get_val("fc"),
-                    "statement": get_val("s"),
-                    "branch": get_val("b"),
-                    "fsm_state": get_val("fs"),
-                    "fsm_transition": get_val("ft"),
-                }
-        except Exception as exc:
-            print(f"Error parsing overalldu.js: {exc}")
-
-    # Fallback to HTML parsing.
-    paths_to_try = [instance_path, instance_path.lstrip('/')]
-
+def _rollup_int(value):
+    """A Questa rollup count as int, or None when it does not apply ('na')."""
     try:
-        for html_file in report_dir.rglob("*.html"):
-            content = html_file.read_text(errors='ignore')
-            for path in paths_to_try:
-                if path in content:
-                    rows = re.findall(r'<tr\b[^>]*>(.*?)</tr>', content,
-                                      re.DOTALL | re.IGNORECASE)
-                    for row in rows:
-                        if path in row:
-                            matches = re.findall(
-                                r'<td\b[^>]*>\s*(\d+(?:\.\d+)?)\s*%?\s*</td>', row)
-                            if not matches:
-                                matches = re.findall(r'(\d+(?:\.\d+)?)\s*%', row)
-                            if len(matches) >= 2:
-                                return {"code_coverage": matches[0],
-                                        "functional_coverage": matches[1]}
-                            elif len(matches) == 1:
-                                return {"code_coverage": matches[0],
-                                        "functional_coverage": "N/A"}
-    except Exception as exc:
-        print(f"Error parsing coverage reports: {exc}")
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
-    return None
+
+def _percent(hits, active):
+    """Percentage of active items that were hit, or None when there are none (a
+    scope without FSMs has no FSM coverage to report)."""
+    return round(100.0 * hits / active, 2) if active else None
+
+
+def _parse_questa_xml(xml_path):
+    """Root of a Questa XML export, or None with a warning when unreadable."""
+    try:
+        return ET.parse(str(xml_path)).getroot()
+    except (OSError, ET.ParseError) as exc:
+        print(f"warning: could not read {xml_path}: {exc}")
+        return None
+
+
+def parse_questa_code_rollup(xml_path, scope=None):
+    """Sum the code-coverage rollups of a `vcover report -xml` export.
+
+    scope (a hierarchy path, as passed to vcover's -instance) restricts the
+    totals to that subtree, which is this project's code-coverage policy -- the
+    testbench's own code is not the deliverable. Returns
+
+        {metric: {"active": n, "hits": n, "percent": p}, …, "code": p}
+
+    over _CODE_ROLLUPS plus the derived "code" average, or None when the export
+    holds nothing in scope."""
+    root = _parse_questa_xml(xml_path)
+    if root is None:
+        return None
+
+    scope = scope.rstrip(".") if scope else None
+    totals = dict((metric, [0, 0]) for _elem, metric in _CODE_ROLLUPS)
+    for inst in root.iter("instanceData"):
+        path = inst.get("path", "")
+        if scope and not (path == scope or path.startswith(scope + "/")):
+            continue
+        for elem_name, metric in _CODE_ROLLUPS:
+            node = inst.find(elem_name)
+            if node is None:
+                continue
+            active = _rollup_int(node.get("active"))
+            if active is None:
+                continue
+            totals[metric][0] += active
+            totals[metric][1] += _rollup_int(node.get("hits")) or 0
+
+    metrics = {}
+    for metric, (active, hits) in totals.items():
+        metrics[metric] = {"active": active, "hits": hits,
+                           "percent": _percent(hits, active)}
+    percents = [metrics[metric]["percent"] for metric in _TRL5_METRICS
+                if metrics[metric]["percent"] is not None]
+    if not percents:
+        return None
+    # Headline number for the dashboard: the average of the TRL5 code metrics,
+    # which is what the scraped 'tc' field of the HTML report used to report.
+    metrics["code"] = round(sum(percents) / len(percents), 2)
+    return metrics
+
+
+def parse_questa_functional_rollup(xml_path):
+    """Covergroup-bin coverage of a `vcover report -xml` export, whole hierarchy.
+
+    The covergroup rollups hang off one <instanceData> per package, whose path
+    is the package itself (/uvme_cv32e20_pkg, …) -- always outside the DUT, so
+    this export must not be instance-restricted. Returns
+
+        {"bins_total": n, "bins_covered": n, "percent": p,
+         "packages": {name: {"bins_total", "bins_covered", "percent"}}}
+
+    or None when the export carries no covergroups."""
+    root = _parse_questa_xml(xml_path)
+    if root is None:
+        return None
+
+    packages = {}
+    for inst in root.iter("instanceData"):
+        node = inst.find("cvgbins")
+        if node is None:
+            continue
+        active = _rollup_int(node.get("active"))
+        if not active:
+            continue
+        hits = _rollup_int(node.get("hits")) or 0
+        name = inst.get("path", "").strip("/") or "(unknown)"
+        packages[name] = {"bins_total": active, "bins_covered": hits,
+                          "percent": _percent(hits, active)}
+    if not packages:
+        return None
+
+    total = sum(pkg["bins_total"] for pkg in packages.values())
+    covered = sum(pkg["bins_covered"] for pkg in packages.values())
+    return {"bins_total": total, "bins_covered": covered,
+            "percent": _percent(covered, total), "packages": packages}
+
+
+def copy_common_css(dest_dir):
+    """Publish templates/common/style.css as <dest_dir>/common.css.
+
+    Returns the destination path, or None when the template is missing (a
+    warning is printed either way). Kept as its own function because there are
+    two copy sites on purpose: this one for coverage_report/ and one in
+    regression_report.publish() for coverage_report/regression/.
+    """
+    common_css = REPO / "templates" / "common" / "style.css"
+    if not common_css.is_file():
+        print(f"warning: shared stylesheet not found at {common_css}")
+        return None
+    dest = Path(dest_dir) / "common.css"
+    shutil.copy(common_css, dest)
+    return dest
+
+
+# The analysis files the published page reads, relative to docs/coverage/. Kept
+# as a module constant so a test can publish a smaller set. Not
+# raw/holes_by_du.csv: that rollup is a count of the rows of holes.csv, the page
+# recomputes it itself, and bin/coverage_holes.py writes it straight into the
+# published tree rather than leaving it to be committed beside its own input.
+COVERAGE_ANALYSIS_FILES = (
+    "coverage_review.csv",
+    "raw/waiver_audit.csv",
+    "raw/holes.csv",
+    "raw/phase_c_acceptance.csv",
+)
+
+
+def publish_coverage_analysis(dest_dir, source_root=None):
+    """Mirror the committed coverage analysis into ``<dest_dir>/analysis/``.
+
+    The originals live under docs/coverage/ because they are input to a review,
+    not output of a run; they are mirrored into the published tree because that
+    is where anyone looking for anything coverage-related goes, and the page
+    this copies in alongside them fetches them by relative path. The mirror is
+    regenerated with every report, never edited and never read back by python:
+    the tools and the cite checker read docs/coverage/.
+
+    source_root defaults to docs/coverage/ so a test can point it at a tree of
+    its own. Each file is fail-soft on its own, because an analysis nobody has
+    run yet is a warning naming the command that regenerates it, not a report
+    worth losing. Returns the destination directory.
+    """
+    dest_dir = Path(dest_dir)
+    source_root = REPO / "docs" / "coverage" if source_root is None else Path(source_root)
+    analysis_dest = dest_dir / "analysis"
+
+    published = 0
+    for name in COVERAGE_ANALYSIS_FILES:
+        source = source_root / name
+        if not source.is_file():
+            print(f"warning: no coverage analysis at {source}; regenerate it "
+                  f"with bin/coverage_review.py (docs/coverage/README.md)")
+            continue
+        # One mkdir per file, so a set without any raw dump does not leave an
+        # empty raw/ directory behind.
+        (analysis_dest / name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(source, analysis_dest / name)
+        published += 1
+
+    # The page that reads them. Templates missing says so and keeps the CSVs:
+    # a downloadable sheet is still worth publishing without the viewer.
+    page_templates = REPO / "templates" / "analysis_dashboard"
+    if (page_templates / "index.html").is_file():
+        analysis_dest.mkdir(parents=True, exist_ok=True)
+        for name in ("index.html", "style.css"):
+            shutil.copy(page_templates / name, analysis_dest / name)
+        copy_common_css(analysis_dest)
+        print(f"Coverage analysis page copied to {analysis_dest}/")
+    else:
+        print(f"warning: analysis page templates not found at {page_templates}/")
+
+    if published:
+        print(f"Coverage analysis mirrored to {analysis_dest}/ ({published} "
+              f"of {len(COVERAGE_ANALYSIS_FILES)} file(s))")
+    return analysis_dest
 
 
 def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
@@ -884,13 +1271,20 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
     produces the dashboard plus summary.json, with N/A metrics.
 
     clean: wipe coverage_report/ first, so no artifact of a previous run survives
-    into the published set."""
+    into the published set.
+
+    Every step is independent and fail-soft: a missing merged.ucdb, a vcover
+    invocation that fails, or a template that is not checked out all print a
+    warning and leave the rest of the artifact set in place, because a partial
+    report is still worth publishing and the dashboard renders an absent
+    artifact as N/A (and hides the button that would have opened it)."""
     tbcfg = TESTBENCHES[tb]
     sim_dir = tbcfg["sim_dir"]
     cov_instance = tbcfg["cov_instance"]
     report_dest_root = REPO / "coverage_report"
     log_file_abs = sim_dir / "test_results.log"
     merged_ucdb = sim_dir / "vsim_results" / cfg / "merged" / "merged.ucdb"
+    merged_dir = merged_ucdb.parent
     summary_json_path = report_dest_root / "summary.json"
 
     # Pass/fail counts: from this batch, or recovered from the previous one.
@@ -910,31 +1304,90 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
         total_count = len(results)
         status = {"PASS": "PASSED", "FAIL": "FAILED"}
         log_lines = [f"{test}: {status.get(outcome, outcome)}"
-                     for test, outcome, _detail, _gen, _run in results]
+                     for test, outcome, _detail, _gen, _run, _dur in results]
 
     if clean and report_dest_root.exists():
         shutil.rmtree(report_dest_root)
         print(f"Removed previous report directory {report_dest_root}")
     report_dest_root.mkdir(parents=True, exist_ok=True)
 
-    # Vendor-neutral formats: UCIS XML exported straight from the UCDB, then
-    # Cobertura XML converted out of it (bin/ucdb_to_cobertura.py).
-    ucis_xml_path = report_dest_root / "merged.ucis.xml"
+    # Questa XML exports: the machine-readable source of every number below and
+    # of the Cobertura and UCIS conversions. Three of them, because the two
+    # coverage policies have different scopes:
+    #
+    #   merged.questasim.xml  whole hierarchy -> covergroup bins (functional)
+    #   dut_rollup.xml        DUT instance    -> code and TRL5 metrics
+    #   dut_detail.xml        DUT instance    -> per-file/per-line Cobertura
+    #
+    # The functional one must stay unrestricted: the environment's covergroups
+    # live in packages outside the DUT, so restricting it reports the RTL's cover
+    # directives instead (see parse_questa_functional_rollup). The -details
+    # exports are converter input rather than browsable reports -- the covergroup
+    # detail runs to tens of megabytes -- so they land next to the .ucdb instead
+    # of in the published coverage_report/.
+    questa_xml_path = report_dest_root / "merged.questasim.xml"
+    dut_rollup_path = report_dest_root / "dut_rollup.xml"
+    dut_detail_path = merged_dir / "dut_detail.xml"
+    cvg_detail_path = merged_dir / "cvg_detail.xml"
     cobertura_path = report_dest_root / "cobertura.xml"
+    ucis_xml_path = report_dest_root / "merged.ucis.xml"
+
+    code_metrics = None
+    functional = None
     if merged_ucdb.is_file():
+        print("Exporting Questa XML coverage reports ...")
+        for destination, options in (
+            (questa_xml_path, ["-xml"]),
+            (dut_rollup_path, ["-xml", f"-instance={cov_instance}."]),
+            (dut_detail_path, ["-xml", "-details", "-code", "scb",
+                               f"-instance={cov_instance}."]),
+            (cvg_detail_path, ["-xml", "-details", "-cvg"]),
+        ):
+            returncode, _, stderr = _run(
+                ["vcover", "report"] + options + ["-output", str(destination),
+                                                  str(merged_ucdb)],
+                sim_dir, None, timeout, capture=True)
+            if returncode != 0:
+                last = (stderr or "").strip().splitlines()
+                print(f"  warning: failed to export {destination.name} "
+                      f"(exit {returncode}): {last[-1] if last else 'no output'}")
+
+        code_metrics = parse_questa_code_rollup(dut_rollup_path, cov_instance)
+        functional = parse_questa_functional_rollup(questa_xml_path)
+        if code_metrics:
+            print(f"  code coverage (DUT-scoped): {code_metrics['code']}% -- "
+                  + ", ".join(
+                      f"{metric} {code_metrics[metric]['hits']}"
+                      f"/{code_metrics[metric]['active']}"
+                      f"={code_metrics[metric]['percent']}%"
+                      for metric in _TRL5_METRICS))
+        else:
+            print("  warning: no code coverage in the DUT scope")
+        if functional:
+            print(f"  functional coverage (full hierarchy): {functional['percent']}% "
+                  f"of {functional['bins_total']} covergroup bins in "
+                  f"{len(functional['packages'])} packages")
+        else:
+            print("  warning: no covergroup coverage found in the export")
+
+        # Vendor-neutral formats, both converted out of the Questa XML above.
         print("Generating vendor-neutral coverage formats ...")
-        returncode, _, stderr = _run(["vcover", "report", "-xml", "-output",
-                                      str(ucis_xml_path), str(merged_ucdb)],
-                                     sim_dir, None, timeout, capture=True)
-        if returncode != 0:
-            print(f"  warning: failed to export UCIS XML: {(stderr or '').strip()}")
-        elif generate_cobertura_xml(str(ucis_xml_path), str(cobertura_path),
-                                    cov_instance):
+        if generate_cobertura_xml(str(dut_detail_path), str(cobertura_path),
+                                  rollup_path=str(dut_rollup_path),
+                                  scope=cov_instance):
             print(f"  Cobertura XML generated: {cobertura_path}")
         else:
             print("  warning: failed to generate Cobertura XML")
+        if generate_ucis_xml(str(questa_xml_path), str(ucis_xml_path),
+                             detail_path=str(dut_detail_path),
+                             cvg_detail_path=str(cvg_detail_path),
+                             ucdb_name=str(merged_ucdb)):
+            print(f"  UCIS XML generated: {ucis_xml_path}")
+        else:
+            print("  warning: failed to generate UCIS XML")
     else:
-        print("warning: merged UCDB not found, vendor-neutral formats not generated")
+        print("warning: merged UCDB not found, coverage metrics and "
+              "vendor-neutral formats not generated")
 
     # Questa HTML report. `make cov` leaves it inside the sim tree; publish a
     # copy at the top level so GitHub Pages can serve it as-is.
@@ -956,8 +1409,29 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
     else:
         print("warning: merged UCDB not found, HTML report not generated")
 
-    # Headline numbers for the core instance, read back out of the HTML report.
-    cov_metrics = parse_questasim_coverage(report_dest_questasim, cov_instance)
+    # Functional-Coverage-only HTML report, for the dashboard's second button.
+    # -cvg and deliberately no -instance: this is the covergroup-bin number of
+    # the whole hierarchy, environment included, and scoping it to the DUT would
+    # silently turn it into the RTL's cover-directive count (see the invariant
+    # in the module docstring). Same fail-soft contract as its sibling above --
+    # without it the Functional Coverage button is simply hidden.
+    report_dest_questasim_func = report_dest_root / "questasim_func"
+    if merged_ucdb.is_file():
+        print(f"Generating functional coverage HTML report in "
+              f"{report_dest_questasim_func} ...")
+        returncode, _, stderr = _run(["vcover", "report", "-html", "-details",
+                                      "-precision", "2", "-cvg",
+                                      "-output", str(report_dest_questasim_func),
+                                      str(merged_ucdb)],
+                                     sim_dir, None, timeout, capture=True)
+        if returncode != 0:
+            print(f"  warning: failed to generate functional coverage HTML "
+                  f"report: {(stderr or '').strip()}")
+        else:
+            print("  functional coverage HTML report generated successfully")
+    else:
+        print("warning: merged UCDB not found, functional coverage HTML report "
+              "not generated")
 
     # Dashboard shell that reads summary.json; copied unconditionally so even a
     # run without coverage data publishes something browsable.
@@ -969,28 +1443,34 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
     else:
         print(f"warning: dashboard templates not found at {dashboard_templates}/")
 
-    # TRL5 metrics for the core instance. Taken from the HTML report's
-    # overalldu.js (parse_questasim_coverage), which is already scoped to
-    # cov_instance by the -instance flag above -- `vcover report -summary`
-    # cannot provide a per-type breakdown for one instance, only a total.
+    # The stylesheet the two dashboards share. It is published *into each*
+    # directory rather than referenced across them, because the regression
+    # dashboard lives in coverage_report/regression/ and the Pages artifact
+    # preserves those paths: regression_report.py copies the same file one
+    # directory down, so both pages use the same href="common.css".
+    copy_common_css(report_dest_root)
+
+    # The waiver / open-hole analysis lives under docs/ (it is input to a
+    # review, not output of a run); this mirrors the whole of it, sheet and raw
+    # dumps, into coverage_report/analysis/ next to the page that reads it.
+    publish_coverage_analysis(report_dest_root)
+
+    # TRL5 metrics: the five code metrics of the DUT scope, read out of
+    # dut_rollup.xml. 'condition' is Questa's own condition metric
+    # (<fec_conditions> rollups); it used to be filled with the scraped
+    # functional number, which made the two dashboard cards agree by
+    # construction.
     trl5_metrics = None
-    if merged_ucdb.is_file():
-        if cov_metrics:
-            trl5_metrics = {
-                "statement": cov_metrics.get("statement", "N/A"),
-                "branch": cov_metrics.get("branch", "N/A"),
-                "condition": cov_metrics.get("functional_coverage", "N/A"),
-                "fsm_state": cov_metrics.get("fsm_state", "N/A"),
-                "fsm_transition": cov_metrics.get("fsm_transition", "N/A"),
-            }
-            print("TRL5 coverage metrics extracted:")
-            for key in ("statement", "branch", "condition", "fsm_state",
-                        "fsm_transition"):
-                print(f"  {key}: {trl5_metrics.get(key, 'N/A')}%")
-        else:
-            print("warning: failed to extract TRL5 coverage metrics")
+    if code_metrics:
+        trl5_metrics = {metric: (code_metrics[metric]["percent"]
+                                 if code_metrics[metric]["percent"] is not None
+                                 else "N/A")
+                        for metric in _TRL5_METRICS}
+        print("TRL5 coverage metrics (DUT-scoped):")
+        for metric in _TRL5_METRICS:
+            print(f"  {metric}: {trl5_metrics[metric]}%")
     else:
-        print("warning: merged UCDB file not found, TRL5 metrics not available")
+        print("warning: no DUT-scoped code coverage, TRL5 metrics not available")
 
     if trl5_metrics:
         trl5_json_path = report_dest_root / "trl5_metrics.json"
@@ -1016,16 +1496,25 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
 
     # summary.json drives the dashboard's cards and its TRL badge.
     summary_data = {
-        "code_coverage": cov_metrics.get("code_coverage", "N/A") if cov_metrics else "N/A",
-        # The dashboard's Functional Coverage card is sourced from Questa Sim's
-        # own functional-cover metric (overalldu.js 'fc'), not the test pass rate.
-        "functional_coverage": cov_metrics.get("functional_coverage", "N/A") if cov_metrics else "N/A",
+        # Code coverage stays DUT-scoped; functional coverage is the real
+        # covergroup-bin number over the whole hierarchy, environment included.
+        # Each card labels its scope, and the raw counts ride along so the
+        # dashboard can say "6 183 / 45 942 bins" instead of a bare percent.
+        "code_coverage": code_metrics["code"] if code_metrics else "N/A",
+        "code_scope": f"DUT-scoped ({cov_instance})",
+        "functional_coverage": functional["percent"] if functional else "N/A",
+        "functional_scope": "full hierarchy (env covergroups included)",
+        "bins_covered": functional["bins_covered"] if functional else 0,
+        "bins_total": functional["bins_total"] if functional else 0,
+        "functional_packages": functional["packages"] if functional else {},
+        "code_metrics": ({metric: value for metric, value in code_metrics.items()
+                          if metric != "code"} if code_metrics else {}),
         "pass_rate": round(pass_rate, 2),
         "total_tests": total_count,
         "passed": passed_count,
         "failed": total_count - passed_count,
     }
-    # trl5_metrics is derived from cov_metrics above, so the two are consistent;
+    # trl5_metrics is derived from code_metrics above, so the two are consistent;
     # without a merged .ucdb there are no numbers and everything stays N/A.
     if trl5_metrics:
         summary_data.update({
@@ -1130,7 +1619,7 @@ def run_certify(seed, timeout, quiet, spike_tandem=False, filter_=None):
     return (*classify_certify_summary(summary_path), seed)
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("tests", nargs="*",
@@ -1148,6 +1637,15 @@ def main():
                     help="run ONLY the corev-dv generated regression tests (uvmt "
                          "only); cannot be combined with test names, "
                          "--include-parked, or --include-corev-dv")
+    ap.add_argument("--testlist", metavar="PATH", default=None,
+                    help="run the regression testlist in PATH (a regress/*.yaml "
+                         "file, see 'Regression testlists' below): it selects "
+                         "the tests and may set tb, cfg, timeout, jobs, seed and "
+                         "per-test make args. An option given on the command "
+                         "line still wins over the file. Cannot be combined "
+                         "with test names, --all-custom, --corev-dv-only, "
+                         "--certify, --include-parked or --include-corev-dv, "
+                         "because the file is the selection.")
     ap.add_argument("--parse-only", action="store_true",
                     help="do not run; just parse existing logs in the results "
                          "directory (core: every <test>/<seed>/ found, one "
@@ -1179,9 +1677,9 @@ def main():
                     help="collect code coverage (uvmt only; equivalent to "
                          "`make test ... COV=1` per test). Requires "
                          "sim/tools/vsim/cov.tcl to exist, or Questa silently "
-                         "collects nothing -- see docs/COVERAGE-MAKE-TARGETS.md "
-                         "for the report targets (cov, cov_txt, cov_holes, "
-                         "cov_holes_details) that consume the resulting .ucdb.")
+                         "collects nothing. The report targets that consume "
+                         "the resulting .ucdb (cov, cov_txt, cov_holes, "
+                         "cov_holes_details) live in mk/uvmt/vsim.mk.")
     ap.add_argument("--cov-report", action="store_true",
                     help="implies --cov, and additionally merges each PASSing test's "
                          ".ucdb into vsim_results/<cfg>/merged/merged.ucdb and "
@@ -1189,7 +1687,8 @@ def main():
                          "coverage_report/ (uvmt only; requires --tb uvmt). Tests that "
                          "did not PASS are not merged -- see --merge-existing.")
     ap.add_argument("--all-custom", action="store_true",
-                    help="select every directory under TESTS_ROOTS (tests/programs/custom) "
+                    help="select every directory under TESTS_ROOTS "
+                         "(tests/programs/custom, tests/programs/corev-dv) "
                          "instead of the curated lists. PARKED and corev-dv names are "
                          "skipped unless --include-parked / --include-corev-dv also ask "
                          "for them, and DISCOVERY_EXCLUDES is always skipped. Cannot be "
@@ -1211,8 +1710,8 @@ def main():
                          "per-test verdicts are still printed and summarized). Use "
                          "this when a downstream step (e.g. publishing coverage "
                          "reports) must run regardless of the test outcome. Genuine "
-                         "setup failures -- 'make corev-dv'/'make comp' errors, no "
-                         "tests selected, missing sim directory -- still exit "
+                         "setup failures -- 'make comp_corev-dv'/'make comp' errors, "
+                         "no tests selected, missing sim directory -- still exit "
                          "non-zero.")
     ap.add_argument("--spike-tandem", action="store_true",
                     help="run in tandem with the Spike ISS, comparing every "
@@ -1242,7 +1741,32 @@ def main():
                     help="run up to N tests concurrently (default: 1, sequential). "
                          "See the 'Concurrency' section of --help for the safety "
                          "model (uvmt only is verified race-free; core is not).")
-    args = ap.parse_args()
+
+    args = ap.parse_args(argv)
+
+    # A testlist is loaded before anything else validates the options, because
+    # it can name the testbench itself ('--tb uvmt' would otherwise be required
+    # for a regress/*.yaml that says tb: uvmt). Precedence is command line >
+    # file > built-in default, which means only the options still sitting at
+    # their parser default are taken from the file.
+    testlist_meta, testlist_entries = None, None
+    if args.testlist:
+        testlist_meta, testlist_entries = load_testlist(args.testlist)
+        for key in ("tb", "cfg", "timeout", "jobs", "seed"):
+            value = testlist_meta.get(key)
+            if value is None or getattr(args, key) != ap.get_default(key):
+                continue
+            if key == "tb" and value not in TESTBENCHES:
+                ap.error(f"{testlist_meta['path']}: unknown tb '{value}' "
+                         f"(choose from {', '.join(sorted(TESTBENCHES))})")
+            if key == "seed":
+                try:
+                    value = seed_arg(str(value))
+                except argparse.ArgumentTypeError as exc:
+                    ap.error(f"{testlist_meta['path']}: bad seed: {exc}")
+            setattr(args, key, value)
+        print(f"Testlist {testlist_meta['path']}: {testlist_meta['name']} -- "
+              f"{len(testlist_entries)} test(s)")
 
     if args.jobs < 1:
         ap.error("--jobs must be >= 1")
@@ -1272,6 +1796,12 @@ def main():
                   "--merge-existing (--report-only neither runs nor merges)")
     if args.all_custom and (args.tests or args.corev_dv_only):
         ap.error("--all-custom cannot be combined with test names or --corev-dv-only")
+    if args.testlist and (args.tests or args.all_custom or args.corev_dv_only
+                          or args.certify or args.include_parked
+                          or args.include_corev_dv):
+        ap.error("--testlist cannot be combined with test names, --all-custom, "
+                 "--corev-dv-only, --certify, --include-parked or "
+                 "--include-corev-dv (the testlist file is the selection)")
     # Neither of these launches a simulation.
     no_exec = args.merge_existing or args.report_only
 
@@ -1292,7 +1822,11 @@ def main():
     elif args.filter:
         ap.error("--filter has no effect without --certify")
 
-    if args.corev_dv_only:
+    if testlist_entries is not None:
+        # The file is ordered (a quick smoke test before a long one) and every
+        # entry is already known to name a real test-program directory.
+        selected = [entry["name"] for entry in testlist_entries]
+    elif args.corev_dv_only:
         if args.tests or args.include_parked or args.include_corev_dv:
             ap.error("--corev-dv-only cannot be combined with test names, "
                       "--include-parked, or --include-corev-dv")
@@ -1369,7 +1903,7 @@ def main():
             print(f"certify (seed {seed}): {outcome} {detail}".rstrip())
         sys.exit(0 if all(r[0] == "PASS" for r in runs) else 1)
 
-    needs_corev_dv = any(test in COREV_DV_TESTS for test in selected)
+    needs_corev_dv = any(is_corev_dv(test) for test in selected)
     if needs_corev_dv and not (args.parse_only or no_exec):
         if args.tb != "uvmt":
             sys.exit("error: corev-dv tests require --tb uvmt")
@@ -1389,25 +1923,47 @@ def main():
                   "proceeding anyway, but "
                   "prefer --jobs 1 unless you've confirmed it's safe.")
 
+    # Per-test make args from the testlist (e.g. CVE2_CONFIG=CV32E20X for a
+    # core built with an extension interface). Combined with, not replacing,
+    # the batch-level args -- COMP=NO from setup_comp() has to survive.
+    per_test_make_args = {}
+    if testlist_entries is not None:
+        for entry in testlist_entries:
+            extra = list(testlist_meta.get("make_args") or []) + entry["make_args"]
+            if extra:
+                per_test_make_args[entry["name"]] = extra
+
+    descriptions = dict((entry["name"], entry["description"])
+                        for entry in (testlist_entries or [])
+                        if entry["description"])
+    # --merge-existing contributes to the merge only; verdicts still come from
+    # the logs of whatever ran before. Hoisted out of run_one() because the
+    # published document at the end of main() has to know whether this batch
+    # timed anything at all.
+    just_parse = args.parse_only or args.merge_existing
+    started = regression_report.now()
+
     def run_one(test):
-        """Rows (test, outcome, detail, gen_seed, run_seed) for one test --
-        several when --parse-only finds more than one seed directory."""
-        # --merge-existing contributes to the merge only; verdicts still come
-        # from the logs of whatever ran before.
-        just_parse = args.parse_only or args.merge_existing
+        """Rows (test, outcome, detail, gen_seed, run_seed, duration) for one
+        test -- several when --parse-only finds more than one seed directory."""
         action = "Parsing" if just_parse else "Running"
         with _print_lock:
             print(f"[{action}/{args.tb}] {test} ...")
+        start = time.monotonic()
         if just_parse:
             rows = parse_only(args.tb, test, args.cfg, args.seed)
         else:
             rows = [run_test(
                 args.tb, test, args.cfg,
                 args.timeout, args.quiet,
-                extra_make_args=extra_make_args,
+                extra_make_args=(extra_make_args
+                                 + per_test_make_args.get(test, [])),
                 label=test if args.jobs > 1 else None,
                 gen_seed=args.gen_seed, seed=seed,
                 cov=args.cov, spike_tandem=args.spike_tandem)]
+        # Nothing is measured when a verdict is read back out of an old log, and
+        # an unmeasured duration is null rather than 0 -- see regression_report.
+        duration = None if just_parse else round(time.monotonic() - start, 1)
 
         # Feed this test's .ucdb into the merged database straight away. A
         # --cov-report batch only contributes PASSing runs (a FAILED/ERROR run
@@ -1428,7 +1984,7 @@ def main():
             with _print_lock:
                 for outcome, detail, _, _ in rows:
                     print(f"[{done}/{args.tb}] {test}: {outcome} {detail}".rstrip())
-        return [(test, *row) for row in rows]
+        return [(test, *row, duration) for row in rows]
 
     width = max(len(t) for t in selected)
     if args.jobs == 1:
@@ -1450,10 +2006,15 @@ def main():
     def _fmt_seed(s):
         return s if s is not None else "-"
 
+    def _fmt_duration(seconds):
+        return "-" if seconds is None else f"{seconds:g}s"
+
     gen_width = max([len("GEN_SEED")] + [len(_fmt_seed(r[3])) for r in results])
     run_width = max([len("RUN_SEED")] + [len(_fmt_seed(r[4])) for r in results])
+    time_width = max([len("TIME")] + [len(_fmt_duration(r[5])) for r in results])
     header = (f"{'TEST'.ljust(width)}   RESULT   "
-              f"{'GEN_SEED'.ljust(gen_width)}   {'RUN_SEED'.ljust(run_width)}   DETAIL")
+              f"{'GEN_SEED'.ljust(gen_width)}   {'RUN_SEED'.ljust(run_width)}   "
+              f"{'TIME'.ljust(time_width)}   DETAIL")
     sep_width = len(header)
 
     print()
@@ -1463,11 +2024,12 @@ def main():
     print(header)
     print("-" * sep_width)
     counts = {"PASS": 0, "FAIL": 0, "ERROR": 0}
-    for test, outcome, detail, gen_seed, run_seed in results:
+    for test, outcome, detail, gen_seed, run_seed, duration in results:
         counts[outcome] = counts.get(outcome, 0) + 1
         print(f"{test.ljust(width)}   {outcome:<6}   "
               f"{_fmt_seed(gen_seed).ljust(gen_width)}   "
-              f"{_fmt_seed(run_seed).ljust(run_width)}   {detail}")
+              f"{_fmt_seed(run_seed).ljust(run_width)}   "
+              f"{_fmt_duration(duration).ljust(time_width)}   {detail}")
     print("=" * sep_width)
     total = len(results)
     print(f"{total} test(s): {counts['PASS']} passed, "
@@ -1478,6 +2040,32 @@ def main():
         print()
         generate_coverage_reports(args.tb, args.cfg, results, args.timeout,
                                   clean=clean_report)
+
+    # The regression dashboard goes out after the coverage report on purpose:
+    # a --cov-report run wipes coverage_report/ before it starts, and publishing
+    # into coverage_report/regression/ before that would delete the page again.
+    # Publishing is reporting, not gating -- a dashboard that could not be
+    # written must not change what this batch's exit code says about the tests.
+    # Nothing is timed when the verdicts were read back out of existing logs, so
+    # the window between two now() calls in the same second is not this
+    # regression's wall time: publishing "0.0s" underneath a 100% pass rate is
+    # the invented number this whole report exists to avoid (see the "Never
+    # invent a number" note in bin/regression_report.py). The window goes null
+    # together with the per-test durations and the dashboard renders N/A.
+    measure_window = not just_parse
+    try:
+        document = regression_document(
+            args.tb, args.cfg, results,
+            testlist=testlist_meta["path"] if testlist_meta else None,
+            started=started if measure_window else None,
+            finished=regression_report.now() if measure_window else None,
+            descriptions=descriptions)
+        regression_report.publish(document, REPO / "coverage_report" / "regression")
+        # A second copy next to the logs this document describes, so a machine
+        # can pick up the run without the published report tree.
+        regression_report.write_document(document, sim_dir / regression_report.DOCUMENT_NAME)
+    except (OSError, ValueError) as exc:
+        print(f"warning: could not publish the regression results: {exc}")
 
     # Exit non-zero unless everything ran and passed -- which is also what makes
     # a --cov-report batch usable as the CI gate. --allow-failures downgrades a

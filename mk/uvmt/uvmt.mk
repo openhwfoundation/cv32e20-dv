@@ -140,13 +140,8 @@ DV_UVMT_SRCS                  = $(wildcard $(DV_UVMT_PATH)/*.sv))
 UVM_TEST_NAME ?= uvmt_$(CV_CORE_LC)_general_purpose_test_c
 TEST_UVM_TEST ?= $(UVM_TEST_NAME)
 
-# Google's random instruction generator
-RISCVDV_PKG         := $(CV32E20_DV)/vendor_lib/google/riscv-dv
-COREVDV_PKG         := $(CV_VERIF_PKG)/lib/corev-dv
-CV_CORE_COREVDV_PKG := $(CV32E20_DV)/env/corev-dv
-export RISCV_DV_ROOT         = $(RISCVDV_PKG)
-export COREV_DV_ROOT         = $(COREVDV_PKG)
-export CV_CORE_COREV_DV_ROOT = $(CV_CORE_COREVDV_PKG)
+# Google's random instruction generator: the paths are defined after the
+# include of Common.mk below, where CV_VERIF_PKG becomes known.
 
 # RISC-V Foundation's RISC-V Compliance Test-suite
 COMPLIANCE_PKG := $(CV32E20_DV)/$(CV_CORE_LC)/vendor_lib/riscv/riscv-compliance
@@ -174,6 +169,12 @@ SIM_LIBS    := $(CV32E20_DV)/lib/sim_libs
 
 RTLSRC_VLOG_TB_TOP	:= $(basename $(notdir $(TBSRC_TOP)))
 RTLSRC_VOPT_TB_TOP	:= $(addsuffix _vopt, $(RTLSRC_VLOG_TB_TOP))
+# Coverage scope: the DUT core only -- the testbench and the top-level
+# wrappers stay out of the database and out of every report.  This is the one
+# definition; mk/uvmt/vsim.mk's VOPT_COV and COV_INST_ARG consume it, and
+# bin/run_tests.py keeps a matching copy of the path in its uvmt
+# "cov_instance" entry, so the two have to change together.  Clear it with
+# `make cov COV_INSTANCE=` to instrument the whole design.
 COV_INSTANCE        ?= /uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core
 
 # RTL source files for the CV32E core
@@ -216,6 +217,18 @@ endif
 #    - Core Firmware and the RISCV GCC Toolchain (SDK)
 #    - Variables for RTL dependencies
 include $(CV32E20_DV)/mk/Common.mk
+###############################################################################
+# Google's random instruction generator
+#   COREVDV_PKG needs CV_VERIF_PKG (defined by Common.mk), so this block must
+#   stay after the include above: with ':=' it expands immediately, and before
+#   the include it silently resolved to '/lib/corev-dv'.
+RISCVDV_PKG         := $(CV32E20_DV)/vendor_lib/google/riscv-dv
+COREVDV_PKG         := $(CV_VERIF_PKG)/lib/corev-dv
+CV_CORE_COREVDV_PKG := $(CV32E20_DV)/env/corev-dv
+export RISCV_DV_ROOT         = $(RISCVDV_PKG)
+export COREV_DV_ROOT         = $(COREVDV_PKG)
+export CV_CORE_COREV_DV_ROOT = $(CV_CORE_COREVDV_PKG)
+
 ###############################################################################
 # Clone core RTL and DV dependencies
 clone_cv_core_rtl: $(CV_CORE_PKG)

@@ -493,6 +493,7 @@ function void uvme_cv32e20_env_c::connect_coverage_model();
 
    interrupt_agent.monitor.ap_iss.connect(cov_model.interrupt_covg.interrupt_mon_export);
    rvfi_agent.instr_monitor.ap.connect(isacov_agent.monitor.rvfi_instr_imp);
+   rvfi_agent.instr_monitor.ap.connect(cov_model.isa_covg_drv.analysis_export);
 
 endfunction: connect_coverage_model
 

@@ -1,0 +1,6 @@
+name: irq_withdraw_test
+uvm_test: uvmt_$(CV_CORE_LC)_firmware_test_c
+description: >
+    Withdraw an interrupt in the cycle the controller commits to it (IRQ_TAKEN false-arm coverage)
+plusargs: >
+    +irq_withdraw

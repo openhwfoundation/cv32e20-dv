@@ -1,0 +1,177 @@
+name: Python CI
+
+# The two other workflows in this directory (coverage.yml, self-hosted.yml) both
+# need a self-hosted runner with Questa Sim, its license, and the CORE-V toolchain,
+# and both are workflow_dispatch-only -- which is exactly why the repository's CI
+# could not fail: nothing ran on a push. This job is the part of the regression
+# tooling that needs none of that: the Python harness, the regression testlists,
+# the report converters and their schemas. It runs on a hosted runner on every
+# push to the trunk and on every pull request into it, so a broken
+# bin/run_tests.py or a malformed regress/*.yaml is caught by the bot that reviews
+# the change instead of by the next person who has a Questa license handy.
+#
+# Nothing here runs a simulation. The one thing that looks like one,
+# `run_tests.py --parse-only`, reads logs that do not exist on a hosted runner and
+# reports ERROR for each test, which --allow-failures turns into exit 0: the point
+# is to prove the harness starts, loads its lists, selects, and publishes, not to
+# claim tests passed. A green run here is a necessary condition for the Questa
+# jobs, never a substitute for them.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+# Read-only: this workflow runs no release step and publishes no site.
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Harness and testlists (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.11 is what the development venv (venv_cv32e20-dv) uses; 3.12 is what
+        # the self-hosted coverage job creates its venv with. bin/ must keep
+        # working on a bare interpreter, so neither may gain an import that
+        # bin/requirements.txt happens to provide -- except through the lazy
+        # `import yaml` inside load_testlist(), which is why PyYAML is installed
+        # below rather than left to chance.
+        python-version: ['3.11', '3.12']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # The whole point of this first step: bin/ is plain scripts, so the cheapest
+      # possible check is that every one of them still parses -- the two report
+      # converters included, which is the check that has to be independent of the
+      # schema job below. compileall is recursive, so it covers bin/tests too.
+      - name: Byte-compile bin/
+        run: python -m compileall -q bin
+
+      - name: Install PyYAML
+        run: python -m pip install --upgrade pip PyYAML
+
+      # The regression harness's own test suite: verdict classification, seed
+      # handling, testlist loading and rejection, the results document, and the
+      # report converters (whose xmllint checks are skipped here and enforced by
+      # the reports-schema job, because ubuntu-latest ships no xmllint).
+      - name: Run unit tests
+        run: python -m unittest discover -s bin/tests -t bin/tests -p 'test_*.py' -v
+
+      # Every cov.tcl line number the committed review sheet and its two raw
+      # dumps publish is a citation of a line of sim/tools/vsim/cov.tcl, so an
+      # edit there, a comment included, moves the cites below it, and a
+      # drifted cite still reads as a plausible number in a spreadsheet. The
+      # check costs one second and needs no simulator, so it runs beside the
+      # unit tests; bin/coverage_review.py's defaults already resolve both the
+      # dumps and cov.tcl against the repository, so nothing else is passed.
+      - name: Check the published cov.tcl cites
+        run: python bin/coverage_review.py --check-cites
+
+      # Each list is validated by loading it, which is also the only check that
+      # every name in it still has a test-program directory.
+      - name: Validate the regression testlists
+        run: |
+          python bin/run_tests.py --testlist regress/cv32e20_sanity.yaml --parse-only --allow-failures
+          python bin/run_tests.py --testlist regress/cv32e20_ci_check.yaml --parse-only --allow-failures
+
+      # --parse-only on an empty results tree is the simulator-free smoke test of
+      # the whole harness, including the dashboard it publishes at the end.
+      - name: Smoke-test the harness
+        run: |
+          python bin/run_tests.py --help
+          python bin/run_tests.py --tb uvmt --parse-only --allow-failures
+          python bin/regression_report.py --help
+
+      # Keep the published dashboard as the run's evidence: it is the artifact a
+      # reviewer can open to see what the harness made of nothing.
+      - name: Upload the published regression dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-dashboard-py${{ matrix.python-version }}
+          path: coverage_report/regression/
+
+      # A workflow that does not parse is only discovered when someone tries to
+      # run it, and the self-hosted ones are run by whoever needs them.
+      - name: Check the workflow YAML parses
+        run: |
+          python - <<'PY'
+          import pathlib
+          import sys
+
+          import yaml
+
+          status = 0
+          for path in sorted(pathlib.Path(".github/workflows").glob("*.y*ml")):
+              try:
+                  yaml.safe_load(path.read_text())
+              except yaml.YAMLError as exc:
+                  print(f"{path}: {exc}")
+                  status = 1
+              else:
+                  print(f"{path}: ok")
+          sys.exit(status)
+          PY
+
+  # The converters' own tests validate their output with xmllint, and skip
+  # themselves when it is missing -- which on a hosted runner would mean the
+  # schema promise in bin/questa_xml_to_ucis_xml.py's docstring is never kept.
+  # libxml2-utils is one apt package, so install it and fail loudly if xmllint
+  # still isn't there rather than let the tests skip quietly.
+  reports-schema:
+    name: Report schemas (xmllint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install libxml2-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libxml2-utils
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check xmllint is installed
+        run: xmllint --version
+
+      # Only the converter module: it holds the two checks that need xmllint
+      # (Cobertura against schemas/coverage-04.dtd through schemas/catalog.xml,
+      # UCIS against schemas/ucis.xsd).
+      - name: Validate the converted reports against the vendored schemas
+        run: python -m unittest discover -s bin/tests -t bin/tests -p 'test_converters.py' -v
+
+  # Advisory: this repository's markdown predates any linter and the style
+  # configuration is not settled, so a rule's complaint should be visible without
+  # being able to block a pull request. Drop the continue-on-error once the
+  # remaining violations are cleaned up.
+  markdown:
+    name: Markdown style (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v17
+        with:
+          config: .markdownlint.json
+          # Vendored and generated trees are not this repository's prose, and a
+          # linter that only shouts about someone else's README teaches nothing.
+          ignore: |
+            vendor_lib/**
+            log_agent/**
+            "**/node_modules/**"

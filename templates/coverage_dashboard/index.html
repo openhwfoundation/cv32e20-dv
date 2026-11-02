@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV32E20 Coverage Dashboard</title>
+    <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,16 +21,24 @@
 
     <main>
         <section class="summary-bar">
+            <!-- Both headline cards say what they measure: code coverage is the
+                 RTL DUT only, functional coverage is covergroup bins across the
+                 whole hierarchy, environment included. Hover for the raw counts.
+                 The functional card links to the covergroup-only Questa report,
+                 which is the same number as a page you can click through to;
+                 bin-level detail is too much for a card. The link is dropped by
+                 the HEAD probe below when that report isn't published. -->
             <div class="card" id="code-coverage">
                 <h2>Code Coverage</h2>
                 <div class="value">Loading...</div>
-                <div class="status">u_cve2_core instance</div>
+                <div class="status">DUT-scoped</div>
             </div>
-            <div class="card" id="func-coverage">
+            <a class="card card-link" id="func-coverage" href="questasim_func/index.html"
+               title="Functional coverage: covergroup bins, full hierarchy">
                 <h2>Functional Coverage</h2>
                 <div class="value">Loading...</div>
-                <div class="status">Questa Sim functional coverage</div>
-            </div>
+                <div class="status">Covergroup bins, full hierarchy</div>
+            </a>
             <div class="card" id="test-status">
                 <h2>Test Suite Status</h2>
                 <div class="value">Loading...</div>
@@ -67,14 +76,24 @@
                     <div class="value">Loading...</div>
                     <div class="status">FSM Transition Coverage</div>
                 </div>
-                </div>
+            </div>
         </section>
 
         <section class="links-container">
             <a href="cobertura.xml" class="btn" download>Download Cobertura XML</a>
             <a href="merged.ucis.xml" class="btn" download>Download UCIS XML</a>
-            <a href="questasim/index.html" class="btn btn-secondary" id="detailed-report-btn">Detailed coverage report</a>
-        </section>
+            <a href="questasim/index.html" class="btn" id="code-coverage-report-btn"
+               title="Questa HTML report of the merged coverage database, scoped to the DUT: statements, branches, conditions, FSMs">Code Coverage</a>
+            <a href="questasim_func/index.html" class="btn" id="functional-coverage-report-btn"
+               title="Questa HTML report of the covergroup bins over the whole hierarchy, environment included">Functional Coverage</a>
+            <!-- The regression dashboard (templates/regression_dashboard/) is published
+                 by the same run into coverage_report/regression/. -->
+            <a href="regression/index.html" class="btn" id="regression-report-btn">Regression results</a>
+            <!-- The triage behind these numbers: templates/analysis_dashboard/,
+                 published into coverage_report/analysis/ and reading the analysis
+                 files committed under docs/coverage/. -->
+            <a href="analysis/index.html" class="btn" id="analysis-report-btn">Coverage analysis</a>
+            </section>
     </main>
 
     <footer>
@@ -105,34 +124,91 @@
             }
         }
 
+        // "N/A" (no merged .ucdb) and a missing key both mean "no number here".
+        function hasValue(val) {
+            return Number.isFinite(parseFloat(val));
+        }
+
+        function count(n) {
+            return Number.isFinite(n) ? n.toLocaleString('en-US') : String(n);
+        }
+
+        // "DUT-scoped (/uvmt_cv32e20_tb/dut_wrap/…/u_cve2_core)" is far too long
+        // for a card footer; keep the label and the instance's leaf name.
+        function shortenScope(scope) {
+            return scope.replace(/\(([^)]*)\)/, (whole, inner) => {
+                const leaf = inner.trim().split('/').pop();
+                return leaf.startsWith('/') ? ' (' + leaf + ')' : whole;
+            });
+        }
+
+        // A package's "uvma_isacov_pkg" for humans, not "/uvma_isacov_pkg".
+        function prettyName(name) {
+            return name.replace(/^\/+/, '');
+        }
+
         // Load metrics from summary.json if available
         fetch('summary.json')
             .then(response => response.json())
             .then(data => {
-                if (data.code_coverage) {
+                if (hasValue(data.code_coverage)) {
                     document.querySelector('#code-coverage .value').textContent = data.code_coverage + '%';
                 }
-                if (data.functional_coverage) {
+                if (data.code_scope) {
+                    document.querySelector('#code-coverage .status').textContent = shortenScope(data.code_scope);
+                }
+                // Per-metric raw counts behind the code-coverage average.
+                const codeLines = Object.entries(data.code_metrics || {})
+                    .filter(([ , metric ]) => hasValue(metric.percent))
+                    .map(([ name, metric ]) =>
+                        `${name}: ${count(metric.hits)} / ${count(metric.active)} (${metric.percent}%)`);
+                if (codeLines.length) {
+                    document.querySelector('#code-coverage').title = codeLines.join('\n');
+                }
+
+                if (hasValue(data.functional_coverage)) {
                     document.querySelector('#func-coverage .value').textContent = data.functional_coverage + '%';
                 }
-                if (data.pass_rate) {
+                if (data.functional_scope) {
+                    let status = data.functional_scope;
+                    if (data.bins_total) {
+                        status += ` -- ${count(data.bins_covered)} / ${count(data.bins_total)} bins`;
+                    }
+                    document.querySelector('#func-coverage .status').textContent = status;
+                }
+                // Per-covergroup-package breakdown of the bins above.
+                const packages = Object.entries(data.functional_packages || {});
+                if (packages.length) {
+                    const pkgLines = packages
+                        .map(([ name, pkg ]) =>
+                            `${prettyName(name)}: ${count(pkg.bins_covered)} / ${count(pkg.bins_total)} bins (${pkg.percent}%)`)
+                        .sort((a, b) => a.localeCompare(b));
+                    document.querySelector('#func-coverage').title =
+                        `Covergroup bins per package\n${pkgLines.join('\n')}`;
+                }
+
+                if (hasValue(data.pass_rate)) {
                     document.querySelector('#test-status .value').textContent = data.pass_rate + '%';
+                }
+                if (data.total_tests) {
+                    document.querySelector('#test-status .status').textContent =
+                        `${data.passed} of ${data.total_tests} tests passed`;
                 }
 
                 // TRL5 metrics
-                if (data.line_coverage) {
+                if (hasValue(data.line_coverage)) {
                     document.querySelector('#trl5-line .value').textContent = data.line_coverage + '%';
                 }
-                if (data.condition_coverage) {
+                if (hasValue(data.condition_coverage)) {
                     document.querySelector('#trl5-condition .value').textContent = data.condition_coverage + '%';
                 }
-                if (data.branch_coverage) {
+                if (hasValue(data.branch_coverage)) {
                     document.querySelector('#trl5-branch .value').textContent = data.branch_coverage + '%';
                 }
-                if (data.fsm_state_coverage) {
+                if (hasValue(data.fsm_state_coverage)) {
                     document.querySelector('#trl5-fsm .value').textContent = data.fsm_state_coverage + '%';
                 }
-                if (data.fsm_transition_coverage) {
+                if (hasValue(data.fsm_transition_coverage)) {
                     document.querySelector('#trl5-fsm-trans .value').textContent = data.fsm_transition_coverage + '%';
                 }
 
@@ -146,18 +222,45 @@
                 console.log('Summary JSON not found, using default placeholders.');
             });
 
-            // Hide "Detailed coverage report" if questasim/index.html isn't published.
-            fetch('questasim/index.html', { method: 'HEAD' })
-            .then(resp => {
-                if (!resp.ok) {
-                    const btn = document.getElementById('detailed-report-btn');
-                    if (btn) btn.style.display = 'none';
-                }
-            })
-            .catch(() => {
-                const btn = document.getElementById('detailed-report-btn');
+        // Hide a link whose target was not published by this run. The catch is
+        // not decoration: a fetch that throws -- a file:// page, a blocked
+        // request -- hides the link too, which is why this only does anything
+        // useful when the report tree is served over HTTP (docs/regression.md,
+        // "Viewing the published reports").
+        function hideIfMissing(url, id, unlinkId) {
+            const hide = () => {
+                const btn = document.getElementById(id);
                 if (btn) btn.style.display = 'none';
-            });
-            </script>
+                if (!unlinkId) return;
+                // A card cannot be hidden the way a button can: the number on it
+                // is still true. Without the report it just stops being a link.
+                const card = document.getElementById(unlinkId);
+                if (card) {
+                    card.removeAttribute('href');
+                    card.classList.remove('card-link');
+                }
+            };
+            fetch(url, { method: 'HEAD' })
+                .then(resp => {
+                    if (!resp.ok) hide();
+                })
+                .catch(hide);
+        }
+
+        // Code coverage report: the DUT-scoped Questa HTML tree.
+        hideIfMissing('questasim/index.html', 'code-coverage-report-btn');
+        // Functional coverage report: covergroup bins, full hierarchy. The
+        // headline card points at the same tree, so it loses its link too.
+        hideIfMissing('questasim_func/index.html', 'functional-coverage-report-btn',
+                      'func-coverage');
+        // Regression results: a run without --testlist still publishes a
+        // dashboard, but a report tree copied without one must not link to an
+        // empty page.
+        hideIfMissing('regression/regression_results.json', 'regression-report-btn');
+        // Coverage analysis: the mirrored sheet is what that page fetches, so a
+        // tree published without it loses the button rather than opening a page
+        // of N/A cards.
+        hideIfMissing('analysis/coverage_review.csv', 'analysis-report-btn');
+    </script>
 </body>
 </html>

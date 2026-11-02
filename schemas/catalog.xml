@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maps the Cobertura DTD's historic system id (written into the DOCTYPE of
+     coverage_report/cobertura.xml by bin/questa_xml_to_cobertura.py) to the
+     vendored local copy, so that `xmllint` can validate a report offline when
+     SGML_CATALOG_FILES points here (see .github/workflows/coverage.yml). -->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <system systemId="http://cobertura.sourceforge.net/xml/coverage-04.dtd"
+          uri="coverage-04.dtd"/>
+</catalog>

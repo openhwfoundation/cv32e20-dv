@@ -1,0 +1,6 @@
+﻿# source: sim/uvmt/vsim_results/default/merged/merged.ucdb with sim/tools/vsim/cov.tcl applied in vsim -viewcov (report-only session; the .ucdb is not modified)
+Design Unit,Instance,File,Line,Metric,Target,Hits,Misses,Source
+cve2_controller,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i,rtl/cve2_controller.sv,514,branch,All False Count (else arm),0,1,All False Count
+cve2_controller,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i,,,assertion,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i/CVE2NoDoubleSpecialReqPCSet,0,1,pass=0 fail=0
+cve2_id_stage,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i,,,assertion,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/IllegalInsnStallMustBeMemStall,0,1,pass=0 fail=0
+cve2_id_stage,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i,,,assertion,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/IbexStallIfValidInstrNotExecuting,0,1,pass=0 fail=0

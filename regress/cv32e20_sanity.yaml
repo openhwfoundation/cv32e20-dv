@@ -1,0 +1,79 @@
+# CV32E20 blocking sanity regression.
+#
+# Copyright (c) 2026 Eclipse Foundation
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Consumed by:  bin/run_tests.py --testlist regress/cv32e20_sanity.yaml
+#
+# The point of this list is that it finishes in minutes on one machine and every
+# test in it is self-checking, so it can gate a change. No corev-dv test is
+# listed: each of those needs a gen_corev-dv generation step and routinely takes
+# 10-15 minutes on its own (see regress/cv32e20_ci_check.yaml for the full set).
+#
+# Verified as a set: all 11 tests below reported SIMULATION PASSED (with
+# WARNINGS) with Questa One 2025.3_2 (vsim 2025.11 build), USE_ISS=NO, seed 1 at
+# --jobs 4 -- 11 passed, 0 failed, 0 error(s). The timings are that run's own
+# published regression_results.json: 562 s for the batch, slowest being
+# illegal_instr_test at 537.9 s (whose simulation alone runs 11 us of virtual
+# time) and the rest between 22.3 s and 107.4 s. The 562 s is the test loop
+# only -- it excludes the one-time `make comp` that --jobs > 1 does up front, so
+# it is not what the CI job costs end to end. Nothing here is a guess: a test
+# whose verdict nobody has watched does not belong on a blocking list.
+#
+# NOT consumable by the legacy bin/cv_regress / bin/ci_check utilities, which
+# cannot run in this repository at all -- they import the absent
+# bin/lib/cv_regression.py and expect the old core-v-verif/<core>/... checkout.
+# See bin/README.md.
+
+name: cv32e20_sanity
+description: >
+  Fast blocking sanity on the Questa UVMT testbench: directed C and assembly
+  test-programs only, no random-program generation.
+tb: uvmt
+cfg: default
+timeout: 3600
+jobs: 4
+
+tests:
+  # Boot and the most basic program-execution path.
+  - name: hello-world
+    description: Boot, execute, and signal pass through the virtual peripheral
+  # Arithmetic and control flow.
+  - name: fibonacci
+    description: Compute the fibonacci sequence
+  - name: branch_zero
+    description: Branch with a zero offset (functional coverage hole filler)
+  # CSR access from both instruction sets.
+  - name: csr_instructions
+    description: Execute every CSR access instruction
+  # Exception and debug-adjacent exception paths.
+  - name: illegal
+    description: Detect illegal instructions
+  - name: illegal_instr_test
+    description: Illegal-instruction trap, assembly version
+  - name: generic_exception_test
+    description: Generic exception entry and return
+  # LSU.
+  - name: misalign
+    description: Misaligned load/store handling
+  - name: load_store_rs1_zero
+    description: Loads and stores with rs1 == x0
+  # Interrupts (the uvmt environment drives these, so they need --tb uvmt).
+  - name: interrupt_test
+    description: External timer and software interrupts
+  - name: nmi_test
+    description: Non-maskable interrupt stimulus
+
+  # NOT YET: mid_run_reset_test and irq_withdraw_test (the two directed
+  # coverage-stimulus tests of regress/cv32e20_ci_check.yaml). Watching them
+  # pass is no longer the reason: on 2026-11-01 mid_run_reset_test passed on
+  # twelve consecutive seeds (~63 s each) and irq_withdraw_test passed once, in
+  # 10 m 34 s. Two things keep them off this list, and both are decisions rather
+  # than unknowns. mid_run_reset_test would become a twelfth member whose cost
+  # has to be inside the measured window above -- it runs the program twice,
+  # because the core restarts after the pulse -- so promoting it means
+  # re-measuring this set end to end, not adding a line here. irq_withdraw_test
+  # is an order of magnitude too slow for a list meant to finish in minutes.
+  # And neither test closes the coverage bin it exists for yet (see
+  # docs/coverage/raw/phase_c_acceptance.csv), so today they would buy this list
+  # cost without buying a gate it does not already have.

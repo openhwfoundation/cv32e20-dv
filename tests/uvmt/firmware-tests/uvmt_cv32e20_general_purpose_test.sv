@@ -72,6 +72,18 @@ class uvmt_cv32e20_general_purpose_test_c extends uvmt_cv32e20_base_test_c;
    extern virtual task nmi_assert();
 
    /**
+    *  Drop reset once in the middle of the running program, after a bounded
+    *  random delay. See uvme_cv32e20_mid_run_reset_vseq.sv.
+    */
+   extern virtual task mid_run_reset();
+
+   /**
+    *  Pulse and withdraw the NMI line repeatedly. See
+    *  uvme_cv32e20_irq_withdraw_vseq.sv.
+    */
+   extern virtual task irq_withdraw();
+
+   /**
     *  Randomly assert/deassert fetch_enable_i
     */
    extern virtual task random_fetch_toggle();
@@ -111,6 +123,18 @@ task uvmt_cv32e20_general_purpose_test_c::run_phase(uvm_phase phase);
    if ($test$plusargs("nmi_assert")) begin
     fork
       nmi_assert();
+    join_none
+   end
+
+   if ($test$plusargs("mid_run_reset")) begin
+    fork
+      mid_run_reset();
+    join_none
+   end
+
+   if ($test$plusargs("irq_withdraw")) begin
+    fork
+      irq_withdraw();
     join_none
    end
 
@@ -232,6 +256,26 @@ task uvmt_cv32e20_general_purpose_test_c::nmi_assert();
   assert(nmi_assert_vseq.randomize());
   nmi_assert_vseq.start(vsequencer);
 endtask : nmi_assert
+
+task uvmt_cv32e20_general_purpose_test_c::mid_run_reset();
+  uvme_cv32e20_mid_run_reset_c mid_run_reset_vseq;
+
+  `uvm_info("TEST", "Starting Mid-Run Reset thread in UVM test", UVM_NONE);
+
+  mid_run_reset_vseq = uvme_cv32e20_mid_run_reset_c::type_id::create("mid_run_reset_vseqr", vsequencer);
+  assert(mid_run_reset_vseq.randomize());
+  mid_run_reset_vseq.start(vsequencer);
+endtask : mid_run_reset
+
+task uvmt_cv32e20_general_purpose_test_c::irq_withdraw();
+  uvme_cv32e20_irq_withdraw_c irq_withdraw_vseq;
+
+  `uvm_info("TEST", "Starting IRQ Withdraw thread in UVM test", UVM_NONE);
+
+  irq_withdraw_vseq = uvme_cv32e20_irq_withdraw_c::type_id::create("irq_withdraw_vseqr", vsequencer);
+  assert(irq_withdraw_vseq.randomize());
+  irq_withdraw_vseq.start(vsequencer);
+endtask : irq_withdraw
 
 task uvmt_cv32e20_general_purpose_test_c::random_fetch_toggle();
   `uvm_info("TEST", "Starting random_fetch_toggle thread in UVM test", UVM_NONE);
