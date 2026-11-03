@@ -51,6 +51,24 @@ class TestSummarize(unittest.TestCase):
         self.assertEqual(summary["total"], 1)
         self.assertEqual(summary["error"], 1)
 
+    def test_parked_rows_count_in_the_rows_and_separately(self):
+        """total/passed stay a plain count of every row (the document is
+        honest about what it holds); parked/parked_passed are what lets the
+        dashboard render the default set without re-reading the rows."""
+        entries = [entry("a", "PASS"),
+                   entry("p1", "PASS", parked=True),
+                   entry("p2", "FAIL", parked=True)]
+        summary = regression_report.summarize(entries)
+        self.assertEqual(summary["total"], 3)
+        self.assertEqual(summary["passed"], 2)
+        self.assertEqual(summary["failed"], 1)
+        self.assertEqual(summary["parked"], 2)
+        self.assertEqual(summary["parked_passed"], 1)
+
+    def test_parked_defaults_to_false(self):
+        self.assertFalse(entry("t", "PASS")["parked"])
+        self.assertTrue(entry("t", "PASS", parked=True)["parked"])
+
 
 class TestBuildDocument(unittest.TestCase):
 

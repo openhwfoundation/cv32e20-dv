@@ -95,6 +95,21 @@ td code {
     color: #6b7280;
     }
 
+/* Parked-test marker: sits inside the test-name cell, so it must survive
+ * the cell's nowrap and stay readable at the table's font size. */
+.parked-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0 0.4rem;
+    border-radius: 8px;
+    background-color: var(--error-amber);
+    color: #FFFFFF;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    }
+
 .verdict {
     font-weight: bold;
     text-align: center;

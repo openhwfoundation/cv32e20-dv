@@ -46,10 +46,11 @@ Deliberate constraints
 Document schema (schema_version 1)
 ----------------------------------
 ``{schema_version, generated, tb, cfg, testlist, git, host, simulator,
-summary, tests}`` -- ``summary`` holds ``total/passed/failed/error/pass_rate``
-plus the wall-clock window, and ``tests`` one object per result row with
+summary, tests}`` -- ``summary`` holds ``total/passed/failed/error/pass_rate``,
+the per-set ``parked``/``parked_passed`` counts and the wall-clock window, and
+``tests`` one object per result row with
 ``name, verdict, detail, gen_seed, run_seed, duration_s, description, log,
-log_exists, published_log``. Adding or renaming a field means bumping
+log_exists, published_log, parked``. Adding or renaming a field means bumping
 ``SCHEMA_VERSION``.
 """
 
@@ -66,7 +67,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DASHBOARD_TEMPLATES = REPO_ROOT / "templates" / "regression_dashboard"
 
-SCHEMA_VERSION = 1
+# Schema 2 added the per-row ``parked`` flag and the ``parked``/
+# ``parked_passed`` counts in ``summary``; schema 1 documents (which the
+# dashboard still has to render) simply lack both.
+SCHEMA_VERSION = 2
 
 # Bumped only when a document written by an older version cannot be read.
 DOCUMENT_NAME = "regression_results.json"
@@ -85,7 +89,8 @@ def now():
 
 
 def test_entry(name, verdict, detail="", gen_seed=None, run_seed=None,
-               duration_s=None, log=None, log_exists=False, description=None):
+               duration_s=None, log=None, log_exists=False, description=None,
+               parked=False):
     """One ``tests[]`` element.
 
     Kept as a function rather than a dict literal at the call site so the set of
@@ -109,6 +114,10 @@ def test_entry(name, verdict, detail="", gen_seed=None, run_seed=None,
         "log": log,
         "log_exists": bool(log_exists),
         "published_log": None,
+        # A parked test (run_tests.py's PARKED list) ran for the
+        # including-parked view only: the dashboard badges its row and keeps
+        # it out of the default verdict, exactly like the coverage toggle.
+        "parked": bool(parked),
         }
 
 
@@ -122,12 +131,21 @@ def summarize(entries):
     for entry in entries:
         counts[entry["verdict"] if entry["verdict"] in counts else "ERROR"] += 1
     total = len(entries)
+    # Per-set counts: total/passed cover every row (parked rows included, so
+    # the document's own numbers stay a plain count of its rows), while
+    # parked/parked_passed let the dashboard render the default set (the rows
+    # without the flag) and say how many parked rows it left out.
+    parked_total = sum(1 for entry in entries if entry.get("parked"))
+    parked_passed = sum(1 for entry in entries
+                        if entry.get("parked") and entry["verdict"] == "PASS")
     return {
         "total": total,
         "passed": counts["PASS"],
         "failed": counts["FAIL"],
         "error": counts["ERROR"],
         "pass_rate": round(100.0 * counts["PASS"] / total, 2) if total else None,
+        "parked": parked_total,
+        "parked_passed": parked_passed,
     }
 
 

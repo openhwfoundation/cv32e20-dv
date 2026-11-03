@@ -10,12 +10,9 @@
 
 export SHELL = /bin/bash
 
-#CV_CORE_REPO   ?= https://github.com/openhwgroup/cve2
-#CV_CORE_BRANCH ?= main
-#CV_CORE_HASH   ?= d079e8c
-CV_CORE_REPO   ?= https://github.com/MikeOpenHWGroup/cve2
-CV_CORE_BRANCH ?= cs_registers
-CV_CORE_HASH   ?= 094e974
+CV_CORE_REPO   ?= https://github.com/openhwfoundation/cve2
+CV_CORE_BRANCH ?= main
+CV_CORE_HASH   ?= d7f2156
 
 CV_VERIF_REPO   ?= https://github.com/openhwfoundation/core-v-verif
 CV_VERIF_BRANCH ?= cv32e20-dv/dev

@@ -215,6 +215,49 @@ class TestTriageRules(unittest.TestCase):
         self.assertEqual(unknown["status"], "open")
         self.assertEqual(unknown["classification"], "")
 
+    def test_parked_evidence_classes_default_scope_gaps(self):
+        """The including-parked diff is measured evidence, not a guess: a hole
+        the parked merge covered is stimulus the repository has but the default
+        set does not run -- B-new-test, never a waiver."""
+        row = {"Design Unit": "cve2_cs_registers", "Metric": "branch",
+               "Line": "718", "Target": "item 0"}
+        # Parked evidence measured, and this key is gone from the parked
+        # database: the parked stimulus covers it.
+        got = coverage_review.triage_hole(row, parked_keys=set())
+        self.assertEqual(got["classification"], "B-new-test")
+        self.assertEqual(got["category"], "stimulus-gap")
+        self.assertEqual(got["status"], "triaged")
+        self.assertIn("parked", got["test"])
+        # Still a hole even with the parked tests: nothing in the repository
+        # covers it, so no rule may pretend otherwise -- it stays open.
+        still = coverage_review.triage_hole(
+            row, parked_keys={("cve2_cs_registers", "branch", "718")})
+        self.assertEqual(still["status"], "open")
+        # Unmeasured tree: the rule is off, and the hole reads as before.
+        self.assertEqual(coverage_review.triage_hole(row, parked_keys=None)
+                         ["status"], "open")
+        # A recorded human verdict outranks the rule even when the rule would
+        # also fire (the :514 bin is missed by every scope).
+        h001 = coverage_review.triage_hole(
+            {"Design Unit": "cve2_controller", "Metric": "branch",
+             "Line": "514", "Target": "All False Count (else arm)"},
+            parked_keys=set())
+        self.assertEqual(h001["test"], "irq_withdraw_test")
+
+    def test_new_rtl_comp_dec_hole_is_a_steerable_gap(self):
+        """cve2_compressed_decoder.sv is unchanged across the d7f2156 re-pin;
+        its 3'b101 miss is seed variance with covered siblings, so it is class A
+        (steer an existing test) and explicitly not a waiver candidate."""
+        got = coverage_review.triage_hole(
+            {"Design Unit": "cve2_compressed_decoder", "Metric": "branch",
+             "Line": "260", "Target": "item 1"}, parked_keys=set())
+        self.assertEqual(got["classification"], "A-existing-state")
+        self.assertEqual(got["category"], "stimulus-gap")
+        # No proposed test: the state exists today, it is the seed that
+        # never drew the encoding. And no waiver is proposed either -- the
+        # arm is reachable RTL.
+        self.assertEqual(got["test"], "")
+
 
 class TestSheet(unittest.TestCase):
     """build_rows/write_sheet: the format Excel and Google Sheets are given."""
@@ -297,6 +340,7 @@ class TestSheet(unittest.TestCase):
                                  "Source": "All False Count"})
             rc = coverage_review.main([
                 "--waivers", str(waivers), "--holes", str(holes),
+                "--parked-holes", str(Path(tmp) / "holes_parked.csv"),
                 "--cov-tcl", str(FIXTURES / "cov_tcl_mini.tcl"),
                 "--out", str(out)])
             self.assertEqual(rc, 0)
@@ -309,6 +353,153 @@ class TestSheet(unittest.TestCase):
             # The one triaged hole this tool knows by heart.
             self.assertEqual(rows[1]["Classification"], "B-new-test")
             self.assertEqual(rows[1]["Proposed Test"], "irq_withdraw_test")
+
+    def test_main_applies_the_parked_evidence_rule(self):
+        """Three dumps in: the hole the parked database covered is classed from
+        the evidence, the hole both databases share stays open, and the third
+        dump being absent (a pre-toggle tree) leaves both open."""
+        hole_columns = ["Design Unit", "Instance", "File", "Line", "Metric",
+                        "Target", "Hits", "Misses", "Source"]
+
+        def hole_rows(path, rows):
+            with open(path, "w", newline="", encoding="utf-8-sig") as fh:
+                fh.write("# source: fixture\r\n")
+                writer = csv.DictWriter(fh, fieldnames=hole_columns,
+                                        lineterminator="\r\n")
+                writer.writeheader()
+                for du, line in rows:
+                    writer.writerow({"Design Unit": du, "Instance": "/tb/dut",
+                                     "File": "rtl/%s.sv" % du, "Line": line,
+                                     "Metric": "branch",
+                                     "Target": "item 0", "Hits": "0",
+                                     "Misses": "1", "Source": "item 0"})
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "sheet.csv"
+            waivers = Path(tmp) / "waiver_audit.csv"
+            with open(waivers, "w", newline="", encoding="utf-8-sig") as fh:
+                writer = csv.DictWriter(
+                    fh, fieldnames=["ID", "Design Unit", "Metric", "Target",
+                                    "Source Line", "Delta Hits", "Delta Misses",
+                                    "Config Gate", "Waiver Status",
+                                    "Waiver Comment"], lineterminator="\r\n")
+                writer.writeheader()
+                writer.writerow({"ID": "W001", "Design Unit": "cve2_tracer",
+                                 "Metric": "du", "Target": "", "Source Line": "",
+                                 "Delta Hits": "0", "Delta Misses": "0",
+                                 "Config Gate": "none",
+                                 "Waiver Status": coverage_review.NOT_INSTRUMENTED,
+                                 "Waiver Comment": "Simulation-only design unit"})
+            holes = Path(tmp) / "holes.csv"
+            parked = Path(tmp) / "holes_parked.csv"
+            hole_rows(holes, [("cve2_cs_registers", "718"),
+                              ("cve2_alu", "42")])
+            hole_rows(parked, [("cve2_alu", "42")])
+            rc = coverage_review.main([
+                "--waivers", str(waivers), "--holes", str(holes),
+                "--parked-holes", str(parked), "--out", str(out),
+                "--cov-tcl", str(Path(tmp) / "missing.tcl")])
+            self.assertEqual(rc, 0)
+            rows = list(csv.DictReader(out.read_text(encoding="utf-8-sig")
+                                       .splitlines()))
+            by_du = {r["Design Unit"]: r for r in rows}
+            self.assertEqual(by_du["cve2_cs_registers"]["Classification"],
+                             "B-new-test")
+            self.assertEqual(by_du["cve2_cs_registers"]["Status"], "triaged")
+            self.assertEqual(by_du["cve2_alu"]["Classification"], "")
+            self.assertEqual(by_du["cve2_alu"]["Status"], "open")
+            # The pre-toggle case: dump absent, rule off, nothing auto-classed.
+            rc = coverage_review.main([
+                "--waivers", str(waivers), "--holes", str(holes),
+                "--parked-holes", str(Path(tmp) / "absent.csv"),
+                "--out", str(out),
+                "--cov-tcl", str(Path(tmp) / "missing.tcl")])
+            self.assertEqual(rc, 0)
+            rows = list(csv.DictReader(out.read_text(encoding="utf-8-sig")
+                                       .splitlines()))
+            self.assertEqual({r["Status"] for r in rows
+                              if r["Type"] == "HOLE"}, {"open"})
+
+    def test_a_parked_dump_with_no_holes_closes_every_row(self):
+        """An empty holes_parked.csv is a measurement, not a broken export: the
+        including-parked merge has no holes left, exactly what the "Reaching
+        100%" plan aims at, so every hole the default dump still lists is a
+        stimulus gap. main() must read that as evidence, not refuse to build
+        the sheet over an empty file."""
+        hole_columns = ["Design Unit", "Instance", "File", "Line", "Metric",
+                        "Target", "Hits", "Misses", "Source"]
+        waiver_columns = ["ID", "Design Unit", "Metric", "Target",
+                          "Source Line", "Delta Hits", "Delta Misses",
+                          "Config Gate", "Waiver Status", "Waiver Comment"]
+
+        def holes_dump(path, rows):
+            with open(path, "w", newline="", encoding="utf-8-sig") as fh:
+                fh.write("# source: fixture\r\n")
+                writer = csv.DictWriter(fh, fieldnames=hole_columns,
+                                        lineterminator="\r\n")
+                writer.writeheader()
+                for du, line in rows:
+                    writer.writerow({"Design Unit": du, "Instance": "/tb/dut",
+                                     "File": "rtl/%s.sv" % du, "Line": line,
+                                     "Metric": "branch", "Target": "item 0",
+                                     "Hits": "0", "Misses": "1",
+                                     "Source": "item 0"})
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "sheet.csv"
+            waivers = Path(tmp) / "waiver_audit.csv"
+            with open(waivers, "w", newline="", encoding="utf-8-sig") as fh:
+                writer = csv.DictWriter(fh, fieldnames=waiver_columns,
+                                        lineterminator="\r\n")
+                writer.writeheader()
+                writer.writerow({"ID": "W001", "Design Unit": "cve2_tracer",
+                                 "Metric": "du", "Target": "", "Source Line": "",
+                                 "Delta Hits": "0", "Delta Misses": "0",
+                                 "Config Gate": "none",
+                                 "Waiver Status": coverage_review.NOT_INSTRUMENTED,
+                                 "Waiver Comment": "Simulation-only design unit"})
+            holes = Path(tmp) / "holes.csv"
+            parked = Path(tmp) / "holes_parked.csv"
+            holes_dump(holes, [("cve2_cs_registers", "718"),
+                               ("cve2_alu", "42")])
+            # Header only: nothing is open once the parked tests are merged.
+            holes_dump(parked, [])
+            rc = coverage_review.main([
+                "--waivers", str(waivers), "--holes", str(holes),
+                "--parked-holes", str(parked), "--out", str(out),
+                "--cov-tcl", str(Path(tmp) / "missing.tcl")])
+            self.assertEqual(rc, 0)
+            rows = list(csv.DictReader(out.read_text(encoding="utf-8-sig")
+                                       .splitlines()))
+            holes_rows = [r for r in rows if r["Type"] == "HOLE"]
+            self.assertEqual({r["Classification"] for r in holes_rows},
+                             {"B-new-test"})
+            self.assertEqual({r["Rationale Category"] for r in holes_rows},
+                             {"stimulus-gap"})
+            self.assertEqual({r["Status"] for r in holes_rows}, {"triaged"})
+            self.assertTrue(all("holes_parked.csv" in r["Justification"]
+                                for r in holes_rows))
+            # The generated justification carries no measurement date of its own:
+            # a date written here would be re-asserted by every later run.
+            self.assertFalse(any("MEASURED 2" in r["Justification"]
+                                 for r in holes_rows))
+
+    def test_a_parked_dump_without_a_header_is_a_broken_export(self):
+        """No rows and no header are not the same emptiness. A header with no
+        rows is the parked merge reporting nothing left open; a file with no
+        header at all is a truncated write, and reading it as the first would
+        class every hole in the sheet as a parked-stimulus gap on the strength
+        of a file that records nothing."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "holes_parked.csv"
+            path.write_text("")
+            with self.assertRaises(SystemExit) as exited:
+                coverage_review.load_parked_holes(path)
+            self.assertIn("no header row", str(exited.exception))
+            # A header and no rows stays the measurement it claims to be, and
+            # the empty set is exactly what closes every default-scope hole.
+            path.write_text("Design Unit,Instance,File,Line,Metric,Target\r\n")
+            self.assertEqual(coverage_review.load_parked_holes(path), set())
 
 
 class TestPublishedCites(unittest.TestCase):

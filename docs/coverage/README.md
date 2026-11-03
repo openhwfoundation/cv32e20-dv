@@ -17,10 +17,11 @@ committed here. The direction never reverses: see
 | File | What it is | Produced by |
 | --- | --- | --- |
 | `coverage_review.csv` | **The review sheet.** One row per `cov.tcl` waiver and per open hole, with the triage verdict. | `bin/coverage_review.py` |
-| `coverage_review.md` | How to read the sheet, the triage rules, the waiver policy, the current verdicts, and the baseline percentages the analysis started from. | hand-written |
+| `coverage_review.md` | How to read the sheet, the triage rules, the waiver policy, the current verdicts, the baseline percentages the analysis started from, and the action plan in "Reaching 100% code coverage". | hand-written |
 | `raw/waiver_audit.csv` | One row per `coverage exclude` in `sim/tools/vsim/cov.tcl`, with the measured effect of lifting it. | `bin/coverage_waiver_audit.py` |
 | `raw/holes.csv` | Every bin still missed with those exclusions in force, one row per missed bin. | `bin/coverage_holes.py` |
-| `raw/phase_c_acceptance.csv` | The Phase C acceptance measurement: the 16 reset-transition waivers and the `cve2_controller.sv:514` branch, per seed and per merged database, as the two directed tests' own databases report them. | `vcover report -showexcluded`, commands and reading guide in `coverage_review.md`; its `cov.tcl Line` column is not a measurement: it is re-derived from `raw/waiver_audit.csv`, so re-check it after any `cov.tcl` edit |
+| `raw/holes_parked.csv` | The same export run against the **including-parked** database (`merged_parked/merged.ucdb`). Optional: without it the sheet leaves every unlisted hole open; with it, a hole the parked merge covers is classed `B-new-test` / `stimulus-gap` from that evidence instead of guessing. | `bin/coverage_holes.py --ucdb <merged_parked>` |
+| `raw/phase_c_acceptance.csv` | The Phase C acceptance measurement: the 14 remaining reset-transition waivers (two were retired on measurement 2026-11-03) and the `cve2_controller.sv:514` branch, per seed and per merged database, as the two directed tests' own databases report them. | `vcover report -showexcluded`, commands and reading guide in `coverage_review.md`; its `cov.tcl Line` column is not a measurement: it is re-derived from `raw/waiver_audit.csv`, so re-check it after any `cov.tcl` edit |
 
 Two derived things are deliberately *not* committed here. The run's
 `coverage_report/summary.json` is a generated artifact, and the numbers that
@@ -96,11 +97,22 @@ venv_cv32e20-dv/bin/python bin/coverage_review.py --check-cites
 venv_cv32e20-dv/bin/python bin/coverage_holes.py --apply-cov-tcl --summary \
     --work-dir log_agent/covholes --timeout 3600
 
+# 1b. the same export against the including-parked database (optional, but
+#     without it the sheet's parked-evidence rule stays off and every hole the
+#     parked tests cover reads as open). --ucdb must be an absolute path: the
+#     tool resolves it inside its own vsim session's directory.
+venv_cv32e20-dv/bin/python bin/coverage_holes.py \
+    --ucdb "$PWD/sim/uvmt/vsim_results/default/merged_parked/merged.ucdb" \
+    --apply-cov-tcl --work-dir log_agent/covholes_parked \
+    --out docs/coverage/raw/holes_parked.csv \
+    --by-du log_agent/covholes_parked_by_du.csv --timeout 3600
+
 # 2. audit every waiver against the same database
 venv_cv32e20-dv/bin/python bin/coverage_waiver_audit.py --timeout 3600 \
     --work-dir log_agent/waudit
 
-# 3. merge the two dumps into the sheet
+# 3. merge the dumps into the sheet (picks raw/holes_parked.csv up when present;
+#    --parked-holes points it elsewhere)
 venv_cv32e20-dv/bin/python bin/coverage_review.py --summary
 ```
 

@@ -100,8 +100,10 @@
 
         <section class="stats-container">
             <h2>Phase C acceptance</h2>
-            <p>The 16 reset-transition waivers and the <code>cve2_controller.sv:514</code> branch,
-                as the two directed tests' own databases report them, per seed. <code>E-hit</code>
+            <p>The 16 reset-transition bins and the <code>cve2_controller.sv:514</code> branch,
+                as the two directed tests' own databases report them, per seed. 14 of the 16
+                still carry a <code>cov.tcl</code> waiver; two were retired on 2026-11-03 when
+                the merged batch covered the transition they excused. <code>E-hit</code>
                 means the waiver now hides achieved coverage and is a candidate to retire.</p>
             <div class="table-wrap">
                 <table id="phase-c-table">
@@ -129,6 +131,8 @@
             <a href="../regression/index.html" class="btn" id="regression-link">Regression results</a>
             <a href="coverage_review.csv" class="btn" id="sheet-download" download>Download review sheet</a>
             <a href="raw/holes.csv" class="btn" id="holes-download" download>Download holes CSV</a>
+            <a href="raw/holes_parked.csv" class="btn" id="parked-holes-download" download>Download parked-scope holes CSV</a>
+            <a href="raw/waiver_audit.csv" class="btn" id="waiver-audit-download" download>Download waiver audit CSV</a>
             <a href="raw/phase_c_acceptance.csv" class="btn" id="phase-c-download" download>Download Phase C CSV</a>
         </section>
     </main>
@@ -383,6 +387,12 @@
         hideIfMissing('../regression/index.html', 'regression-link');
         hideIfMissing('coverage_review.csv', 'sheet-download');
         hideIfMissing('raw/holes.csv', 'holes-download');
+        // Both dumps the sheet's own justifications cite by name: the parked one
+        // is the evidence behind every stimulus-gap row, the audit one the
+        // measured verdict behind every waiver. A tree that published only the
+        // default merge has no parked dump, and the button goes with it.
+        hideIfMissing('raw/holes_parked.csv', 'parked-holes-download');
+        hideIfMissing('raw/waiver_audit.csv', 'waiver-audit-download');
         hideIfMissing('raw/phase_c_acceptance.csv', 'phase-c-download');
     </script>
 </body>

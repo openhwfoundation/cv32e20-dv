@@ -131,11 +131,12 @@ interpreter.
 | `regress/cv32e20_ci_check.yaml` | the 11 + slow directed tests + the 15 corev-dv templates | nightly/weekly; hours |
 
 The sanity list was measured, not estimated: all 11 tests pass on Questa One
-2025.3_2 with `--jobs 4` (11 passed, 0 failed, 0 error(s)) in **562 s** of batch
-time, slowest test `illegal_instr_test` at 537.9 s and the rest between 22.3 s
-and 107.4 s, which is what publishes a 100% pass rate on the dashboard. Those
+2025.3_2 with `--jobs 4` (11 passed, 0 failed, 0 error(s)) in **644 s** of batch
+time against the `d7f2156` CVE2 pin, slowest test `illegal_instr_test` at
+612.7 s and the rest between 23.6 s and 123.1 s, which is what publishes a 100%
+pass rate on the dashboard. Those
 figures *are* the published document's -- `coverage_report/regression/regression_results.json`
-of that run holds the same 562 s and the same per-test times -- so re-measuring
+of that run holds the same 644 s and the same per-test times -- so re-measuring
 the list updates the dashboard and this page from one source. One caveat travels
 with `summary.duration_s`: it is the window from the first test starting to the
 last one finishing, so it excludes the one-time `make comp` that `--jobs > 1`
@@ -172,6 +173,8 @@ coverage_report/style.css                 coverage page's own rules
 coverage_report/common.css                the shared stylesheet, same file as above
 coverage_report/questasim/                Questa HTML report, code, DUT-scoped
 coverage_report/questasim_func/           Questa HTML report, covergroups, full hierarchy
+coverage_report/questasim_parked/         the code report from merged_parked/ instead
+coverage_report/questasim_func_parked/    the covergroup report from merged_parked/
 coverage_report/coverage_review.csv       the waiver/open-hole review sheet (from docs/)
 coverage_report/analysis/index.html       the analysis page (templates/analysis_dashboard/)
 coverage_report/analysis/style.css        its own rules, plus common.css beside it
@@ -193,11 +196,26 @@ has a **Code Coverage** and a **Functional Coverage** button and why neither
 flag may be copied from one invocation to the other (`bin/run_tests.py`'s
 module docstring states the invariant where both commands are).
 
+A `--cov-report` batch actually keeps **two** merged databases, each built from
+an explicit list of that batch's PASSing `.ucdb` files (never from a `find`
+over `vsim_results/<cfg>/`, which used to let leftover databases of earlier
+runs leak into the published numbers): `vsim_results/<cfg>/merged/merged.ucdb`
+is the **default scope**, and `vsim_results/<cfg>/merged_parked/merged.ucdb`
+is the same plus the **PARKED** tests that the batch also runs (`--all-custom
+--cov-report` adds them on its own). Each directory holds the `ucdb.list` its
+merge consumed. The dashboard's top-level numbers and its `Default | Including
+Parked` toggle show one database or the other -- a parked failure can only
+ever move the parked view, which is also why CI can run the parked tests
+behind `--allow-failures`. The vendor-neutral exports (`cobertura.xml`,
+`merged.ucis.xml`) stay default-scope. `--merge-existing` predates all this
+and keeps merging whatever is on disk into the default scope.
+
 Neither copy is committed: `coverage_report/` and `sim/*/regression_results.json`
 are both gitignored, and the CI artifacts (see [CI](#ci)) are how a document
 leaves the machine it was measured on.
 
-`schema_version` 1:
+`schema_version` 2 (schema 1 documents still render; they simply have no
+parked rows or counts):
 
 | Key | Contents |
 | --- | --- |
@@ -205,8 +223,8 @@ leaves the machine it was measured on.
 | `git` | `{sha, branch, dirty}`, or `null` outside a git checkout |
 | `host` | `{name, os, python}` |
 | `simulator` | `{name, version}` -- `vsim -version`, probed only for a `uvmt` run when `vsim` is on `PATH` |
-| `summary` | `total`, `passed`, `failed`, `error`, `pass_rate`, `start`, `end`, `duration_s` |
-| `tests[]` | `name`, `verdict`, `detail`, `gen_seed`, `run_seed`, `duration_s`, `description`, `log`, `log_exists`, `published_log` |
+| `summary` | `total`, `passed`, `failed`, `error`, `pass_rate`, `parked`, `parked_passed`, `start`, `end`, `duration_s` |
+| `tests[]` | `name`, `verdict`, `detail`, `gen_seed`, `run_seed`, `duration_s`, `description`, `log`, `log_exists`, `published_log`, `parked` |
 
 Three rules the format exists to enforce:
 
@@ -223,7 +241,11 @@ Three rules the format exists to enforce:
   document with a parsed one: the verdicts come back identical and the times come
   back `null`, because a batch that launches no simulation timed nothing. To get
   the measured numbers back, re-run the batch; to publish a document that is
-  still on disk, point `bin/regression_report.py --results` at that copy.
+  still on disk, point `bin/regression_report.py --results` at that copy. A
+  coverage batch's document holds every row that batch ran -- the parked ones
+  flagged `"parked": true`, badged `PARKED` on the page, and excluded from the
+  page's default verdict -- because one batch's results belong in one document,
+  not in two that can disagree.
 * **The dashboard is a copy of the verdict table, never a second verdict.**
   Nothing in `bin/regression_report.py` can turn a FAIL into a pass, and
   publishing a failing or partially-parsed batch is deliberately supported.
@@ -235,9 +257,23 @@ no test and merging nothing (`--parse-only` and `--merge-existing` are rejected
 beside it). A coverage-collection flag left on such a command line -- `--cov`,
 `--cov-report` -- is therefore read and then ignored, a silent no-op, and the
 coverage numbers it publishes describe the merged database rather than a batch
-while its pass counts are the previous batch's, recovered from the `summary.json`
-on disk because nothing ran to recompute them: this document is what says which
-tests passed. The UCIS XML is the one place the two kinds of report meet, and it
+while its pass counts are the previous batch's, recovered because nothing ran
+to recompute them: first from this document, whose rows name every test that ran
+with its verdict and its parked flag (which is what both dashboard views
+need), and only when no document from the same testbench and config is there,
+from the `summary.json` on disk. That recovery pairs two artifacts, and the
+harness says out loud when the two do not describe the same tests: each merged
+database keeps an input list (`ucdb.list`), and a recovered set naming
+different tests than that list gets a warning naming both sides instead of
+publishing the pair silently -- a plain, non-coverage batch rewrites this
+document while the merged databases of an older coverage batch sit there
+untouched. The published `summary.json` is measured the same way, since it
+records the names its own databases were built from. Two same-batch causes
+move the lists apart as well, and the warning names them: a PASSing test that
+left no `.ucdb` on disk is never merged, and `--merge-existing` merges every
+`.ucdb` in the results tree. Neither can a merged database with no `ucdb.list`
+beside it be checked, nor one paired with a summary that recorded no test
+names, and both are said too. The metrics always come from the databases. The UCIS XML is the one place the two kinds of report meet, and it
 keeps the same division: its history holds a single `merged` node, because the
 rollup `bin/questa_xml_to_ucis_xml.py` reads does not name the tests the `.ucdb`
 merged (the format itself would take one node per test), so per-test history --

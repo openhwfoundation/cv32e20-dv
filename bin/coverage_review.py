@@ -11,6 +11,11 @@ docs/coverage/raw/ so a reviewer can re-check a verdict without Questa):
     .ucdb actually changed.
   * ``holes.csv`` -- bin/coverage_holes.py: every bin still missed *with those
     exclusions in force*, i.e. what a developer sees as open.
+  * ``holes_parked.csv`` -- the same export run against the including-parked
+    merged database. Optional (a tree without that database builds the old
+    sheet), but when it exists it is what tells a hole the parked tests cover
+    -- a stimulus gap of the default set -- from a hole nothing in the
+    repository covers.
 
 Output: docs/coverage/coverage_review.csv -- one row per waiver and per hole,
 the measured facts from the dumps first, then the triage the plan of record
@@ -53,7 +58,12 @@ row, in this order:
 A hole is keyed by design unit, metric and target, because the verdict is a
 statement about that specific RTL construct and nothing else: an unlisted hole
 comes out ``open`` with no classification, which is the tool admitting it has
-not been thought about rather than guessing.
+not been thought about rather than guessing. The one measured exception is the
+including-parked evidence: a hole the parked merge covers is stimulus the
+repository already has but the default scope does not run -- ``B-new-test`` /
+``stimulus-gap``, to be closed by promoting or repairing that stimulus, not by
+a waiver. A hole that survives both dumps stays open however the tool's rules
+feel about it.
 """
 
 import argparse
@@ -66,6 +76,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_WAIVERS = REPO / "docs" / "coverage" / "raw" / "waiver_audit.csv"
 DEFAULT_HOLES = REPO / "docs" / "coverage" / "raw" / "holes.csv"
+DEFAULT_PARKED_HOLES = REPO / "docs" / "coverage" / "raw" / "holes_parked.csv"
 DEFAULT_COV_TCL = REPO / "sim" / "tools" / "vsim" / "cov.tcl"
 DEFAULT_OUT = REPO / "docs" / "coverage" / "coverage_review.csv"
 
@@ -162,19 +173,48 @@ HOLE_TRIAGE = {
             "`instr_valid_i & ~instr_fetch_err_i & ~instr_executing & controller_run` "
             "is X & ~X, so the property can never be attempted, let alone pass."),
     },
-}
+    ("cve2_compressed_decoder", "branch", "260"): {
+        "classification": "A-existing-state",
+        "category": "stimulus-gap",
+        "justification": (
+            "Branch item 3'b101 -- the reserved quadrant-2 compressed encoding "
+            "sharing the illegal-instruction arm with 3'b001/3'b011/3'b111 "
+            "(cve2_compressed_decoder.sv:258-262); the siblings all measure hit "
+            "and only this one has never been fetched. The file is unchanged "
+            "between the ce0fd917 and d7f2156 pins (empty git diff), and the "
+            "previous database covered the item -- this is the accepted "
+            "--gen-seed random variance, not RTL: the 2026-11-03 stream simply "
+            "never drew that encoding. Coverage by seed luck is not coverage: "
+            "extend the directed illegal-compressed sequence (illegal_instr_test) "
+            "with the reserved 3'b101 encoding and it closes deterministically. "
+            "Not waivable -- the arm is reachable RTL that a waiver would "
+            "exclude."),
+    },
+    }
 
 
-def read_raw_csv(path):
-    """Read one of the raw dumps: UTF-8 BOM, CRLF, optional ``# source:`` line."""
+def read_raw_csv(path, allow_empty=False):
+    """Read one of the raw dumps: UTF-8 BOM, CRLF, optional ``# source:`` line.
+
+    allow_empty says a header with no data rows is a result rather than a
+    broken export. Only the including-parked hole dump asks for it, because
+    there "nothing left open" is itself the finding (load_parked_holes). A file
+    with no header row at all is refused either way: an export that wrote
+    nothing and a design with no holes left do not state the same thing, and
+    reading the first as the second would reclassify every row the dump
+    qualified -- silently."""
     path = Path(path)
     if not path.is_file():
         raise SystemExit("error: no %s -- regenerate it first (docs/coverage/README.md)"
                          % path)
     with open(path, newline="", encoding="utf-8-sig") as handle:
-        rows = list(csv.DictReader([line for line in handle
-                                    if not line.startswith("#")]))
-    if not rows:
+        lines = [line for line in handle if not line.startswith("#")]
+    if not any(line.strip() for line in lines):
+        raise SystemExit("error: %s has no header row -- an export that wrote "
+                         "nothing is not a measurement (regenerate it: "
+                         "docs/coverage/README.md)" % path)
+    rows = list(csv.DictReader(lines))
+    if not rows and not allow_empty:
         raise SystemExit("error: %s has no data rows" % path)
     return rows
 
@@ -202,6 +242,51 @@ def gate_name(config_gate):
     return (config_gate or "").split("=")[0].strip() or "none"
 
 
+# What the including-parked evidence says a default-scope hole needs: not new
+# RTL knowledge, just the stimulus the repository already owns but keeps parked
+# (docs/regression.md). Naming the whole set rather than one test is the
+# honest reading of the diff -- the parked merge says the family covers it,
+# which member does is a question for whoever picks up the lane.
+PARKED_STIMULUS_TEST = ("parked set (docs/regression.md): promote or repair "
+                        "the parked test that covers it")
+# Deliberately undated: this cell is regenerated from the dump on every run, so
+# a date written here would silently re-assert the day *this* generation
+# happened, not the day the parked database was measured. The date belongs in
+# the prose that dates the dump (docs/coverage/coverage_review.md, "Current
+# state"), where it cannot outlive its own measurement.
+PARKED_STIMULUS_JUSTIFICATION = (
+    "MEASURED: the including-parked merge covers this bin (raw/holes_parked.csv) "
+    "while the default merge misses it, so the stimulus exists in the repository "
+    "-- it is only parked or failing, not missing. Not dead code, not config: "
+    "close it by promoting or repairing that stimulus, never by a waiver (a "
+    "waiver here would exclude reachable, already-covered-behind-the-toggle "
+    "RTL).")
+
+
+def load_parked_holes(path):
+    """Keys still open in the including-parked database, or None when unmeasured.
+
+    Optional on purpose: a checkout without the second merged database builds
+    the pre-toggle sheet unchanged. When the dump exists it splits the open
+    holes in two: a key still listed is missed by every test in the
+    repository, while a key the parked merge dropped from the list is a hole
+    only of the default scope -- stimulus the repository has and does not run.
+
+    A header and no rows is the goal state of the whole exercise -- the parked
+    merge closed everything the default merge missed -- so it is read as the
+    empty set it measures, and said out loud because it reclassifies every hole
+    in the sheet. A dump with no header is a truncated export and aborts:
+    agreeing with an empty file is the one thing this rule must never do."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    rows = read_raw_csv(path, allow_empty=True)
+    if not rows:
+        print(f"note: {path} lists no holes: every default-scope hole classes "
+              "as a parked-stimulus gap")
+    return {hole_key(row) for row in rows}
+
+
 def triage_waiver(row):
     """(classification, category, proposed test, status) for one audited waiver."""
     comment = row.get("Waiver Comment") or ""
@@ -221,14 +306,33 @@ def triage_waiver(row):
     return ("C-waive", "dead-code", "", "waived")
 
 
-def triage_hole(row):
-    """The recorded verdict for one open hole, or an untriaged placeholder."""
+def hole_key(row):
+    """A hole's identity across dumps: (design unit, metric, name), the name
+    being the source line for code and the assertion's own name for
+    assertions -- the two things that survive a re-export."""
     name = (row.get("Line") or "").strip()
-    target = (row.get("Target") or "").strip()
     if (row.get("Metric") or "") == "assertion":
-        name = target.rstrip("/").rsplit("/", 1)[-1]
-    verdict = HOLE_TRIAGE.get((row.get("Design Unit"), row.get("Metric"), name))
+        name = (row.get("Target") or "").strip().rstrip("/").rsplit("/", 1)[-1]
+    return (row.get("Design Unit"), row.get("Metric"), name)
+
+
+def triage_hole(row, parked_keys=None):
+    """The recorded verdict for one open hole, or an untriaged placeholder.
+
+    HOLE_TRIAGE wins when a human argument exists for the key. Otherwise the
+    including-parked evidence (when measured) decides: a hole the parked
+    merge covered is a stimulus gap of the default scope, classed without a
+    waiver. A hole survived by both dumps stays open -- nothing here has
+    thought about it, and guessing is what the sheet exists to prevent."""
+    key = hole_key(row)
+    verdict = HOLE_TRIAGE.get(key)
     if verdict is None:
+        if parked_keys is not None and key not in parked_keys:
+            return {"classification": "B-new-test",
+                    "category": "stimulus-gap",
+                    "test": PARKED_STIMULUS_TEST,
+                    "justification": PARKED_STIMULUS_JUSTIFICATION,
+                    "status": "triaged"}
         return {"classification": "", "category": "", "test": "",
                 "justification": "", "status": "open"}
     out = dict(verdict)
@@ -362,7 +466,7 @@ def check_published_cites(cov_tcl, docs_dir, dumps=None):
     return problems, checked
 
 
-def build_rows(waivers, holes, exclusions_by_line=None):
+def build_rows(waivers, holes, exclusions_by_line=None, parked_keys=None):
     """The whole sheet: every waiver, then every hole, in the dumps' own order."""
     exclusions_by_line = exclusions_by_line or {}
     rows = []
@@ -395,7 +499,7 @@ def build_rows(waivers, holes, exclusions_by_line=None):
             "Reviewer": "", "Review Date": "", "Notes": "",
         })
     for number, row in enumerate(holes, start=1):
-        verdict = triage_hole(row)
+        verdict = triage_hole(row, parked_keys)
         target = row.get("Target") or ""
         if row.get("Metric") == "stmt":
             # A statement's identity is its source line; the sheet says so
@@ -447,6 +551,11 @@ def main(argv=None):
                         help="waiver_audit.csv from bin/coverage_waiver_audit.py")
     parser.add_argument("--holes", default=str(DEFAULT_HOLES),
                         help="holes.csv from bin/coverage_holes.py")
+    parser.add_argument("--parked-holes", default=str(DEFAULT_PARKED_HOLES),
+                        help="holes_parked.csv, the same export against the "
+                             "including-parked database; absent file keeps the "
+                             "parked-evidence rule off (default-scope triage "
+                             "only)")
     parser.add_argument("--cov-tcl", default=str(DEFAULT_COV_TCL),
                         help="cov.tcl, read only to quote each waiver's own line")
     parser.add_argument("--out", default=str(DEFAULT_OUT),
@@ -474,7 +583,12 @@ def main(argv=None):
 
     waivers = read_raw_csv(args.waivers)
     holes = read_raw_csv(args.holes)
-    rows = build_rows(waivers, holes, load_exclusions_by_line(args.cov_tcl))
+    parked_keys = load_parked_holes(args.parked_holes)
+    if parked_keys is None:
+        print("note: no %s -- parked-evidence rule off, holes that the "
+              "including-parked merge covers stay open" % args.parked_holes)
+    rows = build_rows(waivers, holes, load_exclusions_by_line(args.cov_tcl),
+                      parked_keys)
     total = write_sheet(args.out, rows)
     print("Wrote %s: %d rows (%d WAIVER from %s, %d HOLE from %s)"
           % (args.out, total, len(waivers), args.waivers, len(holes), args.holes))

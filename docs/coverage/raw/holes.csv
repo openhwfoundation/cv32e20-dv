@@ -1,6 +1,114 @@
 ﻿# source: sim/uvmt/vsim_results/default/merged/merged.ucdb with sim/tools/vsim/cov.tcl applied in vsim -viewcov (report-only session; the .ucdb is not modified)
 Design Unit,Instance,File,Line,Metric,Target,Hits,Misses,Source
+cve2_compressed_decoder,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/if_stage_i/compressed_decoder_i,rtl/cve2_compressed_decoder.sv,260,branch,item 1,0,1,"3'b101,"
 cve2_controller,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i,rtl/cve2_controller.sv,514,branch,All False Count (else arm),0,1,All False Count
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,46,stmt,,0,1,counter_d = counter_load[CounterWidth-1:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[8]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[8]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[8]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[8]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[8]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,46,stmt,,0,1,counter_d = counter_load[CounterWidth-1:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[7]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[7]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[7]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[6]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[6]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[6]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[5]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[5]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[5]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[4]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[4]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[4]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[3]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[3]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[3]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[2]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[2]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[2]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[1]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[1]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[1]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[1]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[1]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,46,stmt,,0,1,counter_d = counter_load[CounterWidth-1:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[0]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[0]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[0]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[0]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[0]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,46,stmt,,0,1,counter_d = counter_load[CounterWidth-1:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/mcycle_counter_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/mcycle_counter_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/mcycle_counter_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/mcycle_counter_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/mcycle_counter_i,rtl/cve2_counter.sv,46,stmt,,0,1,counter_d = counter_load[CounterWidth-1:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/minstret_counter_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/minstret_counter_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/minstret_counter_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/minstret_counter_i,rtl/cve2_counter.sv,41,stmt,,0,1,counter_load[31:0]  = counter[31:0];
+cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/minstret_counter_i,rtl/cve2_counter.sv,46,stmt,,0,1,counter_d = counter_load[CounterWidth-1:0];
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,571,branch,item 1,0,1,CSR_MTVAL: mtval_en = 1'b1;
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,614,branch,item 1,0,1,"CSR_MCYCLE,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,615,branch,item 1,0,1,"CSR_MINSTRET,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,616,branch,item 1,0,1,"CSR_MHPMCOUNTER3,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,617,branch,item 1,0,1,"CSR_MHPMCOUNTER4,  CSR_MHPMCOUNTER5,  CSR_MHPMCOUNTER6,  CSR_MHPMCOUNTER7,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,618,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,619,branch,item 1,0,1,"CSR_MHPMCOUNTER12, CSR_MHPMCOUNTER13, CSR_MHPMCOUNTER14, CSR_MHPMCOUNTER15,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,619,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,619,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,619,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,620,branch,item 1,0,1,"CSR_MHPMCOUNTER16, CSR_MHPMCOUNTER17, CSR_MHPMCOUNTER18, CSR_MHPMCOUNTER19,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,620,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,620,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,620,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,621,branch,item 1,0,1,"CSR_MHPMCOUNTER20, CSR_MHPMCOUNTER21, CSR_MHPMCOUNTER22, CSR_MHPMCOUNTER23,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,621,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,621,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,621,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,622,branch,item 1,0,1,"CSR_MHPMCOUNTER24, CSR_MHPMCOUNTER25, CSR_MHPMCOUNTER26, CSR_MHPMCOUNTER27,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,622,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,622,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,622,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,623,branch,item 1,0,1,"CSR_MHPMCOUNTER28, CSR_MHPMCOUNTER29, CSR_MHPMCOUNTER30, CSR_MHPMCOUNTER31: begin"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,623,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,623,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,623,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,627,branch,item 1,0,1,"CSR_MCYCLEH,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,628,branch,item 1,0,1,"CSR_MINSTRETH,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,629,branch,item 1,0,1,"CSR_MHPMCOUNTER3H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,630,branch,item 1,0,1,"CSR_MHPMCOUNTER4H,  CSR_MHPMCOUNTER5H,  CSR_MHPMCOUNTER6H,  CSR_MHPMCOUNTER7H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,630,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,630,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,630,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,631,branch,item 1,0,1,"CSR_MHPMCOUNTER8H,  CSR_MHPMCOUNTER9H,  CSR_MHPMCOUNTER10H, CSR_MHPMCOUNTER11H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,631,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,631,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,631,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,632,branch,item 1,0,1,"CSR_MHPMCOUNTER12H, CSR_MHPMCOUNTER13H, CSR_MHPMCOUNTER14H, CSR_MHPMCOUNTER15H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,632,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,632,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,632,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,633,branch,item 1,0,1,"CSR_MHPMCOUNTER16H, CSR_MHPMCOUNTER17H, CSR_MHPMCOUNTER18H, CSR_MHPMCOUNTER19H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,633,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,633,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,633,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,634,branch,item 1,0,1,"CSR_MHPMCOUNTER20H, CSR_MHPMCOUNTER21H, CSR_MHPMCOUNTER22H, CSR_MHPMCOUNTER23H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,634,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,634,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,634,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,635,branch,item 1,0,1,"CSR_MHPMCOUNTER24H, CSR_MHPMCOUNTER25H, CSR_MHPMCOUNTER26H, CSR_MHPMCOUNTER27H,"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,635,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,635,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,635,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,636,branch,item 1,0,1,"CSR_MHPMCOUNTER28H, CSR_MHPMCOUNTER29H, CSR_MHPMCOUNTER30H, CSR_MHPMCOUNTER31H: begin"
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,636,branch,item 2,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,636,branch,item 3,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,636,branch,item 4,0,1,
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,571,stmt,,0,1,CSR_MTVAL: mtval_en = 1'b1;
+cve2_cs_registers,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i,rtl/cve2_cs_registers.sv,637,stmt,,0,1,mhpmcounterh_we[mhpmcounter_idx] = 1'b1;
 cve2_controller,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i,,,assertion,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i/CVE2NoDoubleSpecialReqPCSet,0,1,pass=0 fail=0
 cve2_id_stage,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i,,,assertion,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/IllegalInsnStallMustBeMemStall,0,1,pass=0 fail=0
 cve2_id_stage,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i,,,assertion,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/IbexStallIfValidInstrNotExecuting,0,1,pass=0 fail=0

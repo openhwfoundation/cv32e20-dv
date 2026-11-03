@@ -27,9 +27,18 @@
 # accepts a target that matches nothing without saying so. The last full re-aim
 # (2026-11-01) moved twenty statements in six design units -- cve2_controller
 # by twenty lines on its own -- and changed the count from 61 statements to the
-# 64 here: two RVFI_CONNECT condition rows that a -linerange cannot reach, the
-# U-mode CSR-read arms, minus an ls_fsm_e default-case waiver that measurement
-# showed was hiding covered code rather than waiving a miss.
+# 64 it stood at then: two RVFI_CONNECT condition rows that a -linerange cannot
+# reach, the U-mode CSR-read arms, minus an ls_fsm_e default-case waiver that
+# measurement showed was hiding covered code rather than waiving a miss.
+#
+# Re-pin 2026-11-03 (CVE2 moved to upstream main @ d7f2156): rtl/
+# cve2_id_stage.sv is the only file the new pin changes (+11/-2 lines, a
+# register-file write-address mux plus the coprocessor result-address fix),
+# so every other unit's line targets carried over unchanged (verified
+# line-by-line against ce0fd917). The three cve2_id_stage statements below
+# were re-aimed (+1/+9 shifts), one new CV-X-IF statement was added for the new
+# mux's unreachable coprocessor arm, and two reset-transition statements were
+# retired -- the batch covers what they excused. 63 statements; audit re-run.
 #
 # The dated NOTE blocks below quote RTL line numbers as they stood the day each
 # one was written, and they keep those numbers on purpose: they are the audit
@@ -81,7 +90,7 @@ set UMODE_DISABLED_COMMENT {UmodeEnabled=0 is hardcoded in cve2_cs_registers.sv 
 #   (verified 2026-08-10):
 #   - line 124 (2'b00: data_be = 4'b0000;, word-write "second part" case):
 #     the address increment for a misaligned access's second half is always
-#     exactly +4 (cve2_id_stage.sv:450, IMM_B_INCR_ADDR: imm_b = 32'h4;),
+#     exactly +4 (cve2_id_stage.sv:451, IMM_B_INCR_ADDR: imm_b = 32'h4;),
 #     which never changes address bits [1:0] -- and word-access splitting
 #     only triggers when the first part's data_offset != 2'b00 (line 329),
 #     so the second part's data_offset (same bits, unchanged by +4) can
@@ -180,7 +189,12 @@ coverage exclude -du cve2_if_stage -linerange 181-194 -comment {Dummy sim-only s
 
 # cve2_id_stage
 # =============
-coverage exclude -du cve2_id_stage -linerange 883-884 -comment {Default case for the id_fsm_q signal}
+#   NOTE (2026-11-03): re-aimed 883-884 -> 892-893 for the d7f2156 re-pin --
+#   rtl/cve2_id_stage.sv grew a register-file write-address mux at its line
+#   500, shifting everything below by 9. Target unchanged: the `default:`
+#   arm of the id_fsm_q next-state case (`default: begin id_fsm_d =
+#   FIRST_CYCLE;`), verified verbatim at 892-893 of the pinned file.
+coverage exclude -du cve2_id_stage -linerange 892-893 -comment {Default case for the id_fsm_q signal}
 
 # cve2_controller
 # ===============
@@ -320,7 +334,9 @@ coverage exclude -du cve2_controller -feccondrow 521 4 -comment {Nested NMI (irq
 #   reachable and already covered -- only this one row is excluded.
 coverage exclude -du cve2_controller -feccondrow 416 10 -comment {debug_single_step_i sensitized (all other wake terms 0) while in SLEEP is structurally unreachable: a single-stepped wfi always re-enters debug mode via enter_debug_mode_prio_q (cve2_controller.sv:713) before it can complete the FLUSH->WAIT_SLEEP->SLEEP transition, so debug_single_step_i can never be the sole wake reason once SLEEP is actually reached.}
 
-#   ctrl_fsm_cs FSM transitions: <STATE> -> RESET (all 9 non-RESET states).
+#   ctrl_fsm_cs FSM transitions: <STATE> -> RESET, of the 9 non-RESET states
+#   8 remain excluded (DECODE->RESET was retired on measurement 2026-11-03,
+#   see the MEASURED note below).
 #   NOT dead code -- rst_ni is a real async input (see the `if (!rst_ni)`
 #   branch of update_regs, line 753) that can legitimately drop while the
 #   controller is in any state; these edges are genuinely reachable, just
@@ -341,6 +357,12 @@ coverage exclude -du cve2_controller -feccondrow 416 10 -comment {debug_single_s
 #   docs/coverage/raw/phase_c_acceptance.csv. The one that is covered stays
 #   excluded too, until a merged batch database contains the test -- retiring
 #   it against the current merge would only lower the reported number.
+#   MEASURED 2026-11-03: that moment arrived -- the 43-test --cov-report batch
+#   (upstream d7f2156 RTL) merged mid_run_reset_test into the default database,
+#   and bin/coverage_waiver_audit.py measured DECODE->RESET as
+#   HIDING-COVERED-CODE. Per the policy (never waive a target that has hits)
+#   that exclusion is deleted below; the other eight edges the 2026-11-01
+#   measurement cleared as unreachable with one pulse stay.
 set CTRL_FSM_RESET_TRANS_COMMENT {rst_ni can legitimately drop from any controller state -- not dead code, an accepted untested-stimulus gap (mid-run reset injection).}
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {BOOT_SET->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {FIRST_FETCH->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
@@ -348,15 +370,16 @@ coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {WAIT_SLEEP->RESET} -co
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {SLEEP->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {DBG_TAKEN_IF->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {IRQ_TAKEN->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
-coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {DECODE->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {FLUSH->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {DBG_TAKEN_ID->RESET} -comment $CTRL_FSM_RESET_TRANS_COMMENT
 
 # cve2_multdiv_fast
 # =================
 #
-#   md_state_q (divider FSM) transitions: <STATE> -> MD_IDLE, for all 5
-#   non-MD_IDLE states. Same pattern/rationale as ctrl_fsm_cs above: NOT
+#   md_state_q (divider FSM) transitions: <STATE> -> MD_IDLE, of the 5
+#   non-MD_IDLE states 4 remain excluded (MD_COMP->MD_IDLE was retired on
+#   measurement 2026-11-03, see below). Same pattern/rationale as
+#   ctrl_fsm_cs above: NOT
 #   dead code -- `md_state_q <= MD_IDLE;` sits inside the `if (!rst_ni)`
 #   branch (line 99), so rst_ni dropping mid-divide is a real, reachable
 #   scenario, just untested by the current suite. Excluded per the same
@@ -384,10 +407,15 @@ coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {DBG_TAKEN_ID->RESET} -
 #   one seed out of twelve. Neither is retired: one seed of this test covers
 #   one or two of the 16, and the merged database these waivers are measured
 #   against does not contain the test yet.
+#   MEASURED 2026-11-03 (same test merged into the 43-test default batch,
+#   upstream d7f2156 RTL): the audit now measures MD_COMP->MD_IDLE as
+#   HIDING-COVERED-CODE, so that exclusion is deleted below. ALBH->ALBL stays
+#   VALID -- this batch's seed did not land the pulse in its one-cycle window
+#   (1 of 12 seeds in the 12-seed measurement), so its edge is still a real
+#   miss the waiver is paying for.
 set MD_FSM_RESET_TRANS_COMMENT {rst_ni can legitimately drop mid-divide -- not dead code, an accepted untested-stimulus gap (mid-run reset injection).}
 coverage exclude -du cve2_multdiv_fast -ftrans md_state_q {MD_ABS_A->MD_IDLE} -comment $MD_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_multdiv_fast -ftrans md_state_q {MD_ABS_B->MD_IDLE} -comment $MD_FSM_RESET_TRANS_COMMENT
-coverage exclude -du cve2_multdiv_fast -ftrans md_state_q {MD_COMP->MD_IDLE} -comment $MD_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_multdiv_fast -ftrans md_state_q {MD_LAST->MD_IDLE} -comment $MD_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_multdiv_fast -ftrans md_state_q {MD_CHANGE_SIGN->MD_IDLE} -comment $MD_FSM_RESET_TRANS_COMMENT
 coverage exclude -du cve2_multdiv_fast -ftrans gen_mult_fast/mult_state_q {ALBH->ALBL} -comment {rst_ni can legitimately drop mid-multiply -- not dead code, an accepted untested-stimulus gap (mid-run reset injection), same as the md_state_q transitions above. Note the FSM variable needs the gen_mult_fast/ generate-block qualifier here (unlike md_state_q, which isn't inside a generate block) -- confirmed via a -viewcov dry run after the bare "mult_state_q" form silently matched nothing.}
@@ -535,15 +563,25 @@ coverage exclude -du cve2_core -feccondrow 1154 2 -comment {instr_valid_id==1 wh
 coverage exclude -du cve2_core -feccondrow 1156 2 -comment {instr_valid_id==1 while captured_valid==1 is structurally unreachable: both are driven from if_stage_i.instr_valid_id_d/_q, and the only 0->1 transition of instr_valid_id coincides with captured_valid being cleared on the same edge.}
 
 #   Exclude coverage for ID stage when CV-X-IF is disabled
+#
+#   NOTE (2026-11-03): re-aimed for the d7f2156 re-pin -- 494 -> 495 (+1) and
+#   829-832 -> 838-841 (+9), both verified verbatim against the pinned file
+#   (the rf_wdata_id_mux coprocessor arm; the alu_multicycle_dec case arm).
+#   The pin also added the rf_waddr_id_mux block (new 500-507), whose
+#   RF_WD_COPROC line 503 is the same shape as the rf_wdata_id_mux one it
+#   sits under: rf_wdata_sel can only take RF_WD_COPROC through the
+#   coprocessor paths that do not exist when XInterface is 0, so that case
+#   item is never selected and the `default:` arm carries the mux alone.
 if {!$XInterface} {
-    coverage exclude -du cve2_id_stage -linerange 494 -comment $CV_XIF_DISABLED_COMMENT
-    coverage exclude -du cve2_id_stage -linerange 829-832 -comment $CV_XIF_DISABLED_COMMENT
+    coverage exclude -du cve2_id_stage -linerange 495 -comment $CV_XIF_DISABLED_COMMENT
+    coverage exclude -du cve2_id_stage -linerange 503 -comment $CV_XIF_DISABLED_COMMENT
+    coverage exclude -du cve2_id_stage -linerange 838-841 -comment $CV_XIF_DISABLED_COMMENT
 
     #   cve2_controller.sv:473,492,498 -- `ctrl_fsm_ns = xif_scoreboard_busy_i
     #   ? DECODE : <FLUSH|DBG_TAKEN_IF|IRQ_TAKEN>;`. xif_scoreboard_busy_i is
     #   fed from cve2_id_stage.sv's scoreboard_busy, which the no_gen_xif
     #   generate branch (entered whenever XInterface is disabled,
-    #   cve2_id_stage.sv:388, the `else begin: no_gen_xif` at 376) hardwires to
+    #   cve2_id_stage.sv:389, the `else begin: no_gen_xif` at 377) hardwires to
     #   `1'b0` -- so the DECODE arm of
     #   each ternary can never be taken. Found 2026-08-12 auditing
     #   branch-coverage holes.

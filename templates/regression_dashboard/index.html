@@ -145,6 +145,16 @@
             const name = document.createElement('td');
             name.className = 'test-name';
             name.textContent = test.name;
+            if (test.parked) {
+                // Parked tests (bin/run_tests.py's PARKED list) run for the
+                // including-parked view only: their verdicts badge their row
+                // but never decide the default suite's verdict.
+                const parkedBadge = document.createElement('span');
+                parkedBadge.className = 'parked-badge';
+                parkedBadge.textContent = 'PARKED';
+                parkedBadge.title = 'Parked test: excluded from the default set (see the coverage page toggle)';
+                name.appendChild(parkedBadge);
+            }
             if (test.description) {
                 name.title = test.description;
             }
@@ -232,27 +242,45 @@
             .then(data => {
                 const summary = data.summary || {};
                 const tests = data.tests || [];
+                // Default set: the rows without the parked flag. A schema 1
+                // document has no flags at all, so every row is default and
+                // the page reads exactly as before.
+                const main = tests.filter(test => !test.parked);
+                const parkedCount = tests.length - main.length;
 
                 if (data.testlist) {
                     document.getElementById('regression-subtitle').textContent =
                         data.testlist + (data.tb ? ' · ' + data.tb + ' testbench' : '');
                 }
 
-                setCard('total-tests', count(tests.length));
-                setCard('passed', count(summary.passed));
+                setCard('total-tests', count(tests.length),
+                        parkedCount ? 'includes ' + count(parkedCount) + ' parked' : null);
+                setCard('passed', count(summary.passed),
+                        parkedCount
+                            ? 'incl. ' + count(summary.parked_passed) + ' of '
+                              + count(summary.parked) + ' parked'
+                            : null);
                 setCard('failed', count(summary.failed));
                 setCard('errors', count(summary.error));
-                if (hasValue(summary.pass_rate)) {
+                const mainPassed = main.filter(test => test.verdict === 'PASS').length;
+                if (parkedCount && main.length) {
+                    // The headline pass rate belongs to the default set, the
+                    // same one the coverage dashboard's toggle shows first;
+                    // parked failures only ever move the parked view.
+                    setCard('pass-rate', (100 * mainPassed / main.length).toFixed(2) + '%',
+                            'default set: ' + count(mainPassed) + ' of ' + count(main.length)
+                            + ' (' + count(parkedCount) + ' parked excluded)');
+                } else if (hasValue(summary.pass_rate)) {
                     setCard('pass-rate', summary.pass_rate + '%');
                 }
                 setCard('wall-time', seconds(summary.duration_s),
                         hasValue(summary.duration_s) ? 'first start → last finish' : null);
 
                 const badge = document.getElementById('verdict-badge');
-                if (!tests.length) {
-                    badge.textContent = 'No tests';
+                if (!main.length) {
+                    badge.textContent = tests.length ? 'Parked only' : 'No tests';
                     badge.className = 'badge badge-default';
-                } else if (summary.failed || summary.error) {
+                } else if (main.some(test => test.verdict !== 'PASS')) {
                     badge.textContent = 'Failing';
                     badge.className = 'badge badge-fail';
                 } else {

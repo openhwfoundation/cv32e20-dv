@@ -33,7 +33,13 @@ VCOVER                  = vcover
 # Paths
 QUESTASIM_HOME         ?= $(abspath $(shell which $(VLIB))/../../)
 VWORK                   = work
-VSIM_COV_MERGE_DIR      = $(SIM_CFG_RESULTS)/merged
+# Merge output directory. Overridable (command line or environment) so a
+# caller can merge the same batch of per-test databases into sibling outputs
+# -- bin/run_tests.py --cov-report writes the default-scoped merged/ and the
+# including-parked merged_parked/ side by side. Always pass an absolute path
+# when overriding: this file is included with CWD sim/uvmt, and every consumer
+# (run_tests.py, docs/regression.md) keys off vsim_results/<cfg>/.
+VSIM_COV_MERGE_DIR      ?= $(SIM_CFG_RESULTS)/merged
 UVM_HOME                = $(QUESTASIM_HOME)/verilog_src/uvm-1.2/src
 USES_DPI = 1
 
@@ -279,13 +285,23 @@ COV_FLAGS =
 COV_REPORT = cov_report
 COV_INST_ARG = $(if $(COV_INSTANCE),-instance=$(COV_INSTANCE).,)
 COV_MERGE_TARGET =
+# Explicit merge input list. When COV_MERGE_LIST names a file of .ucdb paths
+# (one per line, absolute), it replaces the find below wherever the merge
+# inputs are needed -- the prerequisite list and the producer of
+# <merge dir>/ucdb.list -- so the merge covers exactly the databases the
+# caller chose. bin/run_tests.py --cov-report uses this to merge one batch's
+# PASSing tests twice into two scopes (merged/ without the parked tests,
+# merged_parked/ with them) without any unrelated .ucdb on disk leaking into
+# either number.
+COV_MERGE_LIST ?=
 COV_MERGE_FIND = find $(abspath $(SIM_CFG_RESULTS)) -type f -name "*.ucdb" | grep -v merged.ucdb
+COV_MERGE_INPUTS = $(if $(COV_MERGE_LIST),cat $(COV_MERGE_LIST),$(COV_MERGE_FIND))
 COV_MERGE_FLAGS=merge -64 -out merged.ucdb -inputs ucdb.list
 # Evaluated at parse time so it can serve as a file prerequisite list below --
 # lets 'make' skip re-merging (and skip re-running any target that depends on
 # it, e.g. cov_holes) when merged.ucdb is already newer than every per-test
 # .ucdb it would be built from.
-COV_MERGE_UCDB_LIST := $(shell $(COV_MERGE_FIND))
+COV_MERGE_UCDB_LIST := $(shell $(COV_MERGE_INPUTS))
 
 ifeq ($(call IS_YES,$(MERGE)),YES)
 	COV_DIR=$(VSIM_COV_MERGE_DIR)
@@ -626,7 +642,7 @@ waves:
 # next merge picks it up automatically -- no manual cache-busting needed.
 $(VSIM_COV_MERGE_DIR)/merged.ucdb: $(COV_MERGE_UCDB_LIST)
 	$(MKDIR_P) $(VSIM_COV_MERGE_DIR)
-	$(COV_MERGE_FIND) > $(VSIM_COV_MERGE_DIR)/ucdb.list
+	$(COV_MERGE_INPUTS) > $(VSIM_COV_MERGE_DIR)/ucdb.list
 	cd $(VSIM_COV_MERGE_DIR) && \
 		$(VCOVER) \
 			$(COV_MERGE_FLAGS)

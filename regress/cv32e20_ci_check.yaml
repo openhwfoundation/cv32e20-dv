@@ -67,14 +67,19 @@ tests:
   # PASSED on all twelve seeds of a sweep (~63 s each), irq_withdraw_test PASSED
   # in 10 m 34 s. Their verdicts are therefore no longer the open question -- the
   # coverage bins they were written for are, and they are only partly closed:
-  # 3 of the 16 reset-transition waivers measure covered across the twelve seeds
-  # (1-2 of them with the single seed a regression runs), and the interrupt-
-  # withdrawal window is still a miss. docs/coverage/coverage_review.md and the
-  # measured docs/coverage/raw/phase_c_acceptance.csv keep the per-target detail
+  # the twelve-seed sweep measured 3 of the 16 reset-transition bins covered
+  # (1-2 of them with the single seed a regression runs); two of those three --
+  # ctrl_fsm_cs DECODE->RESET (12/12 seeds) and md_state_q MD_COMP->MD_IDLE
+  # (8/12) -- are hit in the default merge of the 43-test 2026-11-03 batch as
+  # well, and because that merge contains the test, the policy retired their
+  # waivers the same day, leaving 14 of the 16 still waived. The
+  # interrupt-withdrawal window is still a miss.
+  # docs/coverage/coverage_review.md and the measured
+  # docs/coverage/raw/phase_c_acceptance.csv keep the per-target detail
   # and the reason for each. Both tests stay here; cv32e20_sanity.yaml says why
   # they are not on the blocking list.
   - name: mid_run_reset_test
-    description: Reset dropped mid-program (3 of 16 FSM ->RESET edges covered, 12/12 seeds PASS)
+    description: Reset dropped mid-program (14 of 16 reset-transition bins still waived, 12/12 seeds PASS)
   - name: irq_withdraw_test
     description: Interrupt withdrawn in the commit cycle (IRQ_TAKEN false arm still uncovered, 10.5 min)
 

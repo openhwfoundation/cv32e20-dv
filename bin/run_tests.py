@@ -203,8 +203,10 @@ the published artifact set that CI deploys to GitHub Pages:
     coverage_report/style.css           dashboard stylesheet
     coverage_report/questasim/          vcover -html code report, DUT-scoped
     coverage_report/questasim_func/     vcover -html -cvg report, full hierarchy
+    coverage_report/questasim_parked/   the code report rebuilt from merged_parked/
+    coverage_report/questasim_func_parked/  the func report from merged_parked/
     coverage_report/analysis/           the coverage analysis as a page: the
-                                        viewer, the review sheet and the four
+                                        viewer, the review sheet and the five
                                         raw dumps it reads
     coverage_report/merged.questasim.xml  Questa XML rollup, whole hierarchy
     coverage_report/dut_rollup.xml      Questa XML rollup, DUT scope
@@ -239,14 +241,19 @@ the published artifact set that CI deploys to GitHub Pages:
     Adding -instance to the second, or removing it from the first, makes the two
     buttons show the same wrong number.
 
-The merge step is `make MERGE=YES TEST=<name> cov` right after each PASS, which
-(mk/uvmt/vsim.mk) makes merged.ucdb a real file target keyed on every .ucdb
-discovered under vsim_results/<cfg>, so calling it once per test is an
-incremental merge rather than a rebuild. Tests without a .ucdb (FAILED/ERROR
-runs, or a batch without --cov) are skipped silently. Merges are serialised
-behind a lock, since concurrent vcover writes against one merged.ucdb are not
-safe. A --cov-report run wipes vsim_results/<cfg>/merged/ and coverage_report/
-before it starts; --clean-report only does the latter.
+The merge step runs once per batch, after the last test, from an explicit list
+of this batch's PASSing .ucdb files -- never from a find over
+vsim_results/<cfg>, because whatever earlier runs left there used to leak
+straight into the published numbers. --cov-report merges twice into sibling
+databases: vsim_results/<cfg>/merged/ holds the default scope (non-PARKED
+PASSes) and vsim_results/<cfg>/merged_parked/ the same plus the PARKED PASSes,
+each keeping a ucdb.list naming its own inputs (mk/uvmt/vsim.mk
+COV_MERGE_LIST). Tests without a .ucdb (FAILED/ERROR runs, or a batch without
+--cov) are in neither list. A --cov-report run first deletes every per-test
+.ucdb under vsim_results/<cfg>, both merge directories, and coverage_report/;
+--clean-report only does the last. --merge-existing keeps the historical
+"merge everything on disk" behaviour: one default-scope find merge, and no
+including-parked database.
 
 --all-custom selects every directory under TESTS_ROOTS instead of the curated
 lists above, which is what the coverage CI job uses so a newly added test
@@ -386,11 +393,6 @@ import regression_report  # noqa: E402
 
 # Serializes stdout so concurrent --jobs workers don't interleave output.
 _print_lock = threading.Lock()
-
-# Serialises the per-test `make MERGE=YES ... cov` calls of a --cov-report
-# batch: every one of them rewrites the same vsim_results/<cfg>/merged.ucdb via
-# vcover, which is not safe to run against itself.
-_merge_lock = threading.Lock()
 
 # Per-testbench config: sim dir, extra make args, pass/fail banners, log markers.
 TESTBENCHES = {
@@ -990,48 +992,107 @@ def regression_document(tb, cfg, results, testlist=None, started=None,
             duration_s=duration,
             log=os.path.relpath(log, REPO).replace(os.sep, "/"),
             log_exists=log.is_file(),
-            description=descriptions.get(test)))
+            description=descriptions.get(test),
+            # The published regression document covers every test this batch
+            # ran, parked ones included -- flagged, so the dashboard can badge
+            # them and keep the parked failures out of the default verdict.
+            parked=test in PARKED))
     return regression_report.build_document(
         entries, tb, cfg, testlist=testlist, started=started, finished=finished)
 
 
-def merge_test_coverage(tb, test, run_index, cfg, timeout):
-    """Merge one test's .ucdb into vsim_results/<cfg>/merged/merged.ucdb with
-    `make MERGE=YES TEST=<test> cov`; return whether the merge actually ran.
-
-    merged.ucdb is a real file target in mk/uvmt/vsim.mk keyed on every .ucdb
-    found under vsim_results/<cfg>, so calling this once per test -- what the old
-    bin/run_uvm_tests.py did -- is an incremental merge, not a full rebuild.
-    A test with no .ucdb (a FAILED/ERROR run, or a batch that never ran with
-    --cov) returns False silently: there is nothing for it to contribute.
-    Serialised behind _merge_lock so a --jobs > 1 batch cannot race two vcover
-    merges against one merged.ucdb."""
+def test_ucdb_path(tb, test, run_index, cfg):
+    """Path of one test's coverage database in this checkout (may be absent --
+    a test that never ran with --cov simply has no file here)."""
     tbcfg = TESTBENCHES[tb]
-    ucdb_path = (tbcfg["sim_dir"] / "vsim_results" / cfg / test / str(run_index)
-                 / f"{test}.ucdb")
-    if not ucdb_path.is_file():
-        return False
+    return (tbcfg["sim_dir"] / "vsim_results" / cfg / test / str(run_index)
+            / f"{test}.ucdb")
 
-    cmd = ["make", "MERGE=YES", f"TEST={test}", "cov"] + tbcfg["make_args"]
+
+def batch_ucdb_lists(results, tb, cfg, run_index=UVMT_RUN_INDEX):
+    """Split a batch's result rows into the two merge input lists.
+
+    Returns (default_paths, parked_paths): the absolute Paths of the .ucdb
+    files of PASSing tests that exist on disk -- parked tests in the second
+    list only. The default-scope merge consumes the first list, the
+    including-parked merge the two together; a FAILED or ERROR row is in
+    neither, because a truncated database says nothing trustworthy about the
+    code it stopped reaching."""
+    parked = set(PARKED)
+    default_paths, parked_paths = [], []
+    for test, outcome, *_rest in results:
+        if outcome != "PASS":
+            continue
+        ucdb = test_ucdb_path(tb, test, run_index, cfg)
+        if not ucdb.is_file():
+            continue
+        (parked_paths if test in parked else default_paths).append(str(ucdb))
+    return sorted(default_paths), sorted(parked_paths)
+
+
+def write_ucdb_list(path, ucdb_paths):
+    """Write one merge input list (a mk/uvmt/vsim.mk COV_MERGE_LIST file):
+    absolute .ucdb paths, one per line. The file lives beside the merged
+    database it feeds, so the request that produced a merged.ucdb can be read
+    back next to it (make copies it to the directory's ucdb.list)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("".join(str(p) + "\n" for p in ucdb_paths))
+    return path
+
+
+def merge_batch_coverage(tb, cfg, timeout, ucdb_list=None, merge_dir="merged"):
+    """Merge a batch of per-test .ucdb files into
+    vsim_results/<cfg>/<merge_dir>/merged.ucdb with `make MERGE=YES cov_merge`;
+    return whether the merge actually ran.
+
+    cov_merge, not cov: cov is one of Common.mk's TEST_YAML_PARSE_TARGETS, so
+    it aborts without a TEST -- and a batch merge has no single test to name.
+    cov_merge builds only the database; every report this harness publishes is
+    generated from it by generate_coverage_reports() below, never by cov's
+    in-tree vsim report.
+
+    ucdb_list: file of .ucdb paths (write_ucdb_list()), passed to
+    mk/uvmt/vsim.mk as COV_MERGE_LIST so the merge covers exactly those
+    databases -- the same batch can then be merged twice, into two scopes,
+    without an unrelated .ucdb on disk leaking into either number. None keeps
+    the historical behaviour of merging every .ucdb found under the cfg, which
+    is exactly what --merge-existing asks for.
+
+    Unlike the per-test incremental merge this replaced, this runs once per
+    batch after the worker pool has joined -- there is no concurrent vcover
+    writer left to serialise against."""
+    tbcfg = TESTBENCHES[tb]
+    merge_dir_path = tbcfg["sim_dir"] / "vsim_results" / cfg / merge_dir
+    # CFG names the results tree the mk merge searches when no COV_MERGE_LIST is
+    # given (COV_MERGE_FIND walks $(SIM_CFG_RESULTS), and CFG ?= default there),
+    # so without it --cfg NAME --merge-existing would merge NAME's output tree
+    # full of default's .ucdb files.
+    cmd = ["make", "MERGE=YES", f"CFG={cfg}",
+           f"VSIM_COV_MERGE_DIR={merge_dir_path}"]
+    if ucdb_list is not None:
+        cmd.append(f"COV_MERGE_LIST={Path(ucdb_list).absolute()}")
+    cmd = cmd + ["cov_merge"] + tbcfg["make_args"]
     env = make_env(tbcfg)
     try:
-        with _merge_lock:
-            returncode, _, stderr = _run(cmd, tbcfg["sim_dir"], env, timeout,
-                                         capture=True)
+        returncode, _, stderr = _run(cmd, tbcfg["sim_dir"], env, timeout,
+                                     capture=True)
     except subprocess.TimeoutExpired:
         with _print_lock:
-            print(f"warning: coverage merge for {test} timed out after {timeout}s")
+            print(f"warning: coverage merge into {merge_dir} timed out after "
+                  f"{timeout}s")
         return False
     except OSError as exc:
         with _print_lock:
-            print(f"warning: could not launch coverage merge for {test}: {exc}")
+            print(f"warning: could not launch coverage merge into "
+                  f"{merge_dir}: {exc}")
         return False
 
     if returncode != 0:
         last = (stderr or "").strip().splitlines()
         with _print_lock:
-            print(f"warning: coverage merge for {test} failed (exit {returncode}): "
-                  f"{last[-1] if last else 'no output'}")
+            print(f"warning: coverage merge into {merge_dir} failed (exit "
+                  f"{returncode}): {last[-1] if last else 'no output'}")
         return False
     return True
 
@@ -1204,8 +1265,28 @@ COVERAGE_ANALYSIS_FILES = (
     "coverage_review.csv",
     "raw/waiver_audit.csv",
     "raw/holes.csv",
+    "raw/holes_parked.csv",
     "raw/phase_c_acceptance.csv",
 )
+
+# What to tell whoever sees a dump missing. The sheet is generated from the
+# dumps, the dumps are measurements: holes_parked.csv needs the second merged
+# database of a --cov-report batch, and phase_c_acceptance.csv is read out of
+# `vcover report -showexcluded` by hand (docs/coverage/README.md).
+ANALYSIS_REGENERATED_BY = {
+    "coverage_review.csv": "bin/coverage_review.py",
+    "raw/waiver_audit.csv": "bin/coverage_waiver_audit.py",
+    "raw/holes.csv": "bin/coverage_holes.py",
+    # --ucdb is quoted with $PWD because coverage_holes.py resolves it inside
+    # its own vsim session's directory, and --out because its default target is
+    # the *default* dump this one must not overwrite (README step 1b).
+    "raw/holes_parked.csv": "bin/coverage_holes.py --ucdb "
+                            "\"$PWD/sim/uvmt/vsim_results/<cfg>/merged_parked/"
+                            "merged.ucdb\" --apply-cov-tcl "
+                            "--out docs/coverage/raw/holes_parked.csv",
+    "raw/phase_c_acceptance.csv": "the vcover report recipe in "
+                                  "docs/coverage/README.md",
+}
 
 
 def publish_coverage_analysis(dest_dir, source_root=None):
@@ -1231,8 +1312,14 @@ def publish_coverage_analysis(dest_dir, source_root=None):
     for name in COVERAGE_ANALYSIS_FILES:
         source = source_root / name
         if not source.is_file():
+            # Each dump names the tool that measured it -- only the sheet is
+            # coverage_review.py's own output, and the Phase C rows come off
+            # `vcover report -details` runs no script wraps. An absent dump is
+            # a tool nobody has run on this tree, not a broken report; the
+            # parked one in particular needs a second merged database.
+            tool = ANALYSIS_REGENERATED_BY.get(name, "its tool (see the header)")
             print(f"warning: no coverage analysis at {source}; regenerate it "
-                  f"with bin/coverage_review.py (docs/coverage/README.md)")
+                  f"with {tool} (docs/coverage/README.md)")
             continue
         # One mkdir per file, so a set without any raw dump does not leave an
         # empty raw/ directory behind.
@@ -1258,6 +1345,258 @@ def publish_coverage_analysis(dest_dir, source_root=None):
     return analysis_dest
 
 
+def read_merged_test_names(merge_dir):
+    """The tests one merged database was built from, read back from the
+    ucdb.list that vcover merge consumed (written into the merge directory by
+    mk/uvmt/vsim.mk). [] without a list -- the dashboard renders an absent set
+    rather than an invented one."""
+    listing = Path(merge_dir) / "ucdb.list"
+    if not listing.is_file():
+        return []
+    names = [Path(line.strip()).stem
+             for line in listing.read_text(errors="replace").splitlines()
+             if line.strip()]
+    return sorted(set(names))
+
+
+def _disclose_unchecked_pairing(label, merge_dir, source, reason):
+    """Say that a recovered pairing went unchecked, rather than saying nothing.
+
+    The shapes of unknown -- a database with no input list, a summary that
+    recorded no test names -- share one consequence: the counts about to be
+    published beside this database were never compared against it. Silence
+    reads as a clean bill of health, which is the opposite of true."""
+    print(f"warning: cannot check the {label} merged database against "
+          f"{source}: {Path(merge_dir) / 'merged.ucdb'} -- {reason}")
+
+
+def _compare_names_with_database(label, recovered_names, merge_dir, source):
+    """Warn when one recovered set of test names and one merge input list disagree.
+
+    The input list is the only record of what a merged database holds, so it is
+    what any recovered set of counts has to be measured against. A difference
+    does not by itself prove two batches -- ``batch_ucdb_lists()`` leaves out a
+    PASSing test whose ``.ucdb`` never reached the disk, and ``--merge-existing``
+    merges every ``.ucdb`` the results tree holds, parked and leftover included
+    -- so both benign causes are named next to the two lists rather than the
+    reader being told which batch they came from. A database with no list beside
+    it is the other shape of unknown: not agreeing, simply unrecorded."""
+    listing = Path(merge_dir) / "ucdb.list"
+    merged = set(read_merged_test_names(merge_dir))
+    if not merged:
+        # An absent list and an empty one both mean nothing to compare, but
+        # they do not mean the same thing happened: write_ucdb_list() can
+        # produce either, and only one of them says the merge took no input.
+        if (Path(merge_dir) / "merged.ucdb").is_file():
+            if listing.is_file():
+                _disclose_unchecked_pairing(
+                    label, merge_dir, source,
+                    f"{listing} is empty, so nothing records which batch built "
+                    "it (--cov-report writes one line per merged test).")
+            else:
+                _disclose_unchecked_pairing(
+                    label, merge_dir, source,
+                    "no input list was written beside it, so nothing records "
+                    "which batch built it (--cov-report writes ucdb.list next "
+                    "to the database when it merges).")
+        return
+    if merged == recovered_names:
+        return
+    print(f"warning: the recovered verdicts and the {label} merged database "
+          f"list different tests: {source} counts {len(recovered_names)} as "
+          f"PASS, {listing} lists {len(merged)} (recovered-only: "
+          f"{', '.join(sorted(recovered_names - merged)) or 'none'}; "
+          f"database-only: {', '.join(sorted(merged - recovered_names)) or 'none'}). "
+          "A PASSing test that left no .ucdb on disk, or a --merge-existing "
+          "merge of every .ucdb in the tree, move the two lists apart the "
+          "same way; anything else is two batches, and only a fresh "
+          "--cov-report run publishes counts and metrics from one of them.")
+
+
+def warn_recovered_vs_databases(rows, merged_dir, merged_parked_dir):
+    """Warn when recovered verdicts and merged databases are not one batch.
+
+    Every uvmt batch rewrites the regression document, while the merged
+    databases survive until the next --cov-report wipes them, so a --report-only
+    run after an unrelated batch would publish one batch's pass counts beside
+    another batch's coverage metrics. The merge input lists are the only record
+    of what each database holds, so the document's PASS rows are compared to
+    them, scope by scope. Both sides stay true of their own batch, so this warns
+    rather than withholding the report -- but never silently."""
+    _compare_names_with_database(
+        "default",
+        {row.get("name") for row in rows
+         if row.get("verdict") == "PASS" and not row.get("parked")},
+        merged_dir, "the regression document")
+    _compare_names_with_database(
+        "including-parked",
+        {row.get("name") for row in rows if row.get("verdict") == "PASS"},
+        merged_parked_dir, "the regression document")
+
+
+def warn_summary_vs_databases(prev, merged_dir, merged_parked_dir):
+    """The same provenance check for the summary.json fallback.
+
+    A summary recovered from summary.json pairs that publish's counts with the
+    databases now on disk, and summary.json records the names those databases
+    were built from -- ``test_sets`` is read out of the very ``ucdb.list`` files
+    below -- so the comparison costs nothing here either. A summary written
+    before ``test_sets`` existed can say nothing, and does."""
+    recorded = prev.get("test_sets") or {}
+    default_names = set(recorded.get("default") or [])
+    parked_names = set(recorded.get("parked") or [])
+    if not default_names and not parked_names:
+        # Nothing recorded -- an older summary, or a publish whose databases had
+        # no input list to read. Comparing an empty set would say "counts 0 as
+        # PASS", which is a worse lie than silence, so the pairing is disclosed
+        # as unchecked instead -- and never silently agreed.
+        for label, merge_dir in (("default", merged_dir),
+                                 ("including-parked", merged_parked_dir)):
+            if (Path(merge_dir) / "merged.ucdb").is_file():
+                _disclose_unchecked_pairing(
+                    label, merge_dir, "the published summary",
+                    "it recorded no test names (test_sets is empty), so the "
+                    "counts recovered from it are tied to no database")
+        return
+    _compare_names_with_database("default", default_names, merged_dir,
+                                 "the published summary")
+    # test_sets stores the parked side as just the parked names, while the
+    # parked database is the default list plus those: the union is what its own
+    # input list has to agree with.
+    _compare_names_with_database("including-parked", default_names | parked_names,
+                                 merged_parked_dir, "the published summary")
+
+
+EXTERNAL_REPOS_MK = Path("sim") / "ExternalRepos.mk"
+
+
+def parse_external_repos(path):
+    """Variable -> value for every live (uncommented) 'VAR ?= value' line of a
+    sim/ExternalRepos.mk. The commented rollback entries are meant to stay
+    invisible here: a report must publish the pin that was actually used."""
+    pins = {}
+    try:
+        text = Path(path).read_text(errors="replace")
+    except OSError:
+        return pins
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        m = re.match(r"^(\w+)\s*\?=\s*(\S+)", stripped)
+        if m:
+            pins[m.group(1)] = m.group(2)
+    return pins
+
+
+def _git_output(cwd, *args):
+    """Trimmed git stdout, or None when git -- or the checkout -- is
+    unavailable. Every version the report publishes is best-effort: a source
+    tarball has no .git, and inventing a hash would defeat the point."""
+    try:
+        completed = subprocess.run(["git", *args], cwd=str(cwd), timeout=20,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.DEVNULL, text=True)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if completed.returncode != 0:
+        return None
+    return (completed.stdout or "").strip()
+
+
+def collect_versions(repo=None):
+    """Where a report's sources come from, per component.
+
+    Returns {component: {repo, branch, pinned_hash, actual_hash, clean,
+    matches_pin}} for the three checkouts a coverage number depends on: this
+    repository, the CVE2 RTL (core-v-cores/cv32e20) and the vendored
+    core-v-verif library (vendor_lib/openhwgroup_core-v-verif). pinned_hash is
+    what sim/ExternalRepos.mk asks for, actual_hash and clean what is actually
+    on disk; the pair is the direct guard against a runner compiling a silently
+    stale RTL, which mis-aims every line-number waiver in cov.tcl. This
+    repository has no pin of its own (repo/branch come from its git,
+    matches_pin stays null); a component that was never cloned reports
+    actual_hash "not cloned". Follows the git_meta()/simulator_meta() pattern
+    of bin/regression_report.py."""
+    repo = Path(repo) if repo is not None else REPO
+    pins = parse_external_repos(repo / EXTERNAL_REPOS_MK)
+    components = [
+        ("cv32e20-dv", repo, None),
+        ("cve2", repo / "core-v-cores" / "cv32e20", "CV_CORE"),
+        ("core-v-verif", repo / "vendor_lib" / "openhwgroup_core-v-verif",
+         "CV_VERIF"),
+    ]
+    versions = {}
+    for name, checkout, prefix in components:
+        entry = {"repo": None, "branch": None, "pinned_hash": None,
+                 "actual_hash": None, "clean": None, "matches_pin": None}
+        if prefix:
+            entry["repo"] = pins.get(f"{prefix}_REPO")
+            entry["branch"] = pins.get(f"{prefix}_BRANCH")
+            entry["pinned_hash"] = pins.get(f"{prefix}_HASH")
+        head = (_git_output(checkout, "rev-parse", "HEAD")
+                if checkout.is_dir() else None)
+        if head is None:
+            entry["actual_hash"] = "not cloned"
+            versions[name] = entry
+            continue
+        entry["actual_hash"] = head
+        # An empty porcelain listing is the whole answer for "clean": no
+        # output means the tree matches the commit.
+        status = _git_output(checkout, "status", "--porcelain")
+        entry["clean"] = (not status) if status is not None else None
+        if prefix is None:
+            # This repository is not pinned: report what it *is*.
+            entry["repo"] = _git_output(checkout, "remote", "get-url",
+                                        "origin")
+            entry["branch"] = _git_output(checkout, "rev-parse",
+                                          "--abbrev-ref", "HEAD")
+        else:
+            # Vendored checkouts sit on the pinned commit detached, so the
+            # pinned branch is the honest label; the checkout state above is
+            # what says whether it really is that commit.
+            entry["matches_pin"] = bool(entry["pinned_hash"]) and head.startswith(
+                entry["pinned_hash"])
+        versions[name] = entry
+    return versions
+
+
+def build_including_parked_summary(code_metrics, functional, passed_count,
+                                   total_count):
+    """The including_parked block of summary.json: the same metric keys as the
+    top level, computed from the including-parked database and its pass/fail
+    counts, so the dashboard renders either view through one code path.
+    code_metrics and functional may be None (an export that failed), which
+    lands as the same N/A zeros the default scope uses for a missing
+    database; total_count 0 keeps pass_rate at 0, never None."""
+    pass_rate = (passed_count / total_count * 100) if total_count else 0
+    block = {
+        "code_coverage": code_metrics["code"] if code_metrics else "N/A",
+        "functional_coverage": (functional["percent"]
+                                if functional else "N/A"),
+        "bins_covered": functional["bins_covered"] if functional else 0,
+        "bins_total": functional["bins_total"] if functional else 0,
+        "functional_packages": functional["packages"] if functional else {},
+        "code_metrics": ({metric: value for metric, value in code_metrics.items()
+                          if metric != "code"} if code_metrics else {}),
+        "pass_rate": round(pass_rate, 2),
+        "total_tests": total_count,
+        "passed": passed_count,
+        "failed": total_count - passed_count,
+    }
+    if code_metrics:
+        block.update(
+            {f"{key}_coverage": (code_metrics[metric]["percent"]
+                                 if code_metrics[metric]["percent"] is not None
+                                 else "N/A")
+             for key, metric in (("line", "statement"),
+                                 ("condition", "condition"),
+                                 ("branch", "branch"),
+                                 ("fsm_state", "fsm_state"),
+                                 ("fsm_transition", "fsm_transition"))})
+    return block
+
+
 def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
     """Publish the full coverage-report artifact set from merged.ucdb and write
     sim/uvmt/test_results.log; returns (passed_count, total_count) as recorded in
@@ -1265,10 +1604,16 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
 
     results: this batch's (test, outcome, detail, gen_seed, run_seed) tuples, or
     None when nothing was executed (--report-only), in which case the pass/fail
-    counts are recovered from an existing coverage_report/summary.json rather
-    than reported as 0/0. Every coverage step is guarded on merged.ucdb actually
+    counts are recovered from sim/uvmt/regression_results.json -- the authority
+    on this run's verdicts, whose rows carry the parked flag -- falling back to
+    an existing coverage_report/summary.json, rather than reported as 0/0. Every coverage step is guarded on merged.ucdb actually
     existing, so a batch in which everything failed (or that never ran) still
     produces the dashboard plus summary.json, with N/A metrics.
+
+    The top-level summary keys describe the default scope: rows for PARKED
+    tests never move them -- they only ever contribute to the including_parked
+    block (and the regression document), computed from the batch's second
+    merged database, merged_parked/merged.ucdb, when that exists.
 
     clean: wipe coverage_report/ first, so no artifact of a previous run survives
     into the published set.
@@ -1285,23 +1630,71 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
     log_file_abs = sim_dir / "test_results.log"
     merged_ucdb = sim_dir / "vsim_results" / cfg / "merged" / "merged.ucdb"
     merged_dir = merged_ucdb.parent
+    merged_parked_dir = sim_dir / "vsim_results" / cfg / "merged_parked"
+    merged_parked_ucdb = merged_parked_dir / "merged.ucdb"
     summary_json_path = report_dest_root / "summary.json"
 
     # Pass/fail counts: from this batch, or recovered from the previous one.
+    # Top-level counts are the default scope -- parked rows move only the
+    # including_parked block; with no parked tests in the batch both views
+    # count the same rows anyway.
+    parked_names = set(PARKED)
     if results is None:
-        prev = {}
-        if summary_json_path.is_file():
+        # The regression document first: its rows name every test that ran with
+        # its verdict and its parked flag, so both views recover. The published
+        # summary.json only knows the default-scope counts (an older one may
+        # not even carry an including_parked block), so it is the fallback for
+        # a tree where the document was never written.
+        passed_count = total_count = 0
+        parked_view = (0, 0)
+        recovered_from = None
+        doc_path = sim_dir / regression_report.DOCUMENT_NAME
+        doc = None
+        if doc_path.is_file():
             try:
-                prev = json.loads(summary_json_path.read_text())
+                doc = json.loads(doc_path.read_text())
             except (OSError, ValueError) as exc:
-                print(f"warning: could not read {summary_json_path}: {exc}")
-        passed_count = prev.get("passed", 0)
-        total_count = prev.get("total_tests", 0)
+                print(f"warning: could not read {doc_path}: {exc}")
+        if (doc and doc.get("tests") and doc.get("tb") == tb
+                and doc.get("cfg") == cfg):
+            rows = doc["tests"]
+            main_rows = [r for r in rows if not r.get("parked")]
+            passed_count = sum(1 for r in main_rows
+                               if r.get("verdict") == "PASS")
+            total_count = len(main_rows)
+            parked_view = (sum(1 for r in rows
+                               if r.get("verdict") == "PASS"), len(rows))
+            recovered_from = doc_path.name
+            warn_recovered_vs_databases(rows, merged_dir, merged_parked_dir)
+        else:
+            prev = {}
+            if summary_json_path.is_file():
+                try:
+                    prev = json.loads(summary_json_path.read_text())
+                except (OSError, ValueError) as exc:
+                    print(f"warning: could not read {summary_json_path}: {exc}")
+            passed_count = prev.get("passed", 0)
+            total_count = prev.get("total_tests", 0)
+            prev_parked = prev.get("including_parked") or {}
+            parked_view = (prev_parked.get("passed", 0),
+                           prev_parked.get("total_tests", 0))
+            if prev:
+                # Any summary read is a pairing with the databases on disk. The
+                # counts used to gate this, so a summary whose only numbers
+                # were the parked block published beside them unchecked.
+                recovered_from = summary_json_path.name
+                warn_summary_vs_databases(prev, merged_dir, merged_parked_dir)
         log_lines = ["Tests skipped. Using recovered metrics from previous run."]
-        print(f"Recovered previous test results: {passed_count}/{total_count} passed.")
+        parked_note = (f", {parked_view[0]}/{parked_view[1]} including parked"
+                       if parked_view[1] else "")
+        source_note = f" from {recovered_from}" if recovered_from else ""
+        print(f"Recovered previous test results: {passed_count}/{total_count} "
+              f"passed{parked_note}{source_note}.")
     else:
-        passed_count = sum(1 for r in results if r[1] == "PASS")
-        total_count = len(results)
+        main_rows = [r for r in results if r[0] not in parked_names]
+        passed_count = sum(1 for r in main_rows if r[1] == "PASS")
+        total_count = len(main_rows)
+        parked_view = (sum(1 for r in results if r[1] == "PASS"), len(results))
         status = {"PASS": "PASSED", "FAIL": "FAILED"}
         log_lines = [f"{test}: {status.get(outcome, outcome)}"
                      for test, outcome, _detail, _gen, _run, _dur in results]
@@ -1433,6 +1826,57 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
         print("warning: merged UCDB not found, functional coverage HTML report "
               "not generated")
 
+    # Including-parked view: the same metric set computed from the batch's
+    # second merged database (the default scope plus the PARKED tests), and
+    # the two detail trees behind that view's buttons -- same scopes as their
+    # default-scope twins above, which is what lets the dashboard's toggle
+    # swap one set for the other. Fail-soft in the same way: no parked
+    # database simply means no including_parked block in summary.json, the
+    # dashboard then hides the toggle, and an old published report renders
+    # exactly as it always did.
+    parked_summary = None
+    if merged_parked_ucdb.is_file():
+        print("Exporting including-parked coverage metrics "
+              f"({merged_parked_ucdb}) ...")
+        parked_xml = merged_parked_dir / "merged.questasim.xml"
+        parked_rollup = merged_parked_dir / "dut_rollup.xml"
+        for destination, options in (
+            (parked_xml, ["-xml"]),
+            (parked_rollup, ["-xml", f"-instance={cov_instance}."]),
+        ):
+            returncode, _, stderr = _run(
+                ["vcover", "report"] + options + ["-output", str(destination),
+                                                  str(merged_parked_ucdb)],
+                sim_dir, None, timeout, capture=True)
+            if returncode != 0:
+                last = (stderr or "").strip().splitlines()
+                print(f"  warning: failed to export {destination.name} "
+                      f"(exit {returncode}): {last[-1] if last else 'no output'}")
+        parked_code = parse_questa_code_rollup(parked_rollup, cov_instance)
+        parked_functional = parse_questa_functional_rollup(parked_xml)
+
+        for html_dest, options in (
+            (report_dest_root / "questasim_parked",
+             ["-html", "-details", "-precision", "2", "-annotate",
+              f"-instance={cov_instance}."]),
+            (report_dest_root / "questasim_func_parked",
+             ["-html", "-details", "-precision", "2", "-cvg"]),
+        ):
+            returncode, _, stderr = _run(
+                ["vcover", "report"] + options
+                + ["-output", str(html_dest), str(merged_parked_ucdb)],
+                sim_dir, None, timeout, capture=True)
+            if returncode != 0:
+                print(f"  warning: failed to generate {html_dest.name}: "
+                      f"{(stderr or '').strip()}")
+
+        parked_pass, parked_total = parked_view
+        parked_summary = build_including_parked_summary(
+            parked_code, parked_functional, parked_pass, parked_total)
+    else:
+        print(f"No including-parked merged database ({merged_parked_ucdb}); "
+              "summary.json carries the default scope only")
+
     # Dashboard shell that reads summary.json; copied unconditionally so even a
     # run without coverage data publishes something browsable.
     dashboard_templates = REPO / "templates" / "coverage_dashboard"
@@ -1532,6 +1976,27 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
             "fsm_state_coverage": "N/A",
             "fsm_transition_coverage": "N/A",
         })
+    if parked_summary is not None:
+        summary_data["including_parked"] = parked_summary
+    # Which tests each database actually holds, read back from the ucdb.list
+    # files vcover merge consumed: the published names then cannot disagree
+    # with the databases, because both are read from the same file. A tree with
+    # no input list publishes two empty sets, which means unrecorded rather
+    # than empty -- warn_summary_vs_databases() reads it that way and says the
+    # pairing went unchecked. The keys themselves always ship: the Pages
+    # validation step in .github/workflows/coverage.yml requires test_sets.
+    summary_data["test_sets"] = {
+        "default": read_merged_test_names(merged_dir),
+        "parked": sorted(set(read_merged_test_names(merged_parked_dir))
+                         & parked_names),
+    }
+    # Where this report's sources come from: the dashboard's Build Versions
+    # table and footer timestamp. Metadata only -- nothing gates on it, and a
+    # component without git renders as such rather than as a placeholder.
+    summary_data["generated"] = regression_report.now()
+    simulator = regression_report.simulator_meta("uvmt")
+    summary_data["simulator"] = (simulator or {}).get("version")
+    summary_data["versions"] = collect_versions()
     summary_json_path.write_text(json.dumps(summary_data, indent=4))
     print(f"Summary metrics saved to {summary_json_path}")
 
@@ -1651,7 +2116,11 @@ def main(argv=None):
                          "directory (core: every <test>/<seed>/ found, one "
                          "row each, or only --seed N's)")
     ap.add_argument("--cfg", default="default",
-                    help="uvmt config subdirectory under vsim_results (default: default)")
+                    help="uvmt config subdirectory under vsim_results (default: "
+                         "default). Only 'default' is exercised end to end: the "
+                         "per-test make invocations do not pass CFG=, so another "
+                         "value selects a results directory without building "
+                         "that configuration.")
     ap.add_argument("--timeout", type=int, default=1800,
                     help="per-test timeout in seconds (default: 1800; the "
                          "interrupt-heavy corev-dv templates routinely take "
@@ -1681,18 +2150,22 @@ def main(argv=None):
                          "the resulting .ucdb (cov, cov_txt, cov_holes, "
                          "cov_holes_details) live in mk/uvmt/vsim.mk.")
     ap.add_argument("--cov-report", action="store_true",
-                    help="implies --cov, and additionally merges each PASSing test's "
-                         ".ucdb into vsim_results/<cfg>/merged/merged.ucdb and "
-                         "publishes the full report artifact set under "
-                         "coverage_report/ (uvmt only; requires --tb uvmt). Tests that "
-                         "did not PASS are not merged -- see --merge-existing.")
+                    help="implies --cov, and additionally merges this batch's "
+                         "PASSing .ucdb files into vsim_results/<cfg>/merged/"
+                         "merged.ucdb (plus the PARKED tests into the sibling "
+                         "merged_parked/ database) and publishes the full report "
+                         "artifact set under coverage_report/ (uvmt only; "
+                         "requires --tb uvmt). Tests that did not PASS are not "
+                         "merged -- see --merge-existing.")
     ap.add_argument("--all-custom", action="store_true",
                     help="select every directory under TESTS_ROOTS "
                          "(tests/programs/custom, tests/programs/corev-dv) "
                          "instead of the curated lists. PARKED and corev-dv names are "
                          "skipped unless --include-parked / --include-corev-dv also ask "
-                         "for them, and DISCOVERY_EXCLUDES is always skipped. Cannot be "
-                         "combined with test names or --corev-dv-only")
+                         "for them (a --cov-report batch asks for PARKED on its own, "
+                         "for the including-parked report), and DISCOVERY_EXCLUDES is "
+                         "always skipped. Cannot be combined with test names or "
+                         "--corev-dv-only")
     ap.add_argument("--merge-existing", action="store_true",
                     help="run no simulation: merge every selected test that already has "
                          "a .ucdb on disk (verdicts re-parsed from their existing logs, "
@@ -1700,8 +2173,15 @@ def main(argv=None):
     ap.add_argument("--report-only", action="store_true",
                     help="run nothing and merge nothing: regenerate coverage_report/ "
                          "from the merged .ucdb already on disk, recovering the "
-                         "pass/fail counts from the previous summary.json (uvmt only). "
-                         "Always exits 0 -- no test was run to gate on.")
+                         "pass/fail counts from the published regression document "
+                         "(sim/uvmt/regression_results.json), falling back to the "
+                         "previous summary.json (uvmt only). Warns when the "
+                         "recovered PASS rows and the merged databases' input "
+                         "lists name different tests, and whenever a pairing "
+                         "goes unchecked (no input list beside a merged "
+                         "database, or a summary recording no test names) -- "
+                         "the metrics always come from the databases. Always "
+                         "exits 0 -- no test was run to gate on.")
     ap.add_argument("--clean-report", action="store_true",
                     help="delete coverage_report/ before regenerating it (a --cov-report "
                          "run wipes it, and the merged .ucdb, on its own)")
@@ -1837,6 +2317,15 @@ def main(argv=None):
             selected += PARKED
         if args.include_corev_dv:
             selected += COREV_DV_TESTS
+        if args.cov_report and not args.include_parked:
+            # A coverage batch owns both dashboard views: the PARKED tests run
+            # for the including-parked database even when the caller did not
+            # spell out --include-parked. Only PASSes are ever merged, so a
+            # parked failure can only ever lower the parked view -- which is
+            # why CI can add them unconditionally behind --allow-failures.
+            print("note: --cov-report also runs the parked tests "
+                  "(including-parked report)")
+            selected += PARKED
     elif args.tests:
         selected = args.tests
     else:
@@ -1862,10 +2351,18 @@ def main(argv=None):
     # data from earlier runs would otherwise leak into the published numbers.
     clean_report = args.clean_report
     if args.cov_report and not no_exec:
-        merged_dir = sim_dir / "vsim_results" / args.cfg / "merged"
-        if merged_dir.exists():
-            shutil.rmtree(merged_dir)
-            print(f"Removed stale merged coverage directory {merged_dir}")
+        cfg_results = sim_dir / "vsim_results" / args.cfg
+        # Every merge input of a previous batch goes, not just the merge
+        # outputs: the published numbers are only reproducible if the merged
+        # databases hold exactly this batch, and a leftover per-test .ucdb (an
+        # old parked run, say) is otherwise indistinguishable from a fresh one.
+        for stale in sorted(cfg_results.rglob("*.ucdb")):
+            stale.unlink()
+        for stale_name in ("merged", "merged_parked"):
+            stale_dir = cfg_results / stale_name
+            if stale_dir.exists():
+                shutil.rmtree(stale_dir)
+                print(f"Removed stale merged coverage directory {stale_dir}")
         clean_report = True
 
     if args.report_only:
@@ -1965,19 +2462,9 @@ def main(argv=None):
         # an unmeasured duration is null rather than 0 -- see regression_report.
         duration = None if just_parse else round(time.monotonic() - start, 1)
 
-        # Feed this test's .ucdb into the merged database straight away. A
-        # --cov-report batch only contributes PASSing runs (a FAILED/ERROR run
-        # may have no .ucdb at all, or a truncated one); --merge-existing takes
-        # whatever is on disk regardless of verdict, which is exactly what it's
-        # for. merge_test_coverage() skips tests without a .ucdb either way.
-        # Reading rows[0] is safe: the coverage pipeline is uvmt-only (checked
-        # above) and uvmt produces exactly one row per test.
-        if args.cov_report or args.merge_existing:
-            if rows[0][0] == "PASS" or args.merge_existing:
-                if merge_test_coverage(args.tb, test, UVMT_RUN_INDEX, args.cfg,
-                                       args.timeout):
-                    with _print_lock:
-                        print(f"[Merged/{args.tb}] {test}")
+        # The .ucdb files are merged once, after the whole batch, from an
+        # explicit list of this batch's PASSes -- see the "Coverage reports"
+        # section of the module docstring and merge_batch_coverage().
 
         if args.jobs > 1:
             done = "Parsed" if just_parse else "Done"
@@ -2034,6 +2521,33 @@ def main(argv=None):
     total = len(results)
     print(f"{total} test(s): {counts['PASS']} passed, "
           f"{counts['FAIL']} failed, {counts['ERROR']} error(s)")
+
+    # Deterministic, batch-scoped merges: write each scope's input list from
+    # this batch's PASSing .ucdb files, then merge each scope into its own
+    # database. --merge-existing has no batch of its own to scope by -- it
+    # merges whatever is already on disk -- so it keeps the historical
+    # default-scope find merge and produces no including-parked database.
+    if args.cov_report and not no_exec:
+        default_paths, parked_paths = batch_ucdb_lists(
+            results, args.tb, args.cfg)
+        cfg_results = sim_dir / "vsim_results" / args.cfg
+        if default_paths:
+            request = cfg_results / "merged" / "ucdb.request"
+            write_ucdb_list(request, default_paths)
+            merge_batch_coverage(args.tb, args.cfg, args.timeout,
+                                 ucdb_list=request, merge_dir="merged")
+        else:
+            print("warning: no PASSing test with a .ucdb in this batch; "
+                  "no default-scope merge")
+        if parked_paths:
+            request = cfg_results / "merged_parked" / "ucdb.request"
+            write_ucdb_list(request, sorted(default_paths + parked_paths))
+            merge_batch_coverage(args.tb, args.cfg, args.timeout,
+                                 ucdb_list=request, merge_dir="merged_parked")
+        print(f"Merged coverage: {len(default_paths)} test(s) in merged/, "
+              f"{len(default_paths) + len(parked_paths)} in merged_parked/")
+    elif args.merge_existing:
+        merge_batch_coverage(args.tb, args.cfg, args.timeout)
 
     # Reports last, so a coverage run publishes exactly what this batch scored.
     if cov_pipeline:
