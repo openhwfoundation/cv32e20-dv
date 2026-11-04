@@ -29,9 +29,10 @@
 
 _debugger_start:
     // No code should have been run before this
-    // check dpc == boot_addr == 0x80
+    // check dpc == boot address (bsp/link.ld provides __boot_address,
+    // the testbench ties boot_addr_i to the same 0x0000_4000)
     csrr t1, dpc
-    li t2, 0x80 # Boot addr
+    la t2, __boot_address
     bne t1, t2, _debugger_error
 
     // Write known value to memory@0x1000

@@ -34,6 +34,7 @@ import yaml
 import argparse
 import random
 import copy
+import os
 from lib import *
 
 try:
@@ -262,7 +263,9 @@ def add_auto_gen_comment(test_file, csr_file):
     """
     test_file.write("/* This is an auto-generated file not intended to be hand edited.\n")
     test_file.write(" * Changes should be made by editing the yaml file {}\n".format(csr_file))
-    test_file.write(" * Then invoking {} to regenerate this file.\n */\n".format(__file__))
+    # basename(), not __file__: the full path of the checkout would end up in
+    # every generated file, so regenerating elsewhere showed up as a diff.
+    test_file.write(" * Then invoking {} to regenerate this file.\n */\n".format(os.path.basename(__file__)))
 
 
 
@@ -552,6 +555,12 @@ def gen_csr_check_func(test_file, header_file, original_csr_map, csr_instruction
             gen_check_writeable_csr(test_file,  source_reg, dest_reg,csr_instructions, xlen,
                                     csr_address, csr_val, csr_write_fields, csr_read_mask,
                                     csr_is_volatile)
+
+    # Every generated check function is called with `call` from riscv_csr.c, so
+    # it must end with a return of its own.  Without it machine_mode_check falls
+    # straight through into csr_check_unimplemented, and user_mode_check (the
+    # last function) runs off the end of the section.
+    test_file.write("\tret\n")
 
 
 def gen_csr_check_unimplemented(test_file, header_file, original_csr_map):

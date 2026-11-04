@@ -40,17 +40,27 @@ typically, but not always, for a specific purpose.
 | dhrystone                    | C        | Somewhat dated benchmark                   | Not needed for coverage closure                           |
 | all_csr_por                  | ASM      | Reads Power-on-Reset value of all 4K CSRs  | Most CSRs are not implemented, reads return 0x0           |
 | csr_instructions             | ASM      | Execute all CSR access instructions        | Written to fill specific functional coverage hole         |
-| riscv_csr                    | ASM      | script generated CSR access mode test      | script from riscv-dv                                      |
+| riscv_csr                    | C / ASM  | script generated CSR access mode test      | **PARKED**; **PASS** (--tb uvmt, 2026-11-03)              |
+| perf_counters_instructions   | C        | Exercise the performance-counter CSRs      | **PARKED**; **PASS** (--tb uvmt, 2026-11-03)              |
 | hpmcounter_basic_test        | C / ASM  | Exercise HPM counter CSRs                  |                                                           |
 | debug_test                   | C / ASM  | Exercise all debug features                | Self checking |
-| debug_test_boot_set          | C / ASM  |                                            | **PARKED** |
-| debug_test_known_miscompares | C / ASM  |                                            | **PARKED** |
-| debug_test_reset             | C / ASM  |                                            | **PARKED** | 
-| debug_test_trigger           | C / ASM  |                                            | **PARKED** |
+| debug_test_boot_set          | C / ASM  | Debug request while the core boots         | **PARKED**; **PASS** (--tb uvmt, 2026-11-03)              |
+| debug_test_known_miscompares | C / ASM  | Debug request against an illegal insn      | **PARKED**; FAILs its `dpc == 0` assert (test.yaml)       |
+| debug_test_reset             | C / ASM  | Debug request across a reset               | **PARKED**; **PASS** (--tb uvmt, 2026-11-03)              |
+| debug_test_trigger           | C / ASM  | Debug entry caused by a trigger match      | **PARKED**; FAILs `dcsr.cause` (HALTREQ, not TRIGGER)     |
 | illegal                      | ASM      | Exercise detection of illegal instructions | |
 | misalign                     | C        | Exercise CV32E20 LSU misaligned access     | |
 | interrupt_test               | C / ASM  | | |
 | interrupt_bootstrap          | C / ASM  | | |
+
+`**PARKED**` is `bin/run_tests.py`'s own list: those tests build and run, but `--all-custom` discovery
+skips them and they come back with `--include-parked` (or with an `--all-custom --cov-report` batch);
+`csr_instr_asm` is the one parked name a plain `run_tests.py` runs anyway, because `ASM_TESTS` lists it
+too. The verdicts in the Notes column come from a measured batch, not from the published dashboard: they
+are what `run_tests.py` printed for these six on 2026-11-03 with `--tb uvmt` (which supplies
+`USE_ISS=NO` itself), and that run's results tree was deliberately not left published, so
+`coverage_report/` still shows all six of these as not-PASS until the `PARKED` promotion re-measures them.
+`docs/regression.md` carries the measured reason behind each verdict in the Notes column above.
 
 ## "COREV-DV" Test-programs
 

@@ -19,19 +19,19 @@ interrupt_csr_check:
 	csrrw x13, 0x305, x12
 	li x12, 0xa5a5a501
 	bne x12, x13, csr_mismatch
-	li x12, 0x41190594
+	li x12, 0x2f2d90a6
 	csrrw x13, 0x305, x12
 	li x12, 0x5a5a5a01
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x305, x12
-	li x12, 0x41190501
+	li x12, 0x2f2d9001
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x305, x12
-	li x12, 0xe5bda501
+	li x12, 0xafadb501
 	bne x12, x13, csr_mismatch
-	li x12, 0x72df50ab
+	li x12, 0x9a5bd6d3
 	csrrs x13, 0x305, x12
 	li x12, 0xffffff01
 	bne x12, x13, csr_mismatch
@@ -43,7 +43,7 @@ interrupt_csr_check:
 	csrrc x13, 0x305, x12
 	li x12, 0x5a5a5a01
 	bne x12, x13, csr_mismatch
-	li x12, 0x245d6b40
+	li x12, 0xac0fa5be
 	csrrc x13, 0x305, x12
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
@@ -53,7 +53,7 @@ interrupt_csr_check:
 	csrrwi x13, 0x305, 0b11010
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x305, 0b00111
+	csrrwi x13, 0x305, 0b11111
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x305, 0b00101
@@ -62,7 +62,7 @@ interrupt_csr_check:
 	csrrsi x13, 0x305, 0b11010
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x305, 0b11101
+	csrrsi x13, 0x305, 0b10100
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x305, 0b00101
@@ -71,7 +71,7 @@ interrupt_csr_check:
 	csrrci x13, 0x305, 0b11010
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x305, 0b11011
+	csrrci x13, 0x305, 0b10111
 	li x12, 0x00000001
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000001
@@ -87,19 +87,19 @@ interrupt_csr_check:
 	csrrw x13, 0x341, x12
 	li x12, 0xa5a5a5a4
 	bne x12, x13, csr_mismatch
-	li x12, 0xfa62e211
+	li x12, 0x16b807ea
 	csrrw x13, 0x341, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x341, x12
-	li x12, 0xfa62e210
+	li x12, 0x16b807ea
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x341, x12
-	li x12, 0xffe7e7b4
+	li x12, 0xb7bda7ee
 	bne x12, x13, csr_mismatch
-	li x12, 0xa7600d9a
+	li x12, 0x54a3b221
 	csrrs x13, 0x341, x12
 	li x12, 0xfffffffe
 	bne x12, x13, csr_mismatch
@@ -111,7 +111,7 @@ interrupt_csr_check:
 	csrrc x13, 0x341, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
-	li x12, 0x4b4e5174
+	li x12, 0x21f91f9a
 	csrrc x13, 0x341, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -121,16 +121,16 @@ interrupt_csr_check:
 	csrrwi x13, 0x341, 0b11010
 	li x12, 0x00000004
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x341, 0b11000
+	csrrwi x13, 0x341, 0b00001
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x341, 0b00101
-	li x12, 0x00000018
+	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x341, 0b11010
-	li x12, 0x0000001c
+	li x12, 0x00000004
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x341, 0b00000
+	csrrsi x13, 0x341, 0b00110
 	li x12, 0x0000001e
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x341, 0b00101
@@ -139,7 +139,7 @@ interrupt_csr_check:
 	csrrci x13, 0x341, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x341, 0b01110
+	csrrci x13, 0x341, 0b00010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -154,19 +154,19 @@ interrupt_csr_check:
 	csrrw x13, 0x300, x12
 	li x12, 0x00001880
 	bne x12, x13, csr_mismatch
-	li x12, 0xdbc883dd
+	li x12, 0x67713d26
 	csrrw x13, 0x300, x12
 	li x12, 0x00001808
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x300, x12
-	li x12, 0x00001888
+	li x12, 0x00001800
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x300, x12
-	li x12, 0x00001888
+	li x12, 0x00001880
 	bne x12, x13, csr_mismatch
-	li x12, 0x0c6c0739
+	li x12, 0x78a2ed36
 	csrrs x13, 0x300, x12
 	li x12, 0x00001888
 	bne x12, x13, csr_mismatch
@@ -178,7 +178,7 @@ interrupt_csr_check:
 	csrrc x13, 0x300, x12
 	li x12, 0x00001808
 	bne x12, x13, csr_mismatch
-	li x12, 0x4ac7a4fc
+	li x12, 0x9127b942
 	csrrc x13, 0x300, x12
 	li x12, 0x00001800
 	bne x12, x13, csr_mismatch
@@ -188,7 +188,7 @@ interrupt_csr_check:
 	csrrwi x13, 0x300, 0b11010
 	li x12, 0x00001800
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x300, 0b01111
+	csrrwi x13, 0x300, 0b01011
 	li x12, 0x00001808
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x300, 0b00101
@@ -197,7 +197,7 @@ interrupt_csr_check:
 	csrrsi x13, 0x300, 0b11010
 	li x12, 0x00001808
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x300, 0b00111
+	csrrsi x13, 0x300, 0b10101
 	li x12, 0x00001808
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x300, 0b00101
@@ -206,7 +206,7 @@ interrupt_csr_check:
 	csrrci x13, 0x300, 0b11010
 	li x12, 0x00001808
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x300, 0b01100
+	csrrci x13, 0x300, 0b10100
 	li x12, 0x00001800
 	bne x12, x13, csr_mismatch
 	li x12, 0x00001800
@@ -221,19 +221,19 @@ interrupt_csr_check:
 	csrrw x13, 0x342, x12
 	li x12, 0x80000025
 	bne x12, x13, csr_mismatch
-	li x12, 0x67428a6f
+	li x12, 0xe8b1e238
 	csrrw x13, 0x342, x12
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x342, x12
-	li x12, 0x0000002f
+	li x12, 0x80000038
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x342, x12
-	li x12, 0x8000002f
+	li x12, 0x8000003d
 	bne x12, x13, csr_mismatch
-	li x12, 0xaecea695
+	li x12, 0x0f0b8ef0
 	csrrs x13, 0x342, x12
 	li x12, 0x8000003f
 	bne x12, x13, csr_mismatch
@@ -245,7 +245,7 @@ interrupt_csr_check:
 	csrrc x13, 0x342, x12
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	li x12, 0x0a63871f
+	li x12, 0x3d099828
 	csrrc x13, 0x342, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -255,16 +255,16 @@ interrupt_csr_check:
 	csrrwi x13, 0x342, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x342, 0b01101
+	csrrwi x13, 0x342, 0b00100
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x342, 0b00101
-	li x12, 0x0000000d
+	li x12, 0x00000004
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x342, 0b11010
-	li x12, 0x0000000d
+	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x342, 0b00101
+	csrrsi x13, 0x342, 0b01010
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x342, 0b00101
@@ -273,7 +273,7 @@ interrupt_csr_check:
 	csrrci x13, 0x342, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x342, 0b00001
+	csrrci x13, 0x342, 0b11000
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -288,19 +288,19 @@ interrupt_csr_check:
 	csrrw x13, 0x343, x12
 	li x12, 0xa5a5a5a5
 	bne x12, x13, csr_mismatch
-	li x12, 0x6a1faa6e
+	li x12, 0xefc37f10
 	csrrw x13, 0x343, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x343, x12
-	li x12, 0x6a1faa6e
+	li x12, 0xefc37f10
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x343, x12
-	li x12, 0xefbfafef
+	li x12, 0xefe7ffb5
 	bne x12, x13, csr_mismatch
-	li x12, 0x6b4a78e8
+	li x12, 0x920b9759
 	csrrs x13, 0x343, x12
 	li x12, 0xffffffff
 	bne x12, x13, csr_mismatch
@@ -312,7 +312,7 @@ interrupt_csr_check:
 	csrrc x13, 0x343, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
-	li x12, 0x9845b92f
+	li x12, 0xb64ff4af
 	csrrc x13, 0x343, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -322,16 +322,16 @@ interrupt_csr_check:
 	csrrwi x13, 0x343, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x343, 0b11010
+	csrrwi x13, 0x343, 0b11111
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x343, 0b00101
-	li x12, 0x0000001a
+	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x343, 0b11010
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x343, 0b10000
+	csrrsi x13, 0x343, 0b01011
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x343, 0b00101
@@ -340,7 +340,7 @@ interrupt_csr_check:
 	csrrci x13, 0x343, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x343, 0b01011
+	csrrci x13, 0x343, 0b11011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -348,230 +348,6 @@ interrupt_csr_check:
 	ret
 .globl machine_mode_check
 machine_mode_check:	la t1, glb_expect_illegal_insn
-	# cycle
-	li a1, 0xc00
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc00,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc00,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc00,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc00,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc00, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc00, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc00, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	# instret
-	li a1, 0xc02
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc02,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc02,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc02,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc02,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc02, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc02, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc02, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	# cycleh
-	li a1, 0xc80
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc80,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc80,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc80,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc80,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc80, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc80, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc80, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	# instreth
-	li a1, 0xc82
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc82,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc82,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc82,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc82,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc82, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc82, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc82, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc82, 0b00000
-	li x12, 0x00000000
 	# mcycle
 	li a1, 0xb00
 	li x12, 0xa5a5a5a5
@@ -580,16 +356,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb00, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0xde5fbbb6
+	li x12, 0x34a7f749
 	csrrw x13, 0xb00, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb00, x12
-	li x12, 0xde5fbbb6
+	li x12, 0x34a7f749
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb00, x12
-	li x12, 0xffffbfb7
-	li x12, 0x251ce426
+	li x12, 0xb5a7f7ed
+	li x12, 0x3c40723c
 	csrrs x13, 0xb00, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -598,26 +374,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb00, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xa945780b
+	li x12, 0xc91a8cd5
 	csrrc x13, 0xb00, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb00, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb00, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb00, 0b11110
+	csrrwi x13, 0xb00, 0b01100
 	li x12, 0x0000001a
 	csrrsi x13, 0xb00, 0b00101
-	li x12, 0x0000001e
+	li x12, 0x0000000c
 	csrrsi x13, 0xb00, 0b11010
-	li x12, 0x0000001f
-	csrrsi x13, 0xb00, 0b10010
+	li x12, 0x0000000d
+	csrrsi x13, 0xb00, 0b11100
 	li x12, 0x0000001f
 	csrrci x13, 0xb00, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb00, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb00, 0b01011
+	csrrci x13, 0xb00, 0b11000
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb00, x12
@@ -629,16 +405,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb80, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x9fc53e25
+	li x12, 0x9951bdd8
 	csrrw x13, 0xb80, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb80, x12
-	li x12, 0x9fc53e25
+	li x12, 0x9951bdd8
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb80, x12
-	li x12, 0xbfe5bfa5
-	li x12, 0xbfbc3e1e
+	li x12, 0xbdf5bdfd
+	li x12, 0xc38b4909
 	csrrs x13, 0xb80, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -647,26 +423,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb80, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xe57d2373
+	li x12, 0x064879db
 	csrrc x13, 0xb80, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb80, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb80, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb80, 0b00100
+	csrrwi x13, 0xb80, 0b11000
 	li x12, 0x0000001a
 	csrrsi x13, 0xb80, 0b00101
-	li x12, 0x00000004
+	li x12, 0x00000018
 	csrrsi x13, 0xb80, 0b11010
-	li x12, 0x00000005
-	csrrsi x13, 0xb80, 0b00111
+	li x12, 0x0000001d
+	csrrsi x13, 0xb80, 0b01011
 	li x12, 0x0000001f
 	csrrci x13, 0xb80, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb80, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb80, 0b11000
+	csrrci x13, 0xb80, 0b11111
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb80, x12
@@ -678,16 +454,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb02, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x22749eec
+	li x12, 0x85618ca8
 	csrrw x13, 0xb02, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb02, x12
-	li x12, 0x22749eec
+	li x12, 0x85618ca8
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb02, x12
-	li x12, 0xa7f5bfed
-	li x12, 0xe3f7b36f
+	li x12, 0xa5e5adad
+	li x12, 0xcbf5d707
 	csrrs x13, 0xb02, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -696,26 +472,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb02, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0x6e50ddb4
+	li x12, 0x5661fc71
 	csrrc x13, 0xb02, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb02, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb02, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb02, 0b01111
+	csrrwi x13, 0xb02, 0b10000
 	li x12, 0x0000001a
 	csrrsi x13, 0xb02, 0b00101
-	li x12, 0x0000000f
+	li x12, 0x00000010
 	csrrsi x13, 0xb02, 0b11010
-	li x12, 0x0000000f
-	csrrsi x13, 0xb02, 0b11100
+	li x12, 0x00000015
+	csrrsi x13, 0xb02, 0b01111
 	li x12, 0x0000001f
 	csrrci x13, 0xb02, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb02, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb02, 0b11101
+	csrrci x13, 0xb02, 0b11001
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb02, x12
@@ -727,16 +503,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb82, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0xab01f08e
+	li x12, 0xd6cadc47
 	csrrw x13, 0xb82, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb82, x12
-	li x12, 0xab01f08e
+	li x12, 0xd6cadc47
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb82, x12
-	li x12, 0xafa5f5af
-	li x12, 0x3385bfad
+	li x12, 0xf7effde7
+	li x12, 0x1f9066e3
 	csrrs x13, 0xb82, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -745,26 +521,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb82, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xfdd461d8
+	li x12, 0xeea70410
 	csrrc x13, 0xb82, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb82, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb82, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb82, 0b01011
+	csrrwi x13, 0xb82, 0b00010
 	li x12, 0x0000001a
 	csrrsi x13, 0xb82, 0b00101
-	li x12, 0x0000000b
+	li x12, 0x00000002
 	csrrsi x13, 0xb82, 0b11010
-	li x12, 0x0000000f
-	csrrsi x13, 0xb82, 0b01000
+	li x12, 0x00000007
+	csrrsi x13, 0xb82, 0b01011
 	li x12, 0x0000001f
 	csrrci x13, 0xb82, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb82, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb82, 0b01001
+	csrrci x13, 0xb82, 0b01010
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb82, x12
@@ -776,16 +552,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb03, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0xf51d6118
+	li x12, 0x216eb247
 	csrrw x13, 0xb03, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb03, x12
-	li x12, 0xf51d6118
+	li x12, 0x216eb247
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb03, x12
-	li x12, 0xf5bde5bd
-	li x12, 0x5ee7fa28
+	li x12, 0xa5efb7e7
+	li x12, 0xca3a4187
 	csrrs x13, 0xb03, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -794,26 +570,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb03, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xbb55e2bb
+	li x12, 0xaa032146
 	csrrc x13, 0xb03, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb03, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb03, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb03, 0b10110
+	csrrwi x13, 0xb03, 0b10101
 	li x12, 0x0000001a
 	csrrsi x13, 0xb03, 0b00101
-	li x12, 0x00000016
+	li x12, 0x00000015
 	csrrsi x13, 0xb03, 0b11010
-	li x12, 0x00000017
-	csrrsi x13, 0xb03, 0b00011
+	li x12, 0x00000015
+	csrrsi x13, 0xb03, 0b01110
 	li x12, 0x0000001f
 	csrrci x13, 0xb03, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb03, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb03, 0b10110
+	csrrci x13, 0xb03, 0b00100
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb03, x12
@@ -825,16 +601,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb04, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x4b8d1909
+	li x12, 0xd92f52de
 	csrrw x13, 0xb04, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb04, x12
-	li x12, 0x4b8d1909
+	li x12, 0xd92f52de
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb04, x12
-	li x12, 0xefadbdad
-	li x12, 0x29361819
+	li x12, 0xfdaff7ff
+	li x12, 0x0b67d07a
 	csrrs x13, 0xb04, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -843,26 +619,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb04, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0x73f75630
+	li x12, 0xf9d422bd
 	csrrc x13, 0xb04, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb04, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb04, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb04, 0b01110
+	csrrwi x13, 0xb04, 0b00001
 	li x12, 0x0000001a
 	csrrsi x13, 0xb04, 0b00101
-	li x12, 0x0000000e
+	li x12, 0x00000001
 	csrrsi x13, 0xb04, 0b11010
-	li x12, 0x0000000f
-	csrrsi x13, 0xb04, 0b00110
+	li x12, 0x00000005
+	csrrsi x13, 0xb04, 0b01010
 	li x12, 0x0000001f
 	csrrci x13, 0xb04, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb04, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb04, 0b11010
+	csrrci x13, 0xb04, 0b11000
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb04, x12
@@ -874,16 +650,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb05, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x74fd6466
+	li x12, 0x96d0a1bb
 	csrrw x13, 0xb05, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb05, x12
-	li x12, 0x74fd6466
+	li x12, 0x96d0a1bb
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb05, x12
-	li x12, 0xf5fde5e7
-	li x12, 0x1924ad21
+	li x12, 0xb7f5a5bf
+	li x12, 0xf807073a
 	csrrs x13, 0xb05, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -892,26 +668,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb05, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0x8664dd1b
+	li x12, 0xa24aa9bc
 	csrrc x13, 0xb05, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb05, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb05, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb05, 0b00101
+	csrrwi x13, 0xb05, 0b11010
 	li x12, 0x0000001a
 	csrrsi x13, 0xb05, 0b00101
-	li x12, 0x00000005
+	li x12, 0x0000001a
 	csrrsi x13, 0xb05, 0b11010
-	li x12, 0x00000005
-	csrrsi x13, 0xb05, 0b01100
+	li x12, 0x0000001f
+	csrrsi x13, 0xb05, 0b11000
 	li x12, 0x0000001f
 	csrrci x13, 0xb05, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb05, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb05, 0b00001
+	csrrci x13, 0xb05, 0b00111
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb05, x12
@@ -923,16 +699,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb06, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x0506d836
+	li x12, 0x49f0f059
 	csrrw x13, 0xb06, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb06, x12
-	li x12, 0x0506d836
+	li x12, 0x49f0f059
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb06, x12
-	li x12, 0xa5a7fdb7
-	li x12, 0xc5dcd6e3
+	li x12, 0xedf5f5fd
+	li x12, 0x57962d13
 	csrrs x13, 0xb06, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -941,26 +717,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb06, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0x2384b118
+	li x12, 0xea73d4e9
 	csrrc x13, 0xb06, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb06, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb06, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb06, 0b11010
+	csrrwi x13, 0xb06, 0b11101
 	li x12, 0x0000001a
 	csrrsi x13, 0xb06, 0b00101
-	li x12, 0x0000001a
+	li x12, 0x0000001d
 	csrrsi x13, 0xb06, 0b11010
-	li x12, 0x0000001f
-	csrrsi x13, 0xb06, 0b01100
+	li x12, 0x0000001d
+	csrrsi x13, 0xb06, 0b01010
 	li x12, 0x0000001f
 	csrrci x13, 0xb06, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb06, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb06, 0b01100
+	csrrci x13, 0xb06, 0b10001
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb06, x12
@@ -972,16 +748,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb07, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0xb7f837d4
+	li x12, 0x1c024055
 	csrrw x13, 0xb07, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb07, x12
-	li x12, 0xb7f837d4
+	li x12, 0x1c024055
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb07, x12
-	li x12, 0xb7fdb7f5
-	li x12, 0x4c9ae724
+	li x12, 0xbda7e5f5
+	li x12, 0xfcc26c71
 	csrrs x13, 0xb07, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -990,26 +766,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb07, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0x6f4cd755
+	li x12, 0xd04c328f
 	csrrc x13, 0xb07, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb07, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb07, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb07, 0b00001
+	csrrwi x13, 0xb07, 0b00111
 	li x12, 0x0000001a
 	csrrsi x13, 0xb07, 0b00101
-	li x12, 0x00000001
+	li x12, 0x00000007
 	csrrsi x13, 0xb07, 0b11010
-	li x12, 0x00000005
-	csrrsi x13, 0xb07, 0b11101
+	li x12, 0x00000007
+	csrrsi x13, 0xb07, 0b10110
 	li x12, 0x0000001f
 	csrrci x13, 0xb07, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb07, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb07, 0b01111
+	csrrci x13, 0xb07, 0b11001
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb07, x12
@@ -1021,16 +797,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb08, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x4a717444
+	li x12, 0xfcd3fea6
 	csrrw x13, 0xb08, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb08, x12
-	li x12, 0x4a717444
+	li x12, 0xfcd3fea6
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb08, x12
-	li x12, 0xeff5f5e5
-	li x12, 0xc08a9130
+	li x12, 0xfdf7ffa7
+	li x12, 0xe42195be
 	csrrs x13, 0xb08, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -1039,26 +815,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb08, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xc685eb35
+	li x12, 0x7e3a149e
 	csrrc x13, 0xb08, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb08, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb08, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb08, 0b01000
+	csrrwi x13, 0xb08, 0b11101
 	li x12, 0x0000001a
 	csrrsi x13, 0xb08, 0b00101
-	li x12, 0x00000008
+	li x12, 0x0000001d
 	csrrsi x13, 0xb08, 0b11010
-	li x12, 0x0000000d
-	csrrsi x13, 0xb08, 0b00111
+	li x12, 0x0000001d
+	csrrsi x13, 0xb08, 0b10011
 	li x12, 0x0000001f
 	csrrci x13, 0xb08, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb08, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb08, 0b00111
+	csrrci x13, 0xb08, 0b00101
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb08, x12
@@ -1070,16 +846,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb09, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x6487b250
+	li x12, 0x0034968a
 	csrrw x13, 0xb09, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb09, x12
-	li x12, 0x6487b250
+	li x12, 0x0034968a
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb09, x12
-	li x12, 0xe5a7b7f5
-	li x12, 0xfede8f49
+	li x12, 0xa5b5b7af
+	li x12, 0x3e4d5a1b
 	csrrs x13, 0xb09, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -1088,26 +864,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb09, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xb09b822a
+	li x12, 0xd61d68c8
 	csrrc x13, 0xb09, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb09, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb09, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb09, 0b00011
+	csrrwi x13, 0xb09, 0b11111
 	li x12, 0x0000001a
 	csrrsi x13, 0xb09, 0b00101
-	li x12, 0x00000003
+	li x12, 0x0000001f
 	csrrsi x13, 0xb09, 0b11010
-	li x12, 0x00000007
-	csrrsi x13, 0xb09, 0b01001
+	li x12, 0x0000001f
+	csrrsi x13, 0xb09, 0b10101
 	li x12, 0x0000001f
 	csrrci x13, 0xb09, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb09, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb09, 0b10101
+	csrrci x13, 0xb09, 0b10001
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb09, x12
@@ -1119,16 +895,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0xb0a, x12
 	li x12, 0xa5a5a5a5
-	li x12, 0x961c24c4
+	li x12, 0x54b14b1b
 	csrrw x13, 0xb0a, x12
 	li x12, 0x5a5a5a5a
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb0a, x12
-	li x12, 0x961c24c4
+	li x12, 0x54b14b1b
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb0a, x12
-	li x12, 0xb7bda5e5
-	li x12, 0x11e98bd6
+	li x12, 0xf5b5efbf
+	li x12, 0x9ccb54f5
 	csrrs x13, 0xb0a, x12
 	li x12, 0xffffffff
 	li x12, 0xa5a5a5a5
@@ -1137,26 +913,26 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0xb0a, x12
 	li x12, 0x5a5a5a5a
-	li x12, 0xd82ec17b
+	li x12, 0x45684930
 	csrrc x13, 0xb0a, x12
 	li x12, 0x00000000
 	csrrwi x13, 0xb0a, 0b00101
 	li x12, 0x00000000
 	csrrwi x13, 0xb0a, 0b11010
 	li x12, 0x00000005
-	csrrwi x13, 0xb0a, 0b01101
+	csrrwi x13, 0xb0a, 0b10110
 	li x12, 0x0000001a
 	csrrsi x13, 0xb0a, 0b00101
-	li x12, 0x0000000d
+	li x12, 0x00000016
 	csrrsi x13, 0xb0a, 0b11010
-	li x12, 0x0000000d
-	csrrsi x13, 0xb0a, 0b10010
+	li x12, 0x00000017
+	csrrsi x13, 0xb0a, 0b10111
 	li x12, 0x0000001f
 	csrrci x13, 0xb0a, 0b00101
 	li x12, 0x0000001f
 	csrrci x13, 0xb0a, 0b11010
 	li x12, 0x0000001a
-	csrrci x13, 0xb0a, 0b10010
+	csrrci x13, 0xb0a, 0b11101
 	li x12, 0x00000000
 	li x12, 0x00000000
 	csrw 0xb0a, x12
@@ -1170,19 +946,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb0b, x12
 	li x12, 0xa5a5a5a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xd1d461f0
+	li x12, 0x81321859
 	csrrw x13, 0xb0b, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb0b, x12
-	li x12, 0xd1d461f0
+	li x12, 0x81321859
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb0b, x12
-	li x12, 0xf5f5e5f5
+	li x12, 0xa5b7bdfd
 	bne x12, x13, csr_mismatch
-	li x12, 0x372eef25
+	li x12, 0x015b1dc6
 	csrrs x13, 0xb0b, x12
 	li x12, 0xffffffff
 	bne x12, x13, csr_mismatch
@@ -1194,7 +970,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb0b, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
-	li x12, 0xb0763b94
+	li x12, 0xeb1169ae
 	csrrc x13, 0xb0b, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1204,16 +980,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb0b, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb0b, 0b00010
+	csrrwi x13, 0xb0b, 0b00011
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb0b, 0b00101
-	li x12, 0x00000002
+	li x12, 0x00000003
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb0b, 0b11010
 	li x12, 0x00000007
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb0b, 0b10010
+	csrrsi x13, 0xb0b, 0b01110
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb0b, 0b00101
@@ -1222,7 +998,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb0b, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb0b, 0b01110
+	csrrci x13, 0xb0b, 0b01100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1237,19 +1013,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb0c, x12
 	li x12, 0xa5a5a5a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xd3cff628
+	li x12, 0x3d662850
 	csrrw x13, 0xb0c, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb0c, x12
-	li x12, 0xd3cff628
+	li x12, 0x3d662850
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb0c, x12
-	li x12, 0xf7eff7ad
+	li x12, 0xbde7adf5
 	bne x12, x13, csr_mismatch
-	li x12, 0xa8180087
+	li x12, 0x387bfa91
 	csrrs x13, 0xb0c, x12
 	li x12, 0xffffffff
 	bne x12, x13, csr_mismatch
@@ -1261,7 +1037,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb0c, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
-	li x12, 0xaf2a2d82
+	li x12, 0x1a186c56
 	csrrc x13, 0xb0c, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1271,16 +1047,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb0c, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb0c, 0b11011
+	csrrwi x13, 0xb0c, 0b00100
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb0c, 0b00101
-	li x12, 0x0000001b
+	li x12, 0x00000004
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb0c, 0b11010
-	li x12, 0x0000001f
+	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb0c, 0b00111
+	csrrsi x13, 0xb0c, 0b10000
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb0c, 0b00101
@@ -1289,11 +1065,1284 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb0c, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb0c, 0b00000
+	csrrci x13, 0xb0c, 0b00100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
 	csrw 0xb0c, x12
+	# mhpmcounter13
+	li a1, 0xb0d
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x12f636e5
+	csrrw x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf1a7079f
+	csrrs x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5fce8ac1
+	csrrc x13, 0xb0d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0d, 0b01101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0d, 0b10101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0d, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb0d, x12
+	# mhpmcounter14
+	li a1, 0xb0e
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xbf0827f9
+	csrrw x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x534e404f
+	csrrs x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2b842e92
+	csrrc x13, 0xb0e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0e, 0b00010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0e, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb0e, x12
+	# mhpmcounter15
+	li a1, 0xb0f
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1720b9f9
+	csrrw x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xdbc68e56
+	csrrs x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x4b5dae13
+	csrrc x13, 0xb0f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb0f, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb0f, 0b01111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb0f, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb0f, x12
+	# mhpmcounter16
+	li a1, 0xb10
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd1dfa96f
+	csrrw x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa74963fc
+	csrrs x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xae3f64a0
+	csrrc x13, 0xb10, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb10, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb10, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb10, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb10, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb10, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb10, 0b10101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb10, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb10, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb10, 0b01001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb10, x12
+	# mhpmcounter17
+	li a1, 0xb11
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x138f30ad
+	csrrw x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xb16e2180
+	csrrs x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9b86ae24
+	csrrc x13, 0xb11, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb11, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb11, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb11, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb11, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb11, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb11, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb11, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb11, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb11, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb11, x12
+	# mhpmcounter18
+	li a1, 0xb12
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2b87d656
+	csrrw x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8fa422f6
+	csrrs x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5bdade0c
+	csrrc x13, 0xb12, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb12, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb12, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb12, 0b10100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb12, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb12, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb12, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb12, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb12, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb12, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb12, x12
+	# mhpmcounter19
+	li a1, 0xb13
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x7167f061
+	csrrw x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x03f24696
+	csrrs x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0585785b
+	csrrc x13, 0xb13, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb13, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb13, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb13, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb13, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb13, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb13, 0b11011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb13, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb13, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb13, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb13, x12
+	# mhpmcounter20
+	li a1, 0xb14
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x158b618d
+	csrrw x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2c3d2cf8
+	csrrs x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9f66d3e4
+	csrrc x13, 0xb14, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb14, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb14, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb14, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb14, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb14, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb14, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb14, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb14, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb14, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb14, x12
+	# mhpmcounter21
+	li a1, 0xb15
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x70c340e2
+	csrrw x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2d6adbcc
+	csrrs x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9dd0e096
+	csrrc x13, 0xb15, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb15, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb15, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb15, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb15, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb15, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb15, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb15, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb15, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb15, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb15, x12
+	# mhpmcounter22
+	li a1, 0xb16
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xfb576555
+	csrrw x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8f5645c9
+	csrrs x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf494c8ed
+	csrrc x13, 0xb16, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb16, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb16, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb16, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb16, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb16, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb16, 0b11011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb16, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb16, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb16, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb16, x12
+	# mhpmcounter23
+	li a1, 0xb17
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x6722ea91
+	csrrw x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x973ed535
+	csrrs x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x092b4220
+	csrrc x13, 0xb17, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb17, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb17, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb17, 0b10010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb17, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb17, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb17, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb17, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb17, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb17, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb17, x12
+	# mhpmcounter24
+	li a1, 0xb18
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9c73be31
+	csrrw x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xdc791231
+	csrrs x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x344b3dba
+	csrrc x13, 0xb18, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb18, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb18, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb18, 0b00010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb18, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb18, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb18, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb18, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb18, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb18, 0b11000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb18, x12
+	# mhpmcounter25
+	li a1, 0xb19
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xde092d62
+	csrrw x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xcdb236fc
+	csrrs x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x16604e62
+	csrrc x13, 0xb19, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb19, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb19, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb19, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb19, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb19, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb19, 0b10101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb19, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb19, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb19, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb19, x12
+	# mhpmcounter26
+	li a1, 0xb1a
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0aef178e
+	csrrw x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf07fb21e
+	csrrs x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9a1a2845
+	csrrc x13, 0xb1a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1a, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1a, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb1a, x12
+	# mhpmcounter27
+	li a1, 0xb1b
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x03cba71f
+	csrrw x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1656b02f
+	csrrs x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf2e285da
+	csrrc x13, 0xb1b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1b, 0b00000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1b, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1b, 0b11100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb1b, x12
+	# mhpmcounter28
+	li a1, 0xb1c
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x08385167
+	csrrw x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x7c3e6f0b
+	csrrs x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xb2d161d0
+	csrrc x13, 0xb1c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1c, 0b01101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1c, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1c, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb1c, x12
+	# mhpmcounter29
+	li a1, 0xb1d
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xb18a3949
+	csrrw x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x33137d09
+	csrrs x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x4ab3fd8c
+	csrrc x13, 0xb1d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1d, 0b01010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1d, 0b10111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb1d, x12
+	# mhpmcounter30
+	li a1, 0xb1e
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe7099846
+	csrrw x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xbe019057
+	csrrs x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5b77be9
+	csrrc x13, 0xb1e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1e, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1e, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1e, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb1e, x12
+	# mhpmcounter31
+	li a1, 0xb1f
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xeb984662
+	csrrw x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xcf731f90
+	csrrs x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1253a66a
+	csrrc x13, 0xb1f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb1f, 0b11011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb1f, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb1f, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb1f, x12
 	# mhpmcounter3h
 	li a1, 0xb83
 	li x12, 0xa5a5a5a5
@@ -1304,19 +2353,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb83, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0x41fc06d8
+	li x12, 0x3d47a3ca
 	csrrw x13, 0xb83, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb83, x12
-	li x12, 0x000000d8
+	li x12, 0x000000ca
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb83, x12
-	li x12, 0x000000fd
+	li x12, 0x000000ef
 	bne x12, x13, csr_mismatch
-	li x12, 0x1ab184bf
+	li x12, 0x2130e4f0
 	csrrs x13, 0xb83, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1328,7 +2377,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb83, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0x9828c44f
+	li x12, 0x26442e0c
 	csrrc x13, 0xb83, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1338,16 +2387,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb83, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb83, 0b11001
+	csrrwi x13, 0xb83, 0b10011
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb83, 0b00101
-	li x12, 0x00000019
+	li x12, 0x00000013
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb83, 0b11010
-	li x12, 0x0000001d
+	li x12, 0x00000017
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb83, 0b01011
+	csrrsi x13, 0xb83, 0b01010
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb83, 0b00101
@@ -1356,7 +2405,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb83, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb83, 0b10001
+	csrrci x13, 0xb83, 0b10101
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1371,19 +2420,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb84, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xcabe6019
+	li x12, 0x77a9cabd
 	csrrw x13, 0xb84, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb84, x12
-	li x12, 0x00000019
+	li x12, 0x000000bd
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb84, x12
 	li x12, 0x000000bd
 	bne x12, x13, csr_mismatch
-	li x12, 0x21b0e115
+	li x12, 0x37333f43
 	csrrs x13, 0xb84, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1395,7 +2444,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb84, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0x614130ab
+	li x12, 0x38869554
 	csrrc x13, 0xb84, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1414,7 +2463,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0xb84, 0b11010
 	li x12, 0x0000001d
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb84, 0b10011
+	csrrsi x13, 0xb84, 0b11000
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb84, 0b00101
@@ -1423,7 +2472,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb84, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb84, 0b10111
+	csrrci x13, 0xb84, 0b00011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1438,19 +2487,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb85, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0x68291688
+	li x12, 0xfdecc549
 	csrrw x13, 0xb85, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb85, x12
-	li x12, 0x00000088
+	li x12, 0x00000049
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb85, x12
-	li x12, 0x000000ad
+	li x12, 0x000000ed
 	bne x12, x13, csr_mismatch
-	li x12, 0xb7589302
+	li x12, 0x2a773daf
 	csrrs x13, 0xb85, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1462,7 +2511,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb85, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0x0592ab52
+	li x12, 0x77102728
 	csrrc x13, 0xb85, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1481,7 +2530,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0xb85, 0b11010
 	li x12, 0x0000000f
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb85, 0b01000
+	csrrsi x13, 0xb85, 0b01001
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb85, 0b00101
@@ -1490,7 +2539,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb85, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb85, 0b11011
+	csrrci x13, 0xb85, 0b01001
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1505,19 +2554,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb86, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0x38c76021
+	li x12, 0xe1817460
 	csrrw x13, 0xb86, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb86, x12
-	li x12, 0x00000021
+	li x12, 0x00000060
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb86, x12
-	li x12, 0x000000a5
+	li x12, 0x000000e5
 	bne x12, x13, csr_mismatch
-	li x12, 0xde561c82
+	li x12, 0x837f6fa8
 	csrrs x13, 0xb86, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1529,7 +2578,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb86, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0x8cf3c6b1
+	li x12, 0x4b584e09
 	csrrc x13, 0xb86, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1539,16 +2588,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb86, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb86, 0b01000
+	csrrwi x13, 0xb86, 0b10000
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb86, 0b00101
-	li x12, 0x00000008
+	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb86, 0b11010
-	li x12, 0x0000000d
+	li x12, 0x00000015
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb86, 0b11010
+	csrrsi x13, 0xb86, 0b11000
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb86, 0b00101
@@ -1557,7 +2606,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb86, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb86, 0b00011
+	csrrci x13, 0xb86, 0b10100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1572,19 +2621,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb87, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0x34c437d3
+	li x12, 0x433ad28c
 	csrrw x13, 0xb87, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb87, x12
-	li x12, 0x000000d3
+	li x12, 0x0000008c
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb87, x12
-	li x12, 0x000000f7
+	li x12, 0x000000ad
 	bne x12, x13, csr_mismatch
-	li x12, 0x3629c94b
+	li x12, 0x734d282b
 	csrrs x13, 0xb87, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1596,7 +2645,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb87, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0xaba3cbb6
+	li x12, 0xd3e83ad5
 	csrrc x13, 0xb87, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1606,16 +2655,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb87, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb87, 0b00011
+	csrrwi x13, 0xb87, 0b00101
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb87, 0b00101
-	li x12, 0x00000003
+	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb87, 0b11010
-	li x12, 0x00000007
+	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb87, 0b10111
+	csrrsi x13, 0xb87, 0b01010
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb87, 0b00101
@@ -1624,7 +2673,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb87, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb87, 0b01010
+	csrrci x13, 0xb87, 0b10100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1639,19 +2688,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb88, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xf08c70df
+	li x12, 0x0f8ee852
 	csrrw x13, 0xb88, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb88, x12
-	li x12, 0x000000df
+	li x12, 0x00000052
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb88, x12
-	li x12, 0x000000ff
+	li x12, 0x000000f7
 	bne x12, x13, csr_mismatch
-	li x12, 0x85c5d973
+	li x12, 0x8adf5297
 	csrrs x13, 0xb88, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1663,7 +2712,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb88, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0xa42923e1
+	li x12, 0xb3c027ee
 	csrrc x13, 0xb88, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1682,7 +2731,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0xb88, 0b11010
 	li x12, 0x00000015
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb88, 0b00000
+	csrrsi x13, 0xb88, 0b01110
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb88, 0b00101
@@ -1691,7 +2740,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb88, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb88, 0b11101
+	csrrci x13, 0xb88, 0b00010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1706,19 +2755,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb89, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xd09c6a38
+	li x12, 0x924c2ddb
 	csrrw x13, 0xb89, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb89, x12
-	li x12, 0x00000038
+	li x12, 0x000000db
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb89, x12
-	li x12, 0x000000bd
+	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
-	li x12, 0x27cc9adf
+	li x12, 0xbd0fd253
 	csrrs x13, 0xb89, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1730,7 +2779,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb89, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0xd35e05ef
+	li x12, 0xad77e31c
 	csrrc x13, 0xb89, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1740,16 +2789,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb89, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb89, 0b00001
+	csrrwi x13, 0xb89, 0b00110
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb89, 0b00101
-	li x12, 0x00000001
+	li x12, 0x00000006
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb89, 0b11010
-	li x12, 0x00000005
+	li x12, 0x00000007
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb89, 0b01010
+	csrrsi x13, 0xb89, 0b11101
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb89, 0b00101
@@ -1758,7 +2807,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb89, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb89, 0b01111
+	csrrci x13, 0xb89, 0b00011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1773,19 +2822,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb8a, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xa0acbd57
+	li x12, 0xe0063caf
 	csrrw x13, 0xb8a, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb8a, x12
-	li x12, 0x00000057
+	li x12, 0x000000af
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb8a, x12
-	li x12, 0x000000f7
+	li x12, 0x000000af
 	bne x12, x13, csr_mismatch
-	li x12, 0x2f3a37e3
+	li x12, 0x54b54f57
 	csrrs x13, 0xb8a, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1797,7 +2846,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb8a, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0x0b51d4b3
+	li x12, 0x8248c340
 	csrrc x13, 0xb8a, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1807,16 +2856,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb8a, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb8a, 0b11111
+	csrrwi x13, 0xb8a, 0b11000
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb8a, 0b00101
-	li x12, 0x0000001f
+	li x12, 0x00000018
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb8a, 0b11010
-	li x12, 0x0000001f
+	li x12, 0x0000001d
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb8a, 0b01110
+	csrrsi x13, 0xb8a, 0b10101
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb8a, 0b00101
@@ -1825,7 +2874,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb8a, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb8a, 0b01101
+	csrrci x13, 0xb8a, 0b10010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1840,19 +2889,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb8b, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xd886c9bc
+	li x12, 0xc095f52e
 	csrrw x13, 0xb8b, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb8b, x12
-	li x12, 0x000000bc
+	li x12, 0x0000002e
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb8b, x12
-	li x12, 0x000000bd
+	li x12, 0x000000af
 	bne x12, x13, csr_mismatch
-	li x12, 0xaed331fe
+	li x12, 0xf8a361e6
 	csrrs x13, 0xb8b, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1864,7 +2913,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb8b, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0xe5b57061
+	li x12, 0x139c876b
 	csrrc x13, 0xb8b, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1874,16 +2923,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb8b, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb8b, 0b11110
+	csrrwi x13, 0xb8b, 0b01000
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb8b, 0b00101
-	li x12, 0x0000001e
+	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb8b, 0b11010
-	li x12, 0x0000001f
+	li x12, 0x0000000d
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb8b, 0b01100
+	csrrsi x13, 0xb8b, 0b11110
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb8b, 0b00101
@@ -1892,7 +2941,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb8b, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb8b, 0b00010
+	csrrci x13, 0xb8b, 0b11011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -1907,19 +2956,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0xb8c, x12
 	li x12, 0x000000a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xc4a535ef
+	li x12, 0x098608a2
 	csrrw x13, 0xb8c, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0xb8c, x12
-	li x12, 0x000000ef
+	li x12, 0x000000a2
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0xb8c, x12
-	li x12, 0x000000ef
+	li x12, 0x000000a7
 	bne x12, x13, csr_mismatch
-	li x12, 0x6f811e4d
+	li x12, 0xb0dca725
 	csrrs x13, 0xb8c, x12
 	li x12, 0x000000ff
 	bne x12, x13, csr_mismatch
@@ -1931,7 +2980,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0xb8c, x12
 	li x12, 0x0000005a
 	bne x12, x13, csr_mismatch
-	li x12, 0xdae0e5ca
+	li x12, 0xcd57e817
 	csrrc x13, 0xb8c, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -1941,16 +2990,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0xb8c, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0xb8c, 0b00000
+	csrrwi x13, 0xb8c, 0b01011
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb8c, 0b00101
-	li x12, 0x00000000
+	li x12, 0x0000000b
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0xb8c, 0b11010
-	li x12, 0x00000005
+	li x12, 0x0000000f
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0xb8c, 0b10000
+	csrrsi x13, 0xb8c, 0b11100
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0xb8c, 0b00101
@@ -1959,11 +3008,1284 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0xb8c, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0xb8c, 0b00001
+	csrrci x13, 0xb8c, 0b11001
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
 	csrw 0xb8c, x12
+	# mhpmcounter13h
+	li a1, 0xb8d
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xfe6f88fb
+	csrrw x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe9ac8684
+	csrrs x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8f901539
+	csrrc x13, 0xb8d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8d, 0b10111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8d, 0b01101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8d, 0b00110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb8d, x12
+	# mhpmcounter14h
+	li a1, 0xb8e
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf9628435
+	csrrw x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd5526323
+	csrrs x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd97139b9
+	csrrc x13, 0xb8e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8e, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8e, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8e, 0b01111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb8e, x12
+	# mhpmcounter15h
+	li a1, 0xb8f
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0e5a90e1
+	csrrw x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x023ea958
+	csrrs x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe24739dc
+	csrrc x13, 0xb8f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb8f, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb8f, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb8f, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb8f, x12
+	# mhpmcounter16h
+	li a1, 0xb90
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x88e9e7ea
+	csrrw x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x98c76bb1
+	csrrs x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x6361839a
+	csrrc x13, 0xb90, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb90, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb90, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb90, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb90, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb90, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb90, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb90, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb90, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb90, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb90, x12
+	# mhpmcounter17h
+	li a1, 0xb91
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x185a6a80
+	csrrw x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x69fc847c
+	csrrs x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x088a32ad
+	csrrc x13, 0xb91, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb91, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb91, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb91, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb91, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb91, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb91, 0b11100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb91, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb91, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb91, 0b00010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb91, x12
+	# mhpmcounter18h
+	li a1, 0xb92
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x03e00677
+	csrrw x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2ed02909
+	csrrs x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5ff11e9e
+	csrrc x13, 0xb92, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb92, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb92, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb92, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb92, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb92, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb92, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb92, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb92, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb92, 0b01111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb92, x12
+	# mhpmcounter19h
+	li a1, 0xb93
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xdc07c74d
+	csrrw x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9df96dcf
+	csrrs x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe04f8e14
+	csrrc x13, 0xb93, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb93, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb93, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb93, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb93, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb93, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb93, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb93, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb93, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb93, 0b11101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb93, x12
+	# mhpmcounter20h
+	li a1, 0xb94
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x365044a1
+	csrrw x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8e8b1190
+	csrrs x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xdd342e88
+	csrrc x13, 0xb94, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb94, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb94, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb94, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb94, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb94, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb94, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb94, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb94, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb94, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb94, x12
+	# mhpmcounter21h
+	li a1, 0xb95
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf9490d51
+	csrrw x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1045f0bc
+	csrrs x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x3b2ff412
+	csrrc x13, 0xb95, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb95, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb95, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb95, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb95, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb95, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb95, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb95, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb95, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb95, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb95, x12
+	# mhpmcounter22h
+	li a1, 0xb96
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x229765eb
+	csrrw x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xaf9b5117
+	csrrs x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x4e680d49
+	csrrc x13, 0xb96, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb96, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb96, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb96, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb96, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb96, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb96, 0b01111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb96, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb96, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb96, 0b10110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb96, x12
+	# mhpmcounter23h
+	li a1, 0xb97
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x13516882
+	csrrw x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xc53fb81c
+	csrrs x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x15a1cb5f
+	csrrc x13, 0xb97, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb97, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb97, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb97, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb97, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb97, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb97, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb97, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb97, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb97, 0b10101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb97, x12
+	# mhpmcounter24h
+	li a1, 0xb98
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x427f3e0e
+	csrrw x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xfe9b7ee6
+	csrrs x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf3c11244
+	csrrc x13, 0xb98, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb98, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb98, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb98, 0b11101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb98, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb98, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb98, 0b10100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb98, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb98, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb98, 0b10001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb98, x12
+	# mhpmcounter25h
+	li a1, 0xb99
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xdf478336
+	csrrw x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd2f210f6
+	csrrs x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1e192e72
+	csrrc x13, 0xb99, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb99, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb99, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb99, 0b10101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb99, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb99, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb99, 0b01111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb99, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb99, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb99, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb99, x12
+	# mhpmcounter26h
+	li a1, 0xb9a
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9b6cac62
+	csrrw x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd220fbb6
+	csrrs x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xfd6156ff
+	csrrc x13, 0xb9a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9a, 0b10100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9a, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb9a, x12
+	# mhpmcounter27h
+	li a1, 0xb9b
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0e2b6d57
+	csrrw x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2dd6818d
+	csrrs x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x06aeb3de
+	csrrc x13, 0xb9b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9b, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9b, 0b10101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9b, 0b01010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb9b, x12
+	# mhpmcounter28h
+	li a1, 0xb9c
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x17844407
+	csrrw x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa2471516
+	csrrs x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x86e5c99c
+	csrrc x13, 0xb9c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9c, 0b10000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9c, 0b10001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9c, 0b10111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb9c, x12
+	# mhpmcounter29h
+	li a1, 0xb9d
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x880e3c65
+	csrrw x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x880bb60d
+	csrrs x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x7adb200d
+	csrrc x13, 0xb9d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9d, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9d, 0b01100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9d, 0b11101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb9d, x12
+	# mhpmcounter30h
+	li a1, 0xb9e
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8fa84486
+	csrrw x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf68ba110
+	csrrs x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x48976cae
+	csrrc x13, 0xb9e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9e, 0b10001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9e, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9e, 0b01001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb9e, x12
+	# mhpmcounter31h
+	li a1, 0xb9f
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x4d7f54d8
+	csrrw x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x581fbcd4
+	csrrs x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x97ef3ac4
+	csrrc x13, 0xb9f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0xb9f, 0b10111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0xb9f, 0b11000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0xb9f, 0b11100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0xb9f, x12
 	# misa
 	li a1, 0x301
 	li x12, 0xa5a5a5a5
@@ -1974,7 +4296,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x301, x12
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	li x12, 0x20910965
+	li x12, 0xc7a32bfc
 	csrrw x13, 0x301, x12
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
@@ -1986,7 +4308,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x301, x12
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	li x12, 0x33b407a1
+	li x12, 0x10b13400
 	csrrs x13, 0x301, x12
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
@@ -1998,7 +4320,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x301, x12
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	li x12, 0x5dc41c9c
+	li x12, 0x5f616a68
 	csrrc x13, 0x301, x12
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
@@ -2008,7 +4330,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x301, 0b11010
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x301, 0b10110
+	csrrwi x13, 0x301, 0b11001
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x301, 0b00101
@@ -2017,7 +4339,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x301, 0b11010
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x301, 0b00000
+	csrrsi x13, 0x301, 0b01001
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x301, 0b00101
@@ -2026,10 +4348,10 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x301, 0b11010
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x301, 0b00100
+	csrrci x13, 0x301, 0b10100
 	li x12, 0x40001104
 	bne x12, x13, csr_mismatch
-	li x12, 0x40101104
+	li x12, 0x40001104
 	csrw 0x301, x12
 	# mie
 	li a1, 0x304
@@ -2041,19 +4363,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x304, x12
 	li x12, 0xa5a50080
 	bne x12, x13, csr_mismatch
-	li x12, 0xdc9e5841
+	li x12, 0x0391704e
 	csrrw x13, 0x304, x12
 	li x12, 0x5a5a0808
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x304, x12
-	li x12, 0xdc9e0800
+	li x12, 0x03910008
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x304, x12
-	li x12, 0xfdbf0880
+	li x12, 0xa7b50088
 	bne x12, x13, csr_mismatch
-	li x12, 0x936aff3f
+	li x12, 0x8994dc6a
 	csrrs x13, 0x304, x12
 	li x12, 0xffff0888
 	bne x12, x13, csr_mismatch
@@ -2065,7 +4387,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x304, x12
 	li x12, 0x5a5a0808
 	bne x12, x13, csr_mismatch
-	li x12, 0x67fe93ed
+	li x12, 0xc2f71b40
 	csrrc x13, 0x304, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -2075,16 +4397,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x304, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x304, 0b10110
+	csrrwi x13, 0x304, 0b01110
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x304, 0b00101
-	li x12, 0x00000000
+	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x304, 0b11010
-	li x12, 0x00000000
+	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x304, 0b10011
+	csrrsi x13, 0x304, 0b11001
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x304, 0b00101
@@ -2093,78 +4415,11 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x304, 0b11010
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x304, 0b10101
+	csrrci x13, 0x304, 0b00101
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
 	csrw 0x304, x12
-	# mcounteren
-	li a1, 0x306
-	li x12, 0xa5a5a5a5
-	csrrw x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrw x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x56ab8cd2
-	csrrw x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xa5a5a5a5
-	csrrs x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrs x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xd2bdb74b
-	csrrs x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xa5a5a5a5
-	csrrc x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrc x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5c6743
-	csrrc x13, 0x306, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x306, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x306, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x306, 0b11011
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x306, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x306, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x306, 0b11011
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x306, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x306, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x306, 0b01111
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x00000000
-	csrw 0x306, x12
 	# mstatush
 	li a1, 0x310
 	li x12, 0xa5a5a5a5
@@ -2175,7 +4430,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x310, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x3720d749
+	li x12, 0x147417de
 	csrrw x13, 0x310, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -2187,7 +4442,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x310, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xc77b520c
+	li x12, 0x17317bc8
 	csrrs x13, 0x310, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -2199,7 +4454,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x310, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xd3e45017
+	li x12, 0xea169339
 	csrrc x13, 0x310, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -2209,7 +4464,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x310, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x310, 0b01010
+	csrrwi x13, 0x310, 0b10110
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x310, 0b00101
@@ -2218,7 +4473,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x310, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x310, 0b01100
+	csrrsi x13, 0x310, 0b00010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x310, 0b00101
@@ -2227,168 +4482,34 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x310, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x310, 0b00000
+	csrrci x13, 0x310, 0b01011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
 	csrw 0x310, x12
-	# menvcfg
-	li a1, 0x30a
-	li x12, 0xa5a5a5a5
-	csrrw x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrw x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x7a67edbf
-	csrrw x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xa5a5a5a5
-	csrrs x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrs x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x7e3330af
-	csrrs x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xa5a5a5a5
-	csrrc x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrc x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xc7d8d41c
-	csrrc x13, 0x30a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x30a, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x30a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x30a, 0b11100
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x30a, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x30a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x30a, 0b10111
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x30a, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x30a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x30a, 0b00100
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x00000000
-	csrw 0x30a, x12
-	# menvcfgh
-	li a1, 0x31a
-	li x12, 0xa5a5a5a5
-	csrrw x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrw x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x0be4d254
-	csrrw x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xa5a5a5a5
-	csrrs x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrs x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x0e1ba81c
-	csrrs x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xa5a5a5a5
-	csrrc x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x5a5a5a5a
-	csrrc x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0xd9c994ae
-	csrrc x13, 0x31a, x12
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x31a, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x31a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x31a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x31a, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x31a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x31a, 0b01110
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x31a, 0b00101
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x31a, 0b11010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	csrrci x13, 0x31a, 0b01010
-	li x12, 0x00000000
-	bne x12, x13, csr_mismatch
-	li x12, 0x00000000
-	csrw 0x31a, x12
 	# mcountinhibit
 	li a1, 0x320
 	li x12, 0xa5a5a5a5
 	csrrw x13, 0x320, x12
-	li x12, 0xffffe00d
+	li x12, 0xffffe000
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0x320, x12
 	li x12, 0xffffe5a5
 	bne x12, x13, csr_mismatch
-	li x12, 0xa2f555ab
+	li x12, 0xcf99c888
 	csrrw x13, 0x320, x12
 	li x12, 0xfffffa58
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x320, x12
-	li x12, 0xfffff5a9
+	li x12, 0xffffe888
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x320, x12
-	li x12, 0xfffff5ad
+	li x12, 0xffffedad
 	bne x12, x13, csr_mismatch
-	li x12, 0x98991203
+	li x12, 0x9587a4dc
 	csrrs x13, 0x320, x12
 	li x12, 0xfffffffd
 	bne x12, x13, csr_mismatch
@@ -2400,7 +4521,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x320, x12
 	li x12, 0xfffffa58
 	bne x12, x13, csr_mismatch
-	li x12, 0xe92bbdfb
+	li x12, 0x264be8ec
 	csrrc x13, 0x320, x12
 	li x12, 0xffffe000
 	bne x12, x13, csr_mismatch
@@ -2410,16 +4531,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x320, 0b11010
 	li x12, 0xffffe005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x320, 0b00100
+	csrrwi x13, 0x320, 0b11001
 	li x12, 0xffffe018
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x320, 0b00101
-	li x12, 0xffffe004
+	li x12, 0xffffe019
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x320, 0b11010
-	li x12, 0xffffe005
+	li x12, 0xffffe01d
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x320, 0b10001
+	csrrsi x13, 0x320, 0b00111
 	li x12, 0xffffe01d
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x320, 0b00101
@@ -2428,10 +4549,10 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x320, 0b11010
 	li x12, 0xffffe018
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x320, 0b01101
+	csrrci x13, 0x320, 0b00100
 	li x12, 0xffffe000
 	bne x12, x13, csr_mismatch
-	li x12, 0xffffe00d
+	li x12, 0xffffe000
 	csrw 0x320, x12
 	# mhpmevent3
 	li a1, 0x323
@@ -2443,7 +4564,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x323, x12
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	li x12, 0x34114ee7
+	li x12, 0xe9fe3c23
 	csrrw x13, 0x323, x12
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
@@ -2455,7 +4576,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x323, x12
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	li x12, 0xf867d77b
+	li x12, 0x55447ca1
 	csrrs x13, 0x323, x12
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
@@ -2467,7 +4588,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x323, x12
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	li x12, 0x6a04bb37
+	li x12, 0x7a7bf2bf
 	csrrc x13, 0x323, x12
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
@@ -2477,7 +4598,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x323, 0b11010
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x323, 0b01000
+	csrrwi x13, 0x323, 0b01110
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x323, 0b00101
@@ -2486,7 +4607,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x323, 0b11010
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x323, 0b00101
+	csrrsi x13, 0x323, 0b00100
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x323, 0b00101
@@ -2495,7 +4616,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x323, 0b11010
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x323, 0b11000
+	csrrci x13, 0x323, 0b01010
 	li x12, 0x00000008
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000008
@@ -2510,7 +4631,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x324, x12
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
-	li x12, 0x388ff6ee
+	li x12, 0x80c3f6ad
 	csrrw x13, 0x324, x12
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
@@ -2522,7 +4643,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x324, x12
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
-	li x12, 0x84acb85d
+	li x12, 0x2eae5b78
 	csrrs x13, 0x324, x12
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
@@ -2534,7 +4655,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x324, x12
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
-	li x12, 0x06d77eb1
+	li x12, 0xa31739c3
 	csrrc x13, 0x324, x12
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
@@ -2544,7 +4665,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x324, 0b11010
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x324, 0b00101
+	csrrwi x13, 0x324, 0b01010
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x324, 0b00101
@@ -2553,7 +4674,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x324, 0b11010
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x324, 0b11000
+	csrrsi x13, 0x324, 0b11100
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x324, 0b00101
@@ -2562,7 +4683,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x324, 0b11010
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x324, 0b00000
+	csrrci x13, 0x324, 0b01001
 	li x12, 0x00000010
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000010
@@ -2577,7 +4698,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x325, x12
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
-	li x12, 0x95e5fcb7
+	li x12, 0xbaeedb3f
 	csrrw x13, 0x325, x12
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
@@ -2589,7 +4710,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x325, x12
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
-	li x12, 0x588ef8b3
+	li x12, 0xab3f6569
 	csrrs x13, 0x325, x12
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
@@ -2601,7 +4722,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x325, x12
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
-	li x12, 0x266599a3
+	li x12, 0xeefb180c
 	csrrc x13, 0x325, x12
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
@@ -2611,7 +4732,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x325, 0b11010
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x325, 0b01110
+	csrrwi x13, 0x325, 0b01011
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x325, 0b00101
@@ -2620,7 +4741,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x325, 0b11010
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x325, 0b10100
+	csrrsi x13, 0x325, 0b10001
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x325, 0b00101
@@ -2629,7 +4750,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x325, 0b11010
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x325, 0b11001
+	csrrci x13, 0x325, 0b10001
 	li x12, 0x00000020
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000020
@@ -2644,7 +4765,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x326, x12
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
-	li x12, 0xa85ea219
+	li x12, 0xf32fc7dc
 	csrrw x13, 0x326, x12
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
@@ -2656,7 +4777,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x326, x12
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
-	li x12, 0x08b226b6
+	li x12, 0x0f2aac3a
 	csrrs x13, 0x326, x12
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
@@ -2668,7 +4789,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x326, x12
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
-	li x12, 0x1c832c8a
+	li x12, 0x51acb5d6
 	csrrc x13, 0x326, x12
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
@@ -2678,7 +4799,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x326, 0b11010
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x326, 0b11011
+	csrrwi x13, 0x326, 0b11000
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x326, 0b00101
@@ -2687,7 +4808,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x326, 0b11010
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x326, 0b11000
+	csrrsi x13, 0x326, 0b01101
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x326, 0b00101
@@ -2696,7 +4817,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x326, 0b11010
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x326, 0b10101
+	csrrci x13, 0x326, 0b10100
 	li x12, 0x00000040
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000040
@@ -2711,7 +4832,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x327, x12
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
-	li x12, 0xba3b296e
+	li x12, 0x35943a55
 	csrrw x13, 0x327, x12
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
@@ -2723,7 +4844,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x327, x12
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
-	li x12, 0x71b06a4c
+	li x12, 0x8458c0e2
 	csrrs x13, 0x327, x12
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
@@ -2735,7 +4856,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x327, x12
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
-	li x12, 0xa07a2bd2
+	li x12, 0x45853fc0
 	csrrc x13, 0x327, x12
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
@@ -2745,7 +4866,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x327, 0b11010
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x327, 0b01111
+	csrrwi x13, 0x327, 0b11101
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x327, 0b00101
@@ -2754,7 +4875,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x327, 0b11010
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x327, 0b01100
+	csrrsi x13, 0x327, 0b11001
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x327, 0b00101
@@ -2763,7 +4884,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x327, 0b11010
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x327, 0b11000
+	csrrci x13, 0x327, 0b01100
 	li x12, 0x00000080
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000080
@@ -2778,7 +4899,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x328, x12
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
-	li x12, 0xba40ae6d
+	li x12, 0x65018727
 	csrrw x13, 0x328, x12
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
@@ -2790,7 +4911,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x328, x12
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
-	li x12, 0x1bea6776
+	li x12, 0xc04a858f
 	csrrs x13, 0x328, x12
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
@@ -2802,7 +4923,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x328, x12
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
-	li x12, 0xd6663650
+	li x12, 0xae2ee5ac
 	csrrc x13, 0x328, x12
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
@@ -2812,7 +4933,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x328, 0b11010
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x328, 0b01001
+	csrrwi x13, 0x328, 0b00000
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x328, 0b00101
@@ -2821,7 +4942,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x328, 0b11010
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x328, 0b11111
+	csrrsi x13, 0x328, 0b01010
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x328, 0b00101
@@ -2830,7 +4951,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x328, 0b11010
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x328, 0b11011
+	csrrci x13, 0x328, 0b10010
 	li x12, 0x00000100
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000100
@@ -2845,7 +4966,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x329, x12
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
-	li x12, 0xd7ef9068
+	li x12, 0x79a53766
 	csrrw x13, 0x329, x12
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
@@ -2857,7 +4978,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x329, x12
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
-	li x12, 0xeffe6cad
+	li x12, 0xddba53fb
 	csrrs x13, 0x329, x12
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
@@ -2869,7 +4990,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x329, x12
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
-	li x12, 0xa7ce22b9
+	li x12, 0xc732c7b8
 	csrrc x13, 0x329, x12
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
@@ -2879,7 +5000,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x329, 0b11010
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x329, 0b11111
+	csrrwi x13, 0x329, 0b10110
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x329, 0b00101
@@ -2888,7 +5009,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x329, 0b11010
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x329, 0b11000
+	csrrsi x13, 0x329, 0b10111
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x329, 0b00101
@@ -2897,7 +5018,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x329, 0b11010
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x329, 0b10000
+	csrrci x13, 0x329, 0b00010
 	li x12, 0x00000200
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000200
@@ -2912,7 +5033,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x32a, x12
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
-	li x12, 0xd6f12ba0
+	li x12, 0x406fceb7
 	csrrw x13, 0x32a, x12
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
@@ -2924,7 +5045,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x32a, x12
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
-	li x12, 0x30c8710e
+	li x12, 0x1cf2cf8a
 	csrrs x13, 0x32a, x12
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
@@ -2936,7 +5057,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x32a, x12
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
-	li x12, 0x8a208e32
+	li x12, 0x372919d6
 	csrrc x13, 0x32a, x12
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
@@ -2946,7 +5067,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x32a, 0b11010
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x32a, 0b10100
+	csrrwi x13, 0x32a, 0b01011
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x32a, 0b00101
@@ -2955,7 +5076,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x32a, 0b11010
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x32a, 0b11010
+	csrrsi x13, 0x32a, 0b11110
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x32a, 0b00101
@@ -2964,7 +5085,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x32a, 0b11010
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x32a, 0b00001
+	csrrci x13, 0x32a, 0b01010
 	li x12, 0x00000400
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000400
@@ -2979,7 +5100,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x32b, x12
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
-	li x12, 0xd3f1ce0b
+	li x12, 0xdcca7380
 	csrrw x13, 0x32b, x12
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
@@ -2991,7 +5112,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x32b, x12
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
-	li x12, 0x1a09d938
+	li x12, 0x634040c3
 	csrrs x13, 0x32b, x12
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
@@ -3003,7 +5124,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x32b, x12
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
-	li x12, 0x06b6a418
+	li x12, 0x23643838
 	csrrc x13, 0x32b, x12
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
@@ -3013,7 +5134,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x32b, 0b11010
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x32b, 0b01000
+	csrrwi x13, 0x32b, 0b01110
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x32b, 0b00101
@@ -3022,7 +5143,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x32b, 0b11010
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x32b, 0b11111
+	csrrsi x13, 0x32b, 0b10110
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x32b, 0b00101
@@ -3031,7 +5152,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x32b, 0b11010
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x32b, 0b10111
+	csrrci x13, 0x32b, 0b10000
 	li x12, 0x00000800
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000800
@@ -3046,7 +5167,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x32c, x12
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
-	li x12, 0xd6cbb6b0
+	li x12, 0x044fca4f
 	csrrw x13, 0x32c, x12
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
@@ -3058,7 +5179,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x32c, x12
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
-	li x12, 0xb8c38469
+	li x12, 0x91efd98c
 	csrrs x13, 0x32c, x12
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
@@ -3070,7 +5191,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x32c, x12
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
-	li x12, 0x00c620f3
+	li x12, 0xa2e503ec
 	csrrc x13, 0x32c, x12
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
@@ -3080,7 +5201,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x32c, 0b11010
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x32c, 0b10000
+	csrrwi x13, 0x32c, 0b00110
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x32c, 0b00101
@@ -3089,7 +5210,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x32c, 0b11010
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x32c, 0b01010
+	csrrsi x13, 0x32c, 0b11000
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x32c, 0b00101
@@ -3098,11 +5219,1284 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x32c, 0b11010
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x32c, 0b11001
+	csrrci x13, 0x32c, 0b10010
 	li x12, 0x00001000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00001000
 	csrw 0x32c, x12
+	# mhpmevent13
+	li a1, 0x32d
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8fdb39e7
+	csrrw x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x7cf41948
+	csrrs x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe764c532
+	csrrc x13, 0x32d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32d, 0b00010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32d, 0b10000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32d, 0b00110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x32d, x12
+	# mhpmevent14
+	li a1, 0x32e
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9c7545c4
+	csrrw x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x29214f76
+	csrrs x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8b76c2b4
+	csrrc x13, 0x32e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32e, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32e, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32e, 0b01101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x32e, x12
+	# mhpmevent15
+	li a1, 0x32f
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe1847499
+	csrrw x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1470234a
+	csrrs x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xfec8675a
+	csrrc x13, 0x32f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x32f, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x32f, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x32f, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x32f, x12
+	# mhpmevent16
+	li a1, 0x330
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x58aa6ccc
+	csrrw x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x603c65bd
+	csrrs x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa6e617dd
+	csrrc x13, 0x330, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x330, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x330, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x330, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x330, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x330, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x330, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x330, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x330, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x330, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x330, x12
+	# mhpmevent17
+	li a1, 0x331
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xef4bb4b5
+	csrrw x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xda8d5f4a
+	csrrs x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xb0da36a4
+	csrrc x13, 0x331, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x331, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x331, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x331, 0b00010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x331, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x331, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x331, 0b00110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x331, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x331, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x331, 0b00110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x331, x12
+	# mhpmevent18
+	li a1, 0x332
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xaa2c31d1
+	csrrw x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x814b9454
+	csrrs x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x99de4c37
+	csrrc x13, 0x332, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x332, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x332, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x332, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x332, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x332, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x332, 0b10010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x332, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x332, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x332, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x332, x12
+	# mhpmevent19
+	li a1, 0x333
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0af19f46
+	csrrw x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xddcc280a
+	csrrs x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2e3d4c18
+	csrrc x13, 0x333, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x333, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x333, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x333, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x333, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x333, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x333, 0b11110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x333, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x333, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x333, 0b01101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x333, x12
+	# mhpmevent20
+	li a1, 0x334
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x4f4d781e
+	csrrw x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x317edc70
+	csrrs x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0ade8bfa
+	csrrc x13, 0x334, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x334, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x334, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x334, 0b11101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x334, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x334, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x334, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x334, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x334, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x334, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x334, x12
+	# mhpmevent21
+	li a1, 0x335
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x961dfef5
+	csrrw x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xea5e80b3
+	csrrs x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x37cb0fba
+	csrrc x13, 0x335, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x335, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x335, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x335, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x335, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x335, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x335, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x335, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x335, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x335, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x335, x12
+	# mhpmevent22
+	li a1, 0x336
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x62e6aaae
+	csrrw x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x70bde142
+	csrrs x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xb9ff29f8
+	csrrc x13, 0x336, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x336, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x336, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x336, 0b11111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x336, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x336, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x336, 0b01001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x336, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x336, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x336, 0b01000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x336, x12
+	# mhpmevent23
+	li a1, 0x337
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xfd631748
+	csrrw x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x13277862
+	csrrs x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x7a5b5ea4
+	csrrc x13, 0x337, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x337, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x337, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x337, 0b11110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x337, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x337, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x337, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x337, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x337, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x337, 0b10110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x337, x12
+	# mhpmevent24
+	li a1, 0x338
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x875b26c5
+	csrrw x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x9e3d4082
+	csrrs x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xab3d5074
+	csrrc x13, 0x338, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x338, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x338, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x338, 0b11001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x338, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x338, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x338, 0b10011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x338, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x338, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x338, 0b00100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x338, x12
+	# mhpmevent25
+	li a1, 0x339
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x4e804411
+	csrrw x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x415154c9
+	csrrs x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x6e79d057
+	csrrc x13, 0x339, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x339, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x339, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x339, 0b00000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x339, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x339, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x339, 0b01001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x339, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x339, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x339, 0b10000
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x339, x12
+	# mhpmevent26
+	li a1, 0x33a
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x7dff6c6b
+	csrrw x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x96b8c368
+	csrrs x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x84265c36
+	csrrc x13, 0x33a, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33a, 0b00111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33a, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33a, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33a, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x33a, x12
+	# mhpmevent27
+	li a1, 0x33b
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x8d1fe623
+	csrrw x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xdc99a03c
+	csrrs x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x1ce5d6e7
+	csrrc x13, 0x33b, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33b, 0b10010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33b, 0b10110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33b, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33b, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33b, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x33b, x12
+	# mhpmevent28
+	li a1, 0x33c
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x07c3c9a8
+	csrrw x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x2fcbf350
+	csrrs x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x3c011cb6
+	csrrc x13, 0x33c, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33c, 0b11100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33c, 0b11110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33c, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33c, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33c, 0b01011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x33c, x12
+	# mhpmevent29
+	li a1, 0x33d
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5c7d6dc4
+	csrrw x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd3a52dd4
+	csrrs x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x0f5772a8
+	csrrc x13, 0x33d, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33d, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33d, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33d, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33d, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33d, 0b01111
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x33d, x12
+	# mhpmevent30
+	li a1, 0x33e
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xd170204e
+	csrrw x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x78d804a5
+	csrrs x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xb3987663
+	csrrc x13, 0x33e, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33e, 0b01110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33e, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33e, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33e, 0b11100
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x33e, x12
+	# mhpmevent31
+	li a1, 0x33f
+	li x12, 0xa5a5a5a5
+	csrrw x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrw x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5b328479
+	csrrw x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrs x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrs x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xe0dcd690
+	csrrs x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xa5a5a5a5
+	csrrc x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x5a5a5a5a
+	csrrc x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0xf7e33cb9
+	csrrc x13, 0x33f, x12
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrwi x13, 0x33f, 0b00011
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrsi x13, 0x33f, 0b10110
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33f, 0b00101
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33f, 0b11010
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	csrrci x13, 0x33f, 0b00001
+	li x12, 0x00000000
+	bne x12, x13, csr_mismatch
+	li x12, 0x00000000
+	csrw 0x33f, x12
 	# mscratch
 	li a1, 0x340
 	li x12, 0xa5a5a5a5
@@ -3113,19 +6507,19 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x340, x12
 	li x12, 0xa5a5a5a5
 	bne x12, x13, csr_mismatch
-	li x12, 0x8eb7b28c
+	li x12, 0x6a31f4db
 	csrrw x13, 0x340, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x340, x12
-	li x12, 0x8eb7b28c
+	li x12, 0x6a31f4db
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x340, x12
-	li x12, 0xafb7b7ad
+	li x12, 0xefb5f5ff
 	bne x12, x13, csr_mismatch
-	li x12, 0x044f7866
+	li x12, 0x1452902b
 	csrrs x13, 0x340, x12
 	li x12, 0xffffffff
 	bne x12, x13, csr_mismatch
@@ -3137,7 +6531,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x340, x12
 	li x12, 0x5a5a5a5a
 	bne x12, x13, csr_mismatch
-	li x12, 0xdc4969f3
+	li x12, 0xd6ce864f
 	csrrc x13, 0x340, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3147,16 +6541,16 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x340, 0b11010
 	li x12, 0x00000005
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x340, 0b01111
+	csrrwi x13, 0x340, 0b01101
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x340, 0b00101
-	li x12, 0x0000000f
+	li x12, 0x0000000d
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x340, 0b11010
-	li x12, 0x0000000f
+	li x12, 0x0000000d
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x340, 0b11010
+	csrrsi x13, 0x340, 0b10001
 	li x12, 0x0000001f
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x340, 0b00101
@@ -3165,7 +6559,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x340, 0b11010
 	li x12, 0x0000001a
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x340, 0b01010
+	csrrci x13, 0x340, 0b10100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3180,7 +6574,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x344, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x6a340bbe
+	li x12, 0x0ebf555f
 	csrrw x13, 0x344, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3192,7 +6586,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x344, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xfcdcdaf0
+	li x12, 0x0e969e17
 	csrrs x13, 0x344, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3204,7 +6598,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x344, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x8295b701
+	li x12, 0x52965755
 	csrrc x13, 0x344, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3214,7 +6608,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x344, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x344, 0b01111
+	csrrwi x13, 0x344, 0b11100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x344, 0b00101
@@ -3232,7 +6626,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x344, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x344, 0b00101
+	csrrci x13, 0x344, 0b10010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3247,7 +6641,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x7a0, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x47f71794
+	li x12, 0xbb6343c1
 	csrrw x13, 0x7a0, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3259,7 +6653,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x7a0, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xe2bb6162
+	li x12, 0x2d1b7174
 	csrrs x13, 0x7a0, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3271,7 +6665,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x7a0, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x0f642276
+	li x12, 0x80557ab2
 	csrrc x13, 0x7a0, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3281,7 +6675,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x7a0, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7a0, 0b10000
+	csrrwi x13, 0x7a0, 0b11011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7a0, 0b00101
@@ -3290,7 +6684,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x7a0, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x7a0, 0b01010
+	csrrsi x13, 0x7a0, 0b00011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7a0, 0b00101
@@ -3299,7 +6693,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x7a0, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x7a0, 0b10010
+	csrrci x13, 0x7a0, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3308,68 +6702,68 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	li a1, 0x7a1
 	li x12, 0xa5a5a5a5
 	csrrw x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrw x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	li x12, 0xea8e3ad3
+	li x12, 0xad269c44
 	csrrw x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrs x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrs x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	li x12, 0x8602bd6b
+	li x12, 0xb60fca04
 	csrrs x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	li x12, 0xa5a5a5a5
 	csrrc x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	li x12, 0x5a5a5a5a
 	csrrc x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	li x12, 0x9c12ca46
+	li x12, 0x13da5570
 	csrrc x13, 0x7a1, x12
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	csrrwi x13, 0x7a1, 0b00101
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	csrrwi x13, 0x7a1, 0b11010
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7a1, 0b11100
-	li x12, 0x28001048
+	csrrwi x13, 0x7a1, 0b00010
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7a1, 0b00101
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7a1, 0b11010
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x7a1, 0b11111
-	li x12, 0x28001048
+	csrrsi x13, 0x7a1, 0b00000
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7a1, 0b00101
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7a1, 0b11010
-	li x12, 0x28001048
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x7a1, 0b10000
-	li x12, 0x28001048
+	csrrci x13, 0x7a1, 0b10011
+	li x12, 0x28001040
 	bne x12, x13, csr_mismatch
-	li x12, 0x28001048
+	li x12, 0x28001040
 	csrw 0x7a1, x12
 	# tdata2
 	li a1, 0x7a2
@@ -3381,7 +6775,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x7a2, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x873376b8
+	li x12, 0x69db7891
 	csrrw x13, 0x7a2, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3393,7 +6787,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x7a2, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xd6cf03d6
+	li x12, 0x11e13672
 	csrrs x13, 0x7a2, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3405,7 +6799,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x7a2, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xf8f1b48a
+	li x12, 0xb276ffc7
 	csrrc x13, 0x7a2, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3415,7 +6809,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x7a2, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7a2, 0b01100
+	csrrwi x13, 0x7a2, 0b11011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7a2, 0b00101
@@ -3424,7 +6818,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x7a2, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x7a2, 0b00001
+	csrrsi x13, 0x7a2, 0b01110
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7a2, 0b00101
@@ -3433,7 +6827,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x7a2, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x7a2, 0b11011
+	csrrci x13, 0x7a2, 0b10011
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3448,7 +6842,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x7a3, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xcab8183f
+	li x12, 0x6df185ce
 	csrrw x13, 0x7a3, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3460,7 +6854,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x7a3, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x2f663f45
+	li x12, 0x01038318
 	csrrs x13, 0x7a3, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3472,7 +6866,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x7a3, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x4bf011d5
+	li x12, 0x50073815
 	csrrc x13, 0x7a3, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3482,7 +6876,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x7a3, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7a3, 0b01100
+	csrrwi x13, 0x7a3, 0b10001
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7a3, 0b00101
@@ -3491,7 +6885,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x7a3, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x7a3, 0b00010
+	csrrsi x13, 0x7a3, 0b10110
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7a3, 0b00101
@@ -3500,7 +6894,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x7a3, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x7a3, 0b11011
+	csrrci x13, 0x7a3, 0b10110
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3515,7 +6909,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x7a8, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x7a081cde
+	li x12, 0x8a2090a8
 	csrrw x13, 0x7a8, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3527,7 +6921,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x7a8, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x9074128f
+	li x12, 0xa4c25ff3
 	csrrs x13, 0x7a8, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3539,7 +6933,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x7a8, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xd7566cde
+	li x12, 0xedabf9c0
 	csrrc x13, 0x7a8, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3549,7 +6943,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x7a8, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7a8, 0b10100
+	csrrwi x13, 0x7a8, 0b01010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7a8, 0b00101
@@ -3558,7 +6952,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x7a8, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x7a8, 0b11010
+	csrrsi x13, 0x7a8, 0b10110
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7a8, 0b00101
@@ -3567,7 +6961,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x7a8, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x7a8, 0b01111
+	csrrci x13, 0x7a8, 0b00001
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3582,7 +6976,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x7aa, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x3f7b8a79
+	li x12, 0x9c88cc50
 	csrrw x13, 0x7aa, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3594,7 +6988,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x7aa, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x86c581c1
+	li x12, 0xa681991a
 	csrrs x13, 0x7aa, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3606,7 +7000,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x7aa, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xd17d9894
+	li x12, 0xf0c56c26
 	csrrc x13, 0x7aa, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3616,7 +7010,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x7aa, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7aa, 0b01111
+	csrrwi x13, 0x7aa, 0b00001
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7aa, 0b00101
@@ -3634,7 +7028,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrci x13, 0x7aa, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrci x13, 0x7aa, 0b00100
+	csrrci x13, 0x7aa, 0b10111
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	li x12, 0x00000000
@@ -3649,7 +7043,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrw x13, 0x7c1, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0xc8091048
+	li x12, 0xa9ffe139
 	csrrw x13, 0x7c1, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3661,7 +7055,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrs x13, 0x7c1, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x46e191df
+	li x12, 0x23b449ff
 	csrrs x13, 0x7c1, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3673,7 +7067,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrc x13, 0x7c1, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	li x12, 0x7ec1fcde
+	li x12, 0xde9c6d58
 	csrrc x13, 0x7c1, x12
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
@@ -3683,7 +7077,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrwi x13, 0x7c1, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrwi x13, 0x7c1, 0b00011
+	csrrwi x13, 0x7c1, 0b01100
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrsi x13, 0x7c1, 0b00101
@@ -3692,7 +7086,7 @@ machine_mode_check:	la t1, glb_expect_illegal_insn
 	csrrsi x13, 0x7c1, 0b11010
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
-	csrrsi x13, 0x7c1, 0b11101
+	csrrsi x13, 0x7c1, 0b11110
 	li x12, 0x00000000
 	bne x12, x13, csr_mismatch
 	csrrci x13, 0x7c1, 0b00101
@@ -8672,6 +12066,12 @@ csr_check_unimplemented:
 	sw t0, 0(t1)
 	csrr t0, 0x303
 	jal ra, csr_bad_impl
+	li a1, 0x306
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0x306
+	jal ra, csr_bad_impl
 	li a1, 0x307
 	lw t0, 0(t1)
 	addi t0, t0, 1
@@ -8689,6 +12089,12 @@ csr_check_unimplemented:
 	addi t0, t0, 1
 	sw t0, 0(t1)
 	csrr t0, 0x309
+	jal ra, csr_bad_impl
+	li a1, 0x30a
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0x30a
 	jal ra, csr_bad_impl
 	li a1, 0x30b
 	lw t0, 0(t1)
@@ -8774,6 +12180,12 @@ csr_check_unimplemented:
 	sw t0, 0(t1)
 	csrr t0, 0x319
 	jal ra, csr_bad_impl
+	li a1, 0x31a
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0x31a
+	jal ra, csr_bad_impl
 	li a1, 0x31b
 	lw t0, 0(t1)
 	addi t0, t0, 1
@@ -8815,120 +12227,6 @@ csr_check_unimplemented:
 	addi t0, t0, 1
 	sw t0, 0(t1)
 	csrr t0, 0x322
-	jal ra, csr_bad_impl
-	li a1, 0x32d
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x32d
-	jal ra, csr_bad_impl
-	li a1, 0x32e
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x32e
-	jal ra, csr_bad_impl
-	li a1, 0x32f
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x32f
-	jal ra, csr_bad_impl
-	li a1, 0x330
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x330
-	jal ra, csr_bad_impl
-	li a1, 0x331
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x331
-	jal ra, csr_bad_impl
-	li a1, 0x332
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x332
-	jal ra, csr_bad_impl
-	li a1, 0x333
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x333
-	jal ra, csr_bad_impl
-	li a1, 0x334
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x334
-	jal ra, csr_bad_impl
-	li a1, 0x335
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x335
-	jal ra, csr_bad_impl
-	li a1, 0x336
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x336
-	jal ra, csr_bad_impl
-	li a1, 0x337
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x337
-	jal ra, csr_bad_impl
-	li a1, 0x338
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x338
-	jal ra, csr_bad_impl
-	li a1, 0x339
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x339
-	jal ra, csr_bad_impl
-	li a1, 0x33a
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x33a
-	jal ra, csr_bad_impl
-	li a1, 0x33b
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x33b
-	jal ra, csr_bad_impl
-	li a1, 0x33c
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x33c
-	jal ra, csr_bad_impl
-	li a1, 0x33d
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x33d
-	jal ra, csr_bad_impl
-	li a1, 0x33e
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x33e
-	jal ra, csr_bad_impl
-	li a1, 0x33f
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0x33f
 	jal ra, csr_bad_impl
 	li a1, 0x345
 	lw t0, 0(t1)
@@ -20768,120 +24066,6 @@ csr_check_unimplemented:
 	sw t0, 0(t1)
 	csrr t0, 0xb01
 	jal ra, csr_bad_impl
-	li a1, 0xb0d
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb0d
-	jal ra, csr_bad_impl
-	li a1, 0xb0e
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb0e
-	jal ra, csr_bad_impl
-	li a1, 0xb0f
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb0f
-	jal ra, csr_bad_impl
-	li a1, 0xb10
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb10
-	jal ra, csr_bad_impl
-	li a1, 0xb11
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb11
-	jal ra, csr_bad_impl
-	li a1, 0xb12
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb12
-	jal ra, csr_bad_impl
-	li a1, 0xb13
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb13
-	jal ra, csr_bad_impl
-	li a1, 0xb14
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb14
-	jal ra, csr_bad_impl
-	li a1, 0xb15
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb15
-	jal ra, csr_bad_impl
-	li a1, 0xb16
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb16
-	jal ra, csr_bad_impl
-	li a1, 0xb17
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb17
-	jal ra, csr_bad_impl
-	li a1, 0xb18
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb18
-	jal ra, csr_bad_impl
-	li a1, 0xb19
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb19
-	jal ra, csr_bad_impl
-	li a1, 0xb1a
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb1a
-	jal ra, csr_bad_impl
-	li a1, 0xb1b
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb1b
-	jal ra, csr_bad_impl
-	li a1, 0xb1c
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb1c
-	jal ra, csr_bad_impl
-	li a1, 0xb1d
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb1d
-	jal ra, csr_bad_impl
-	li a1, 0xb1e
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb1e
-	jal ra, csr_bad_impl
-	li a1, 0xb1f
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb1f
-	jal ra, csr_bad_impl
 	li a1, 0xb20
 	lw t0, 0(t1)
 	addi t0, t0, 1
@@ -21464,120 +24648,6 @@ csr_check_unimplemented:
 	sw t0, 0(t1)
 	csrr t0, 0xb81
 	jal ra, csr_bad_impl
-	li a1, 0xb8d
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb8d
-	jal ra, csr_bad_impl
-	li a1, 0xb8e
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb8e
-	jal ra, csr_bad_impl
-	li a1, 0xb8f
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb8f
-	jal ra, csr_bad_impl
-	li a1, 0xb90
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb90
-	jal ra, csr_bad_impl
-	li a1, 0xb91
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb91
-	jal ra, csr_bad_impl
-	li a1, 0xb92
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb92
-	jal ra, csr_bad_impl
-	li a1, 0xb93
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb93
-	jal ra, csr_bad_impl
-	li a1, 0xb94
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb94
-	jal ra, csr_bad_impl
-	li a1, 0xb95
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb95
-	jal ra, csr_bad_impl
-	li a1, 0xb96
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb96
-	jal ra, csr_bad_impl
-	li a1, 0xb97
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb97
-	jal ra, csr_bad_impl
-	li a1, 0xb98
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb98
-	jal ra, csr_bad_impl
-	li a1, 0xb99
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb99
-	jal ra, csr_bad_impl
-	li a1, 0xb9a
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb9a
-	jal ra, csr_bad_impl
-	li a1, 0xb9b
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb9b
-	jal ra, csr_bad_impl
-	li a1, 0xb9c
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb9c
-	jal ra, csr_bad_impl
-	li a1, 0xb9d
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb9d
-	jal ra, csr_bad_impl
-	li a1, 0xb9e
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb9e
-	jal ra, csr_bad_impl
-	li a1, 0xb9f
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrr t0, 0xb9f
-	jal ra, csr_bad_impl
 	li a1, 0xba0
 	lw t0, 0(t1)
 	addi t0, t0, 1
@@ -22154,11 +25224,23 @@ csr_check_unimplemented:
 	sw t0, 0(t1)
 	csrr t0, 0xbff
 	jal ra, csr_bad_impl
+	li a1, 0xc00
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0xc00
+	jal ra, csr_bad_impl
 	li a1, 0xc01
 	lw t0, 0(t1)
 	addi t0, t0, 1
 	sw t0, 0(t1)
 	csrr t0, 0xc01
+	jal ra, csr_bad_impl
+	li a1, 0xc02
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0xc02
 	jal ra, csr_bad_impl
 	li a1, 0xc03
 	lw t0, 0(t1)
@@ -22910,11 +25992,23 @@ csr_check_unimplemented:
 	sw t0, 0(t1)
 	csrr t0, 0xc7f
 	jal ra, csr_bad_impl
+	li a1, 0xc80
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0xc80
+	jal ra, csr_bad_impl
 	li a1, 0xc81
 	lw t0, 0(t1)
 	addi t0, t0, 1
 	sw t0, 0(t1)
 	csrr t0, 0xc81
+	jal ra, csr_bad_impl
+	li a1, 0xc82
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrr t0, 0xc82
 	jal ra, csr_bad_impl
 	li a1, 0xc83
 	lw t0, 0(t1)
@@ -28249,230 +31343,6 @@ csr_check_unimplemented:
 	ret
 .globl user_mode_check
 user_mode_check:	la t1, glb_expect_illegal_insn
-	# cycle
-	li a1, 0xc00
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc00,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc00,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc00,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc00,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc00,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc00, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc00, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc00, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc00, 0b00000
-	li x12, 0x00000000
-	# instret
-	li a1, 0xc02
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc02,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc02,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc02,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc02,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc02,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc02, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc02, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc02, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc02, 0b00000
-	li x12, 0x00000000
-	# cycleh
-	li a1, 0xc80
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc80,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc80,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc80,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc80,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc80,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc80, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc80, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc80, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc80, 0b00000
-	li x12, 0x00000000
-	# instreth
-	li a1, 0xc82
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc82,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc82,0x0
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0xc82,0x0
-	j csr_user_unauth
-	csrrs x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrs x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc82,0x0
-	li x12, 0x00000000
-	csrrc x13, 0xc82,0x0
-	li x12, 0x00000000
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc82, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc82, 0b00000
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0xc82, 0b00000
-	j csr_user_unauth
-	csrrsi x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrsi x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc82, 0b00000
-	li x12, 0x00000000
-	csrrci x13, 0xc82, 0b00000
-	li x12, 0x00000000
 	# mcycle
 	li a1, 0xb00
 	lw t0, 0(t1)
@@ -28921,6 +31791,614 @@ user_mode_check:	la t1, glb_expect_illegal_insn
 	sw t0, 0(t1)
 	csrrci x13, 0xb0c, 0b00101
 	j csr_user_unauth
+	# mhpmcounter13
+	li a1, 0xb0d
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb0d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb0d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb0d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb0d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb0d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb0d, 0b00101
+	j csr_user_unauth
+	# mhpmcounter14
+	li a1, 0xb0e
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb0e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb0e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb0e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb0e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb0e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb0e, 0b00101
+	j csr_user_unauth
+	# mhpmcounter15
+	li a1, 0xb0f
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb0f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb0f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb0f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb0f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb0f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb0f, 0b00101
+	j csr_user_unauth
+	# mhpmcounter16
+	li a1, 0xb10
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb10, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb10, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb10, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb10, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb10, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb10, 0b00101
+	j csr_user_unauth
+	# mhpmcounter17
+	li a1, 0xb11
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb11, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb11, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb11, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb11, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb11, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb11, 0b00101
+	j csr_user_unauth
+	# mhpmcounter18
+	li a1, 0xb12
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb12, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb12, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb12, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb12, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb12, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb12, 0b00101
+	j csr_user_unauth
+	# mhpmcounter19
+	li a1, 0xb13
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb13, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb13, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb13, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb13, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb13, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb13, 0b00101
+	j csr_user_unauth
+	# mhpmcounter20
+	li a1, 0xb14
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb14, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb14, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb14, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb14, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb14, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb14, 0b00101
+	j csr_user_unauth
+	# mhpmcounter21
+	li a1, 0xb15
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb15, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb15, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb15, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb15, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb15, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb15, 0b00101
+	j csr_user_unauth
+	# mhpmcounter22
+	li a1, 0xb16
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb16, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb16, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb16, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb16, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb16, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb16, 0b00101
+	j csr_user_unauth
+	# mhpmcounter23
+	li a1, 0xb17
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb17, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb17, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb17, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb17, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb17, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb17, 0b00101
+	j csr_user_unauth
+	# mhpmcounter24
+	li a1, 0xb18
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb18, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb18, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb18, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb18, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb18, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb18, 0b00101
+	j csr_user_unauth
+	# mhpmcounter25
+	li a1, 0xb19
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb19, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb19, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb19, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb19, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb19, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb19, 0b00101
+	j csr_user_unauth
+	# mhpmcounter26
+	li a1, 0xb1a
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb1a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb1a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb1a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb1a, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb1a, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb1a, 0b00101
+	j csr_user_unauth
+	# mhpmcounter27
+	li a1, 0xb1b
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb1b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb1b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb1b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb1b, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb1b, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb1b, 0b00101
+	j csr_user_unauth
+	# mhpmcounter28
+	li a1, 0xb1c
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb1c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb1c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb1c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb1c, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb1c, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb1c, 0b00101
+	j csr_user_unauth
+	# mhpmcounter29
+	li a1, 0xb1d
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb1d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb1d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb1d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb1d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb1d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb1d, 0b00101
+	j csr_user_unauth
+	# mhpmcounter30
+	li a1, 0xb1e
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb1e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb1e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb1e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb1e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb1e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb1e, 0b00101
+	j csr_user_unauth
+	# mhpmcounter31
+	li a1, 0xb1f
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb1f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb1f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb1f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb1f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb1f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb1f, 0b00101
+	j csr_user_unauth
 	# mhpmcounter3h
 	li a1, 0xb83
 	lw t0, 0(t1)
@@ -29241,6 +32719,614 @@ user_mode_check:	la t1, glb_expect_illegal_insn
 	sw t0, 0(t1)
 	csrrci x13, 0xb8c, 0b00101
 	j csr_user_unauth
+	# mhpmcounter13h
+	li a1, 0xb8d
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb8d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb8d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb8d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb8d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb8d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb8d, 0b00101
+	j csr_user_unauth
+	# mhpmcounter14h
+	li a1, 0xb8e
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb8e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb8e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb8e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb8e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb8e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb8e, 0b00101
+	j csr_user_unauth
+	# mhpmcounter15h
+	li a1, 0xb8f
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb8f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb8f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb8f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb8f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb8f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb8f, 0b00101
+	j csr_user_unauth
+	# mhpmcounter16h
+	li a1, 0xb90
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb90, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb90, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb90, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb90, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb90, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb90, 0b00101
+	j csr_user_unauth
+	# mhpmcounter17h
+	li a1, 0xb91
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb91, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb91, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb91, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb91, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb91, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb91, 0b00101
+	j csr_user_unauth
+	# mhpmcounter18h
+	li a1, 0xb92
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb92, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb92, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb92, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb92, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb92, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb92, 0b00101
+	j csr_user_unauth
+	# mhpmcounter19h
+	li a1, 0xb93
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb93, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb93, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb93, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb93, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb93, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb93, 0b00101
+	j csr_user_unauth
+	# mhpmcounter20h
+	li a1, 0xb94
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb94, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb94, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb94, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb94, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb94, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb94, 0b00101
+	j csr_user_unauth
+	# mhpmcounter21h
+	li a1, 0xb95
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb95, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb95, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb95, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb95, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb95, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb95, 0b00101
+	j csr_user_unauth
+	# mhpmcounter22h
+	li a1, 0xb96
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb96, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb96, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb96, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb96, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb96, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb96, 0b00101
+	j csr_user_unauth
+	# mhpmcounter23h
+	li a1, 0xb97
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb97, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb97, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb97, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb97, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb97, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb97, 0b00101
+	j csr_user_unauth
+	# mhpmcounter24h
+	li a1, 0xb98
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb98, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb98, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb98, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb98, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb98, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb98, 0b00101
+	j csr_user_unauth
+	# mhpmcounter25h
+	li a1, 0xb99
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb99, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb99, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb99, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb99, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb99, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb99, 0b00101
+	j csr_user_unauth
+	# mhpmcounter26h
+	li a1, 0xb9a
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb9a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb9a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb9a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb9a, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb9a, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb9a, 0b00101
+	j csr_user_unauth
+	# mhpmcounter27h
+	li a1, 0xb9b
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb9b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb9b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb9b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb9b, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb9b, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb9b, 0b00101
+	j csr_user_unauth
+	# mhpmcounter28h
+	li a1, 0xb9c
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb9c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb9c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb9c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb9c, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb9c, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb9c, 0b00101
+	j csr_user_unauth
+	# mhpmcounter29h
+	li a1, 0xb9d
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb9d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb9d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb9d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb9d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb9d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb9d, 0b00101
+	j csr_user_unauth
+	# mhpmcounter30h
+	li a1, 0xb9e
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb9e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb9e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb9e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb9e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb9e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb9e, 0b00101
+	j csr_user_unauth
+	# mhpmcounter31h
+	li a1, 0xb9f
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0xb9f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0xb9f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0xb9f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0xb9f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0xb9f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0xb9f, 0b00101
+	j csr_user_unauth
 	# mstatus
 	li a1, 0x300
 	lw t0, 0(t1)
@@ -29369,38 +33455,6 @@ user_mode_check:	la t1, glb_expect_illegal_insn
 	sw t0, 0(t1)
 	csrrci x13, 0x305, 0b00101
 	j csr_user_unauth
-	# mcounteren
-	li a1, 0x306
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0x306, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrs x13, 0x306, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrc x13, 0x306, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0x306, 0b00101
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrsi x13, 0x306, 0b00101
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrci x13, 0x306, 0b00101
-	j csr_user_unauth
 	# mstatush
 	li a1, 0x310
 	lw t0, 0(t1)
@@ -29432,70 +33486,6 @@ user_mode_check:	la t1, glb_expect_illegal_insn
 	addi t0, t0, 1
 	sw t0, 0(t1)
 	csrrci x13, 0x310, 0b00101
-	j csr_user_unauth
-	# menvcfg
-	li a1, 0x30a
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0x30a, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrs x13, 0x30a, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrc x13, 0x30a, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0x30a, 0b00101
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrsi x13, 0x30a, 0b00101
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrci x13, 0x30a, 0b00101
-	j csr_user_unauth
-	# menvcfgh
-	li a1, 0x31a
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrw x13, 0x31a, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrs x13, 0x31a, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrc x13, 0x31a, x12
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrwi x13, 0x31a, 0b00101
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrsi x13, 0x31a, 0b00101
-	j csr_user_unauth
-	lw t0, 0(t1)
-	addi t0, t0, 1
-	sw t0, 0(t1)
-	csrrci x13, 0x31a, 0b00101
 	j csr_user_unauth
 	# mcountinhibit
 	li a1, 0x320
@@ -29848,6 +33838,614 @@ user_mode_check:	la t1, glb_expect_illegal_insn
 	addi t0, t0, 1
 	sw t0, 0(t1)
 	csrrci x13, 0x32c, 0b00101
+	j csr_user_unauth
+	# mhpmevent13
+	li a1, 0x32d
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x32d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x32d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x32d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x32d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x32d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x32d, 0b00101
+	j csr_user_unauth
+	# mhpmevent14
+	li a1, 0x32e
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x32e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x32e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x32e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x32e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x32e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x32e, 0b00101
+	j csr_user_unauth
+	# mhpmevent15
+	li a1, 0x32f
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x32f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x32f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x32f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x32f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x32f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x32f, 0b00101
+	j csr_user_unauth
+	# mhpmevent16
+	li a1, 0x330
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x330, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x330, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x330, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x330, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x330, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x330, 0b00101
+	j csr_user_unauth
+	# mhpmevent17
+	li a1, 0x331
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x331, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x331, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x331, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x331, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x331, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x331, 0b00101
+	j csr_user_unauth
+	# mhpmevent18
+	li a1, 0x332
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x332, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x332, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x332, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x332, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x332, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x332, 0b00101
+	j csr_user_unauth
+	# mhpmevent19
+	li a1, 0x333
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x333, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x333, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x333, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x333, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x333, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x333, 0b00101
+	j csr_user_unauth
+	# mhpmevent20
+	li a1, 0x334
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x334, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x334, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x334, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x334, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x334, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x334, 0b00101
+	j csr_user_unauth
+	# mhpmevent21
+	li a1, 0x335
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x335, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x335, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x335, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x335, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x335, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x335, 0b00101
+	j csr_user_unauth
+	# mhpmevent22
+	li a1, 0x336
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x336, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x336, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x336, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x336, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x336, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x336, 0b00101
+	j csr_user_unauth
+	# mhpmevent23
+	li a1, 0x337
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x337, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x337, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x337, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x337, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x337, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x337, 0b00101
+	j csr_user_unauth
+	# mhpmevent24
+	li a1, 0x338
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x338, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x338, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x338, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x338, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x338, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x338, 0b00101
+	j csr_user_unauth
+	# mhpmevent25
+	li a1, 0x339
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x339, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x339, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x339, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x339, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x339, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x339, 0b00101
+	j csr_user_unauth
+	# mhpmevent26
+	li a1, 0x33a
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x33a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x33a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x33a, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x33a, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x33a, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x33a, 0b00101
+	j csr_user_unauth
+	# mhpmevent27
+	li a1, 0x33b
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x33b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x33b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x33b, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x33b, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x33b, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x33b, 0b00101
+	j csr_user_unauth
+	# mhpmevent28
+	li a1, 0x33c
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x33c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x33c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x33c, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x33c, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x33c, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x33c, 0b00101
+	j csr_user_unauth
+	# mhpmevent29
+	li a1, 0x33d
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x33d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x33d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x33d, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x33d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x33d, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x33d, 0b00101
+	j csr_user_unauth
+	# mhpmevent30
+	li a1, 0x33e
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x33e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x33e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x33e, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x33e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x33e, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x33e, 0b00101
+	j csr_user_unauth
+	# mhpmevent31
+	li a1, 0x33f
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrw x13, 0x33f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrs x13, 0x33f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrc x13, 0x33f, x12
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrwi x13, 0x33f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrsi x13, 0x33f, 0b00101
+	j csr_user_unauth
+	lw t0, 0(t1)
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	csrrci x13, 0x33f, 0b00101
 	j csr_user_unauth
 	# mscratch
 	li a1, 0x340

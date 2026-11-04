@@ -40,6 +40,13 @@ VWORK                   = work
 # when overriding: this file is included with CWD sim/uvmt, and every consumer
 # (run_tests.py, docs/regression.md) keys off vsim_results/<cfg>/.
 VSIM_COV_MERGE_DIR      ?= $(SIM_CFG_RESULTS)/merged
+# Name the run log -- and, with COV=YES, the per-test coverage database -- after
+# the *test*, not after the test *program*: bin/run_tests.py looks both up by
+# test name, so a test whose "program:" differs from its name
+# (debug_test_boot_set) would otherwise publish a log and a .ucdb nobody asks
+# for.  A default rather than a `test:`-only assignment so that a bare
+# `make run TEST=<t>` names its log too; `compliance:` below still overrides it.
+VSIM_TEST              ?= $(TEST)
 UVM_HOME                = $(QUESTASIM_HOME)/verilog_src/uvm-1.2/src
 USES_DPI = 1
 
@@ -616,7 +623,9 @@ run: $(VSIM_RUN_PREREQ) gen_ovpsim_ic
 ################################################################################
 # The new general test target
 
-test: VSIM_TEST=$(TEST_PROGRAM)
+# The +firmware/+elf_file/+itb_file flags below stay keyed on TEST_PROGRAM,
+# which is what the build produced, while the run is named after TEST (see
+# VSIM_TEST in the Paths block above).
 test: VSIM_FLAGS += +firmware=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).hex
 test: VSIM_FLAGS += +elf_file=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).elf
 test: VSIM_FLAGS += +itb_file=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).itb

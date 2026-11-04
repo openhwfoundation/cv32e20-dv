@@ -39,7 +39,13 @@ task uvme_cv32e20_random_debug_bootset_c::body();
     fork
         uvma_debug_seq_item_c debug_req;
         `uvm_do_on_with(debug_req, p_sequencer.debug_sequencer, {
-                active_cycles == 1;
+                // Hold debug_req_i well past BOOT_SET: the core controller only
+                // samples it once it leaves RESET/BOOT_SET, and the vendored
+                // uvma_debug_seq_item_c forbids a single-cycle pulse
+                // (active_cycles >= 4, lib/uvm_agents/uvma_debug/seq/
+                //  uvma_debug_seq_item.sv:36-40).  50 mirrors the working
+                // uvme_cv32e20_random_debug_reset_c.
+                active_cycles == 50;
         });
     join
 endtask : body

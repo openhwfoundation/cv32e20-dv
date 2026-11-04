@@ -42,18 +42,54 @@ jobs:
             exit 1
           fi
 
-      # Single runner for the whole coverage job. --cov-report merges every
-      # PASSing test's .ucdb and publishes coverage_report/; --all-custom picks up
-      # every test program under tests/programs/custom without a list maintained
-      # here as well. --allow-failures makes the step exit 0 even if some tests
-      # FAIL/ERROR, so the report/publish steps below (and the github-pages job)
-      # still run; genuine setup errors still fail the job.
+      # The self-hosted runner keeps core-v-cores/ and vendor_lib/ as gitignored
+      # checkouts that survive between runs -- and can therefore sit on years-old
+      # RTL without anything saying so. Provision both from sim/ExternalRepos.mk's
+      # pins here, so the numbers are provably built from the pinned RTL: a
+      # silently different checkout mis-aims every line-number waiver in
+      # sim/tools/vsim/cov.tcl, and Questa accepts a non-matching exclusion
+      # target without complaining. Unknown revisions fail the step (set -e).
+      - name: Provision pinned external repositories
+        run: |
+          set -eu
+          provision() {
+            local var_prefix="$1" dir="$2"
+            local repo branch hash
+            repo=$(sed -n "s/^${var_prefix}_REPO[[:space:]]*?=[[:space:]]*\\([^[:space:]]*\\).*/\\1/p" sim/ExternalRepos.mk)
+            branch=$(sed -n "s/^${var_prefix}_BRANCH[[:space:]]*?=[[:space:]]*\\([^[:space:]]*\\).*/\\1/p" sim/ExternalRepos.mk)
+            hash=$(sed -n "s/^${var_prefix}_HASH[[:space:]]*?=[[:space:]]*\\([^[:space:]]*\\).*/\\1/p" sim/ExternalRepos.mk)
+            if [ -z "$repo" ] || [ -z "$hash" ]; then
+              echo "error: no live ${var_prefix}_REPO/_HASH pin in sim/ExternalRepos.mk"
+              exit 1
+            fi
+            if [ ! -d "$dir/.git" ]; then
+              echo "Cloning $repo ($branch) into $dir"
+              git clone -b "$branch" --single-branch "$repo" "$dir"
+            else
+              git -C "$dir" fetch --quiet origin "$branch" || true
+            fi
+            git -C "$dir" checkout -f "$hash"
+            echo "$dir checked out at $(git -C "$dir" rev-parse HEAD) (pin $hash)"
+          }
+          provision CV_CORE core-v-cores/cv32e20
+          provision CV_VERIF vendor_lib/openhwgroup_core-v-verif
+
+      # Single runner for the whole coverage job. --cov-report merges this
+      # batch's PASSing .ucdb files (the parked tests into the separate
+      # merged_parked/ database) and publishes coverage_report/; --all-custom
+      # picks up every test program under tests/programs/custom without a list
+      # maintained here as well, and brings the parked tests along for the
+      # including-parked report. --allow-failures makes the step exit 0 even if
+      # some tests FAIL/ERROR, so the report/publish steps below (and the
+      # github-pages job) still run; genuine setup errors still fail the job.
       - name: Run UVM Tests and Generate Coverage
         run: |
           source venv_cv32e20-dv/bin/activate
           export CV_SW_TOOLCHAIN=/opt/riscv
           set_questa_one_2025
           export SIMULATOR=vsim
+          echo "Simulator: $(vsim -version | head -n 1)"
+          echo "RTL under test: $(git -C core-v-cores/cv32e20 rev-parse HEAD)"
           python3 bin/run_tests.py --tb uvmt --include-corev-dv --all-custom --timeout 7200 --cov-report --allow-failures
 
       # Validate the chosen report formats: 
@@ -71,7 +107,11 @@ jobs:
             echo "::warning::xmllint is not on this runner, so the Cobertura DTD and UCIS schema checks were skipped (python-ci.yml's reports-schema job runs them on a hosted runner)"
           fi
           pycobertura show coverage_report/cobertura.xml > /dev/null
-          python3 -c "import json,sys; d=json.load(open('coverage_report/summary.json')); sys.exit(0 if 'code_coverage' in d else 1)"
+          # versions (the Build Versions table's data) and including_parked (the
+          # report's second view) are required here: this workflow provisions
+          # the pinned RTL on purpose, and --cov-report always runs the parked
+          # tests, so a batch missing either published an incomplete report.
+          python3 -c "import json,sys; d=json.load(open('coverage_report/summary.json')); sys.exit(0 if all(k in d for k in ('code_coverage', 'versions', 'including_parked', 'test_sets')) else 1)"
 
       # The regression document is written by bin/regression_report.py into the
       # testbench's sim directory. The dashboard next to it is a copy of the same
@@ -87,7 +127,7 @@ jobs:
           print(f"{document['summary']['passed']}/{document['summary']['total']} "
                 f"test(s) passed on {document['tb']} "
                 f"(testlist: {document.get('testlist')})")
-          if document.get("schema_version") != 1:
+          if document.get("schema_version") not in (1, 2):
               sys.exit(f"error: unsupported schema_version "
                        f"{document.get('schema_version')}")
           PY

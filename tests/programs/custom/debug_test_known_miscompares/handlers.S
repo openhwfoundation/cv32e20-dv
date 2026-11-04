@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+#include "cv32e20_dv.h"
+
 /* Exception codes */
 #define EXCEPTION_ILLEGAL_INSN 2
 #define EXCEPTION_BREAKPOINT 3
@@ -325,6 +327,16 @@ end_handler_ret:
    PC is equal to a given value*/
 verification_irq_handler:
 	mret
+
+/* End-of-test failure exit for the "j test_fail" targets in the illegal
+   instruction and ebreak handlers above.  It has to be a real label here:
+   the same name in debugger.S is a file-local ".set test_fail, 0x1" constant
+   (the value to store), so the jump had no linkable target.  TEST_FAIL is the
+   canonical assembly end-of-test macro of cv32e20_dv.h: write TEST_RESULT_FAIL
+   to the Virtual Peripheral status port and halt. */
+.global test_fail
+test_fail:
+    TEST_FAIL
 
 .section .rodata
 illegal_insn_msg:

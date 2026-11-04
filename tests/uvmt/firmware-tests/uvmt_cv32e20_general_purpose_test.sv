@@ -202,14 +202,14 @@ endfunction : build_phase
 task uvmt_cv32e20_general_purpose_test_c::bootset_debug();
     uvme_cv32e20_random_debug_bootset_c debug_vseq;
     debug_vseq = uvme_cv32e20_random_debug_bootset_c::type_id::create("random_debug_bootset_vseqr", vsequencer);
-    `uvm_info("TEST", "Applying single cycle debug_req after reset", UVM_NONE);
+    `uvm_info("TEST", "Applying debug_req_i across reset", UVM_NONE);
     @(negedge env_cntxt.clknrst_cntxt.vif.reset_n);
 
-    // Delay debug_req_i by up to 35 cycles.Should hit BOOT_SET
-    if (!test_randvars.randomize() with { random_int inside {[1:35]}; }) begin
-        `uvm_fatal("TEST", "Cannot randomize test_randvars for debug_req_delay!")
-    end
-    repeat(test_randvars.random_int) @(posedge env_cntxt.clknrst_cntxt.vif.clk);
+    // Assert debug_req_i from the first clock edge after reset and hold it.
+    // Do *not* delay it: cve2_controller.sv never evaluates debug_req_i while
+    // in RESET or BOOT_SET (enter_debug_mode is only sampled from FIRST_FETCH
+    // and DECODE), so a delayed short pulse misses the boot window entirely
+    // and the core boots normally instead of entering debug mode.
 
     if (!debug_vseq.randomize()) begin
         `uvm_fatal("TEST", "Cannot randomize the debug sequence!")

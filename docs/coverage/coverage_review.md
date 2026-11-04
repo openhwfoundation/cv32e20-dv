@@ -195,7 +195,7 @@ The 112 holes come in three families, and the sheet classifies every row:
 
 | Family | Rows | Verdict |
 | --- | --- | --- |
-| `cve2_cs_registers` and `cve2_counter` CSR/counter arms (`H003`–`H109`) | 107 | `B-new-test` / `stimulus-gap`, classified from measured evidence, not guesswork: `raw/holes_parked.csv` shows every one of these bins covered when the parked tests are merged. The merge measures *that* the parked set covers them and, from the two `ucdb.list` files, *which set* it can be: the parked database is the default one plus exactly `csr_instr_asm`, `riscv_arithmetic_basic_test_0` and `riscv_arithmetic_basic_test_1`, so the covering stimulus is one of those three (while `riscv_csr` and `perf_counters_instructions` fail). Which of the three covers which bin is not measurable from a merge and is not claimed here. One of the three is a listing artefact: `csr_instr_asm` is in `ASM_TESTS` and in `PARKED` (`bin/run_tests.py`), and the merge split keys on `PARKED`, so its coverage lands in the parked database in every batch whatever selects it -- part of this default-to-parked delta is list membership, not parked-by-intent stimulus. Closed by promoting or repairing the stimulus (lane 2 below), never by a waiver: waiving bins the toggle already covers would delete achieved coverage from the metric. |
+| `cve2_cs_registers` and `cve2_counter` CSR/counter arms (`H003`–`H109`) | 107 | `B-new-test` / `stimulus-gap`, classified from measured evidence, not guesswork: `raw/holes_parked.csv` shows every one of these bins covered when the parked tests are merged. The merge measures *that* the parked set covers them and, from the two `ucdb.list` files, *which set* it can be: the parked database is the default one plus exactly `csr_instr_asm`, `riscv_arithmetic_basic_test_0` and `riscv_arithmetic_basic_test_1`, so the covering stimulus is one of those three (`riscv_csr` and `perf_counters_instructions` failed in that batch, so they are not among them; both print PASS under `--tb uvmt` as of 2026-11-03, lane 2 below). Which of the three covers which bin is not measurable from a merge and is not claimed here. One of the three is a listing artifact: `csr_instr_asm` is in `ASM_TESTS` and in `PARKED` (`bin/run_tests.py`), and the merge split keys on `PARKED`, so its coverage lands in the parked database in every batch whatever selects it -- part of this default-to-parked delta is list membership, not parked-by-intent stimulus. Closed by promoting the stimulus (lane 2 below), never by a waiver: waiving bins the toggle already covers would delete achieved coverage from the metric. |
 | `H001` `cve2_compressed_decoder.sv:260` branch item `3'b101` | 1 | `A-existing-state` / `stimulus-gap`. The reserved quadrant-2 compressed encoding sharing the illegal-instruction arm with `3'b001`/`3'b011`/`3'b111` (`:258-262`); all three siblings measure hit and only this arm has never been fetched. The file is unchanged between the `ce0fd917` and `d7f2156` pins (empty `git diff`), and the previous database covered the item: the 2026-11-03 `--gen-seed random` stream simply never drew the encoding. Coverage by seed luck is not coverage -- extend the directed illegal-compressed sequence with `3'b101` and it closes deterministically. Not waivable: the arm is reachable RTL. |
 | `H002` and `H110`–`H112` | 4 | The same four open items the 2026-11-01 sheet carried; their arguments stand unchanged and `raw/holes_parked.csv` proves they are no one's stimulus gap -- they miss in both merges. The table below carries them (renumbered). |
 
@@ -285,7 +285,7 @@ waiver policy above is what separates the two.
 | --- | --- | --- |
 | `H001` `cve2_compressed_decoder.sv:260` branch `3'b101` | A (steer the existing illegal-compressed sequence; seed luck is not coverage) | 2 |
 | `H002` `cve2_controller.sv:514` All False (the IRQ-withdraw window) | B (one-cycle `irq` withdrawal below the vendored agent, timed against the `ctrl_fsm_cs == 4'h7` probe at `tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107`) | 2 |
-| `H003`–`H109` CSR/counter arms (107) | B (the stimulus exists parked: promote `csr_instr_asm`, repair `riscv_csr` / `perf_counters_instructions`) | 2 |
+| `H003`–`H109` CSR/counter arms (107) | B (the stimulus exists parked: promote `csr_instr_asm`; `riscv_csr` and `perf_counters_instructions` no longer need a repair, only the promotion -- lane 2) | 2 |
 | `H110`–`H112` `CVE2NoDoubleSpecialReqPCSet`, `IllegalInsnStallMustBeMemStall`, `IbexStallIfValidInstrNotExecuting` | C (guarded by construction; the sheet's `Proposed cov.tcl Exclusion` holds the bare `-assertpath` line -- never `-du` + `-assertpath`, which matches nothing) | 1 |
 | 14 reset-transition waivers (`W006`, `W022`–`W034`) | B (reset injection: `mid_run_reset_test` retired 2 by measurement; a single asynchronous pulse cannot reach the rest, per `raw/phase_c_acceptance.csv` -- per-state variant stimulus retires more, or they stay as documented permanent gaps) | 2 |
 
@@ -304,10 +304,14 @@ and re-measure: assertion coverage goes 95.95% -> 100%, and
    `illegal_instr_test` with the reserved `3'b101` encoding.
 2. `H003`–`H109`: promote `csr_instr_asm` (it passes today; promoting it means
    leaving `PARKED`, which is the list the merge split keys on, not leaving the
-   default test set -- it is in `ASM_TESTS` too and already runs), then repair
-   the failing `riscv_csr` and `perf_counters_instructions`; re-measure with a
-   `--cov-report` batch and watch `raw/holes.csv` shrink toward the four
-   standing items.
+   default test set -- it is in `ASM_TESTS` too and already runs), then
+   re-measure with a `--cov-report` batch and watch `raw/holes.csv` shrink
+   toward the four standing items. The two tests this lane used to ask to be
+   repaired, `riscv_csr` and `perf_counters_instructions`, no longer need it:
+   both print PASS under `--tb uvmt` as of 2026-11-03
+   ([regression](../regression.md)), so what is left is the `PARKED`
+   promotion -- and the re-measure is what makes this document's own
+   including-parked numbers move.
 3. `H002`: drive a one-cycle IRQ withdrawal below the vendored agent --
    `tb/uvmt/` is where the needed cycle reference (`irq_ack` as
    `ctrl_fsm_cs == 4'h7`) already lives; acceptance is `H002` gone from
