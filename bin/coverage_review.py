@@ -39,21 +39,21 @@ Triage rules
 A waiver's classification comes from *why* it exists, read off the measured
 row, in this order:
 
-  * a comment about mid-run reset injection -> B-new-test / reset-injection.
+  * a comment about mid-run reset injection => B-new-test / reset-injection.
     These are not dead code and are not accepted as permanently untestable:
     ``rst_ni`` is a real asynchronous input, so the transition is reachable
     and the answer is a reset-injection test (mid_run_reset_test). The waiver
     stays until the merged database covers the transition, because deleting it
     first would just lower the reported number.
   * an inactive-config gate (``BusErrSupported`` / ``UmodeEnabled`` / ``RVB``
-    / ``XInterface``) -> C-waive / config-disabled. The RTL is not in the
+    / ``XInterface``) => C-waive / config-disabled. The RTL is not in the
     design being verified.
   * a comment saying the code only exists for the simulation (RVFI plumbing,
-    the tracer, the simutil stubs) -> C-waive / sim-only.
-  * a waiver that measures NOT-INSTRUMENTED -> C-waive / sim-only. It excludes
+    the tracer, the simutil stubs) => C-waive / sim-only.
+  * a waiver that measures NOT-INSTRUMENTED => C-waive / sim-only. It excludes
     nothing because its design unit is outside the instrumented scope; it is
     documentation, and the audit is what proves that.
-  * everything else -> C-waive / dead-code, which is what the -comment argues.
+  * everything else => C-waive / dead-code, which is what the -comment argues.
 
 A hole is keyed by design unit, metric and target, because the verdict is a
 statement about that specific RTL construct and nothing else: an unlisted hole
@@ -107,7 +107,7 @@ COLUMNS = ["ID", "Type", "Design Unit", "Metric", "Target", "cov.tcl Line",
            "Proposed Test", "Proposed cov.tcl Exclusion", "Status", "Reviewer",
            "Review Date", "Notes"]
 
-# Metric -> the code-metric letter Questa wants in a re-aimed exclusion.
+# Metric => the code-metric letter Questa wants in a re-aimed exclusion.
 METRIC_CODE_FLAG = {"stmt": "s", "branch": "b", "condition": "c",
                     "fsm": "f", "assertion": "a"}
 
@@ -128,17 +128,17 @@ HOLE_TRIAGE = {
             "window takes the false arm -- the irq_withdrawn_in_taken case the RTL's "
             "own assertion block (:835-836) exists to describe. Reachable in the "
             "RTL, so it is stimulus, not dead code: waive nothing, direct an "
-            "interrupt withdrawal at the window instead. MEASURED CLOSED "
-            "2026-11-05: irq_single_cycle_test runs the bind-file testbench "
-            "injector (tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv, "
+            "interrupt withdrawal at the window instead. MEASURED CLOSED: "
+            "irq_single_cycle_test runs the bound injector "
+            "(tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv, "
             "blanking the core's irq bus for exactly one cycle after a commit "
             "edge, +irq_single_cycle +irq_single_cycle_shots=3) and hits the "
-            "arm -- uvmt_cv32e20_tb.sv's end_of_test fails an armed injector "
+            "arm; uvmt_cv32e20_tb.sv's end_of_test fails an armed injector "
             "that never fired, so a PASS is the measurement. The merged-bin "
-            "numbers and the history of why the vendored agent's own clear "
-            "lands one cycle after the window closes (its irq_ack is the "
-            "testbench probe tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107, not a DUT "
-            "output) are kept in docs/coverage/coverage_review.md and "
+            "numbers, and why the vendored agent's own clear lands one cycle "
+            "after the window closes (its irq_ack is the testbench probe "
+            "tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107, not a DUT output), are in "
+            "docs/coverage/coverage_review.md and "
             "docs/coverage/raw/phase_c_acceptance.csv."),
     },
     ("cve2_controller", "assertion", "CVE2NoDoubleSpecialReqPCSet"): {
@@ -186,14 +186,14 @@ HOLE_TRIAGE = {
             "sharing the illegal-instruction arm with 3'b001/3'b011/3'b111 "
             "(cve2_compressed_decoder.sv:258-262); the siblings all measure hit "
             "and only this one has never been fetched. The file is unchanged "
-            "between the ce0fd917 and d7f2156 pins (empty git diff), and the "
-            "previous database covered the item -- this is the accepted "
-            "--gen-seed random variance, not RTL: the 2026-11-03 stream simply "
-            "never drew that encoding. Coverage by seed luck is not coverage: "
-            "extend the directed illegal-compressed sequence (illegal_instr_test) "
-            "with the reserved 3'b101 encoding and it closes deterministically. "
-            "Not waivable -- the arm is reachable RTL that a waiver would "
-            "exclude."),
+            "between the ce0fd917 and d7f2156 pins (empty git diff), and an "
+            "earlier database covered the item: this is the accepted "
+            "--gen-seed random variance, not RTL -- the current stream "
+            "simply never drew that encoding. Coverage by seed luck is not "
+            "coverage: extend the directed illegal-compressed sequence "
+            "(illegal_instr_test) with the reserved 3'b101 encoding and it "
+            "closes deterministically. Not waivable -- the arm is reachable "
+            "RTL that a waiver would exclude."),
     },
     }
 
@@ -243,7 +243,7 @@ def _int(text, default=0):
 
 
 def gate_name(config_gate):
-    """`UmodeEnabled=0` -> `UmodeEnabled`; `none` -> `none`."""
+    """`UmodeEnabled=0` => `UmodeEnabled`; `none` => `none`."""
     return (config_gate or "").split("=")[0].strip() or "none"
 
 
@@ -374,10 +374,10 @@ def hole_exclusion(row):
     measured against the live merged.ucdb in vsim -c -viewcov, "coverage exclude
     -du <unit> -assertpath <path>" silently matches nothing (the assertion miss
     count does not move), while the bare "coverage exclude -assertpath <path>"
-    removes exactly its own bin, one path at a time (17 bins/2 misses -> 17/2 ->
-    16/1 -> no assertion misses left). The full path is already unambiguous, so
-    all -du does there is break the match -- and Questa reports no error either
-    way, which is the same failure mode cov.tcl's header warns about.
+    removes exactly its own bin, one path at a time, until no assertion miss is
+    left. The full path is already unambiguous, so all -du does there is break
+    the match -- and Questa reports no error either way, the same failure mode
+    cov.tcl's header warns about.
     """
     du = row.get("Design Unit") or ""
     metric = row.get("Metric") or ""
@@ -407,9 +407,9 @@ def load_exclusions_by_line(cov_tcl):
 # Each published dump and the column where it quotes a line of cov.tcl. Those
 # numbers come out of cov.tcl's own text, so editing the file -- a comment
 # included -- moves every cite below it, and a stale cite is invisible in a
-# spreadsheet: the number is still in range and the row still reads fine. That
-# cost a review cycle on 2026-11-01, when a comment edit left 43 of 64 rows
-# pointing one line off their own waiver. A bare integer parses as well as a
+# spreadsheet: the number is still in range and the row still reads fine,
+# which is what makes a stale cite so expensive: the whole set is
+# checked below, never by hand. A bare integer parses as well as a
 # `cov.tcl:NNN`, because the three dumps have never agreed on the prefix.
 # Files are named relative to docs/coverage/, where all three are published.
 PUBLISHED_CITES = (("raw/waiver_audit.csv", "Source Line"),

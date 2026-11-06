@@ -20,32 +20,33 @@ Parsing this rather than the ``-xml -details`` export is deliberate, because a
     </if>
 
 the second ``false="0"`` is the count falling out of the ``else``, not an
-unexercised bin -- the group says 2 active, 2 hit. A first attempt here counted
-those zeros and reported 373 "branch holes" where Questa reports 23. This tool
-therefore only ever reports a miss that Questa's own report marks ``***0***``,
-and its rollup is checked against ``vcover report -summary`` (the numbers
-coverage_report/summary.json publishes), which is what makes the two agree by
+unexercised bin; the group says 2 active, 2 hit. Counting those zeros as holes
+inflates the list by an order of magnitude, so this tool only ever reports a
+miss that Questa's own report marks ``***0***``, and its rollup is checked
+against ``vcover report -summary``, the numbers
+coverage_report/summary.json publishes, which is what makes the two agree by
 construction rather than by hope.
 
 The three units this has to get right, because Questa's metrics do not all count
 the same thing:
 
-* **statement / branch** -- one row per item the report marks missed, including
+* **statement, branch**: one row per item the report marks missed, including
   the ``All False Count`` row, which is the ``else`` arm of an ``if`` and is a
   bin like any other.
-* **condition** -- Questa counts *input terms*, so one row per input term whose
+* **condition**: Questa counts *input terms*, so one row per input term whose
   ``Covered`` column is ``N``. The ``Row N: ***0***`` FEC targets underneath a
   term are how you exclude it (``-feccondrow``), so they are collected into the
   row's Target rather than emitted as separate holes; counting them instead
   gave 26 rows for 21 real holes.
-* **assertion** -- pass count 0 means the suite never exercised it.
+* **assertion**: pass count 0 means the suite never exercised it.
 
 What counts as a hole
 ---------------------
 The report is generated *with* sim/tools/vsim/cov.tcl's exclusions in force (they
 are saved into every test's .ucdb), so what this lists is exactly the set a
 developer sees as still open: waived code is not here. That is the input to the
-"coverable / new test / waive" triage in docs/coverage/coverage_review.md.
+triage into "coverable", "new test" or "waive" in
+docs/coverage/coverage_review.md.
 
 Usage
 -----
@@ -58,7 +59,7 @@ Usage
 exclusions a .ucdb carries are the ones that were in force when the tests were
 saved, so a plain `vcover report` keeps showing the *previous* file's view of
 the design. It runs vsim -viewcov, applies cov.tcl's exclusions, and asks the
-same questions there -- which needs a licence, where --report and the plain
+same questions there, which needs a licence, where --report and the plain
 `vcover` path need none.
 """
 
@@ -134,7 +135,7 @@ MISSED_ITEM_RE = re.compile(r"^\s*(\d+)?\s*(\d+)?\s+" + re.escape(MISS) +
                             r"\s*(.*?)\s*$")
 # An IF/CASE block header: "514  433  Count coming in to IF". The line
 # number is only printed here, and the block's "All False Count" row --
-# the else arm, a bin like any other -- carries none, so it inherits it.
+# the else arm, a bin like any other, carries none, so it inherits it.
 INCOMING_RE = re.compile(r"^\s*(\d+)\s+[\d,]+\s+Count coming in to\s")
 # An FEC condition block header: "Line 312 Item 1 (priv_mode_i == PRIV_LVL_M)".
 FEC_HEADER_RE = re.compile(r"^\s*Line\s+(\d+)\s+Item\s+(\d+)\s+(.*?)\s*$")
@@ -191,8 +192,8 @@ def parse_holes_report(text):
 
     ``rollups`` maps a report row name ("branches", "conditions", …) to
     (active, hits, misses) summed over the design-unit rollups the report prints.
-    The report is a state machine of banners -- a design unit, then a metric, then
-    annotated source blocks -- so the metric and the file both come from the last
+    The report is a state machine of banners: a design unit, then a metric, then
+    annotated source blocks, so the metric and the file both come from the last
     banner seen, and a block is only flushed when its own table is known to be
     over.
     """
@@ -321,9 +322,8 @@ def parse_holes_report(text):
                     continue
             if source.startswith("All False Count"):
                 # The else arm of the enclosing if, whose line the report only
-                # prints on the block's incoming-count row. Dropping this row
-                # is what made the first version of this tool report 22 branch
-                # holes where Questa counts 23 -- and it is the specific
+                # prints on the block's incoming-count row. It is a branch
+                # miss Questa counts as one of its own, and it is the specific
                 # irq_withdrawn_in_taken miss the review sheet exists to track.
                 add(number or state["branch_line"], state["metric"],
                     "All False Count (else arm)", source)
@@ -355,7 +355,7 @@ def generate_report_with_cov_tcl(ucdb, instance, cov_tcl, timeout, work_dir):
 
     `vcover report` can only show the exclusions saved into the .ucdb. A vsim
     -viewcov session takes new `coverage exclude` commands and reports their
-    effect -- verified by measurement, as is everything else about this flow.
+    effect, verified by measurement like everything else about this flow.
     """
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from coverage_waiver_audit import (apply_all_lines, gate_is_active,
@@ -422,7 +422,7 @@ def generate_report_with_cov_tcl(ucdb, instance, cov_tcl, timeout, work_dir):
     return "\n".join(details), totals
 
 
-# Emitted metric -> the report row that counts it, for the cross-check.
+# Emitted metric => the report row that counts it, for the cross-check.
 METRIC_ROLLUP = {"stmt": "statements", "branch": "branches",
                  "condition": "conditions", "fsm": "fsm_transitions",
                  "assertion": "assertions", "toggle": "toggles"}

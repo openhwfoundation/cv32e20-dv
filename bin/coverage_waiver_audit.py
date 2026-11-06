@@ -27,12 +27,12 @@ measures the file a user actually runs (re-applying what the .ucdb already
 carries is idempotent). Then, for each waiver, ``coverage exclude ... -clear``
 lifts one and the report says what came *back*.
 
-    bins came back    -> the waiver was excluding something: it aims at a real
+    bins came back    => the waiver was excluding something: it aims at a real
                          bin.
-    nothing came back -> the waiver excludes nothing. Either the RTL moved or
+    nothing came back => the waiver excludes nothing. Either the RTL moved or
                          the target was never excludable (wrong -du, wrong
                          state-variable name).
-    hits came back    -> the waiver was hiding *covered* code. The metric was
+    hits came back    => the waiver was hiding *covered* code. The metric was
                          being computed without bins that the suite actually
                          reaches, which understates real coverage.
 
@@ -461,9 +461,9 @@ def _tcl_quote(text):
 
 # Every command of the driver runs through covtry: a `coverage exclude` whose
 # target does not parse at all (an unknown option, an unknown FSM variable) is a
-# Tcl *error*, and an uncaught error in a -do script aborts the session -- which
-# cost a whole audit run's reports once. A waiver that merely matches nothing is
-# not an error, and stays exactly as silent as it always was.
+# Tcl *error*, and an uncaught error in a -do script aborts the session, taking
+# every report it was producing with it. A waiver that merely matches nothing
+# is not an error, and stays exactly as silent as it always was.
 TCL_PROLOGUE = """proc covtry {label code} {
     if {[catch {uplevel 1 $code} err]} {
         puts "CMDFAIL $label : $err"

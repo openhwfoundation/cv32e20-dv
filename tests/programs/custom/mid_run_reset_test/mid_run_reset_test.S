@@ -13,14 +13,14 @@
 # untested-stimulus gap (mid-run reset injection)" block in
 # sim/tools/vsim/cov.tcl.
 #
-# MEASURED 2026-11-01 (seeds 1-12, docs/coverage/raw/phase_c_acceptance.csv):
-# 12 of 12 runs pass and 3 of those 16 edges are genuinely hit --
-# DECODE->RESET on every seed, MD_COMP->MD_IDLE on 8, ALBH->ALBL on 1. The
-# other 13 need stimulus this program does not contain (a wfi, an exception, a
-# misaligned access, debug or interrupt activity) or a pulse aimed at a
-# one-cycle state, which a randomized delay cannot do. No waiver is retired on
-# this evidence, and this program stays a pulse-once test for the reason two
-# paragraphs below.
+# MEASURED (seeds 1-12): 12 of 12 runs pass and 3 of those 16 edges are
+# genuinely hit -- DECODE->RESET on every seed, MD_COMP->MD_IDLE on 8,
+# ALBH->ALBL on 1. The other 13 need stimulus this program does not contain
+# (a wfi, an exception, a misaligned access, debug or interrupt activity) or
+# a pulse aimed at a one-cycle state, which a randomized delay cannot do.
+# The per-row numbers live in docs/coverage/raw/phase_c_acceptance.csv; no
+# waiver is retired on single-seed evidence -- a waiver retires against the
+# merged database bin/coverage_waiver_audit.py re-measures.
 #
 # The pulse is the testbench's, not this program's: run with +mid_run_reset
 # (see uvmt_cv32e20_general_purpose_test_c::mid_run_reset(), which starts

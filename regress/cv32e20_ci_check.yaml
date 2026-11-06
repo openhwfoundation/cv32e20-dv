@@ -23,10 +23,10 @@
 # NOT consumable by the legacy bin/cv_regress / bin/ci_check utilities, which
 # cannot run in this repository at all -- they import the absent
 # bin/lib/cv_regression.py and expect the old core-v-verif/<core>/... checkout.
-# The file keeps its historical name and location (regress/ is where bin/README.md
-# documents regression testlists), but the format is run_tests.py's; the previous
-# contents of this file could not be run by anything, including a duplicate
-# `cmd:` key in its hello-world entry. See bin/README.md.
+# The file keeps its historical name and location (regress/ is where
+# bin/README.md documents regression testlists); the format itself is
+# run_tests.py's, exactly as in regress/cv32e20_sanity.yaml, and it is
+# validated by bin/tests/test_testlists.py. See bin/README.md.
 
 name: cv32e20_ci_check
 description: >
@@ -62,22 +62,6 @@ tests:
     description: External timer and software interrupts
   - name: nmi_test
     description: Non-maskable interrupt stimulus
-  # The two coverage-stimulus tests below have been watched end to end on
-  # Questa One 2025.3_2 (USE_ISS=NO, COV=1, seed 1 unless stated): mid_run_reset_test
-  # PASSED on all twelve seeds of a sweep (~63 s each), irq_withdraw_test PASSED
-  # in 10 m 34 s. Their verdicts are therefore no longer the open question -- the
-  # coverage bins they were written for are, and they are only partly closed:
-  # the twelve-seed sweep measured 3 of the 16 reset-transition bins covered
-  # (1-2 of them with the single seed a regression runs); two of those three --
-  # ctrl_fsm_cs DECODE->RESET (12/12 seeds) and md_state_q MD_COMP->MD_IDLE
-  # (8/12) -- are hit in the default merge of the 43-test 2026-11-03 batch as
-  # well, and because that merge contains the test, the policy retired their
-  # waivers the same day, leaving 14 of the 16 still waived. The
-  # interrupt-withdrawal window is still a miss.
-  # docs/coverage/coverage_review.md and the measured
-  # docs/coverage/raw/phase_c_acceptance.csv keep the per-target detail
-  # and the reason for each. Both tests stay here; cv32e20_sanity.yaml says why
-  # they are not on the blocking list.
   - name: mid_run_reset_test
     description: Reset dropped mid-program (14 of 16 reset-transition bins still waived, 12/12 seeds PASS)
   - name: irq_withdraw_test
@@ -95,11 +79,6 @@ tests:
     description: Interrupt entry from a cold boot
   - name: debug_test
     description: Debug mode, halt, step and resume (needs uvmt stimulus)
-  # csr_instr_asm and riscv_csr are in run_tests.py's PARKED list: they build,
-  # but nobody has watched them print a PASS banner on either testbench. They are
-  # listed here deliberately -- PARKED keeps them out of the *default* selection,
-  # not out of the full regression, which is where a test earns its way back out
-  # of that list. docs/regression.md keeps the list of who is unverified.
   - name: csr_instr_asm
     description: CSR access instructions, assembly version (PARKED, unverified)
   - name: riscv_csr

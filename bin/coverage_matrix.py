@@ -2,10 +2,10 @@
 """Line-to-tests coverage matrix: which tests hit each RTL source object.
 
 The merged coverage report says a bin is covered; this answers the review
-question behind it -- *by what*. bin/coverage_matrix.py consumes the
+question behind it: *by what*. bin/coverage_matrix.py consumes the
 `vcover report -xml -details -instance=<dut>.` exports of the per-test
-.ucdb files (the same DUT scope the published code metrics use, exported by
-run_tests.py -- this module never launches Questa) and renders a static,
+.ucdb files, the same DUT scope the published code metrics use, exported by
+run_tests.py; this module never launches Questa. It renders a static,
 self-contained HTML tree under coverage_report/matrix/:
 
     index.html      one row per RTL file, a per-category heat column and a
@@ -24,7 +24,7 @@ plural per-instance rollups (<statements>, <branches>, <fec_conditions>,
 <states>, <transitions>, <assertion_successes>) carry the same numbers per
 instance and are deliberately not parsed here.
 
-Object -> file resolution: a <stmt>/<ielem>/<celem>/<condition> carries an
+Object => file resolution: a <stmt>/<ielem>/<celem>/<condition> carries an
 fn="N" index into its instance's <sourceTable><fileMap>; <state>/<trans>
 carry no file, so they resolve through a single-file sourceTable (an FSM
 module compiles from its own file), and an <asrt> carries its own
@@ -66,7 +66,7 @@ _OBJECT_ELEMENTS = {
     "asrt": "FE",
 }
 
-# "<source>/path/to/file.sv(272)</source>" -- the line an assertion carries.
+# "<source>/path/to/file.sv(272)</source>": the line an assertion carries.
 _ASRT_SOURCE = re.compile(r"\((\d+)\)\s*$")
 
 
@@ -94,7 +94,7 @@ def _base_name(path):
 
 
 def _instance_files(instance):
-    """(fn -> file name, sole file name or None) for one <instanceData>."""
+    """(fn => file name, sole file name or None) for one <instanceData>."""
     files = {}
     single = None
     table = instance.find("sourceTable")
@@ -126,7 +126,7 @@ def _locate(element, files, single):
 
 
 def parse_detail_xml(xml_path):
-    """One `vcover report -xml -details` export -> this database's objects.
+    """One `vcover report -xml -details` export => this database's objects.
 
     Returns {"objects": {(file, line): {category: count}},
              "unattributed": {category: count},

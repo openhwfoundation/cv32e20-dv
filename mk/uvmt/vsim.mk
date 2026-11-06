@@ -67,7 +67,7 @@ COV_TYPES              ?= bcsf
 # the two copies a chance to disagree.  It is used twice below: by VOPT_COV to
 # scope what gets instrumented, and by COV_INST_ARG to build
 # -instance=<path>. for the cov*/cov_holes* report targets.  The TRL5 metrics
-# themselves are no longer scraped from a report here: bin/run_tests.py reads
+# themselves are not scraped from a report here: bin/run_tests.py reads
 # them out of this database's Questa XML exports (trl5_metrics.json).
 # Override e.g. `make cov_holes COV_INSTANCE=` for whole-design coverage, or
 # to any other subtree.

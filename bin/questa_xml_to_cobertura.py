@@ -63,9 +63,10 @@ Mapping to Cobertura
 
 Optionally pass --rollup (the DUT-scoped `vcover report -xml` export of the same
 .ucdb) to cross-check the detail against the rollup and shout when the two
-disagree -- a mismatch means Questa did not export every item, and silently
-reporting only the exported subset is how a converter of this shape once came to
-publish a 1.0000 line rate.
+disagree -- a mismatch means Questa did not export every item, and reporting
+only the exported subset as if it were the whole design would publish a
+flattering 1.0000 line rate -- the failure this cross-check exists to shout
+about.
 """
 
 import argparse
@@ -137,7 +138,7 @@ def parse_detail(detail_path, repo_root=REPO_ROOT):
               "instances": 0, "instances_without_source": 0}
 
     for inst in root.iter("instanceData"):
-        # fn -> source path, per instance: Questa numbers the files of each
+        # fn => source path, per instance: Questa numbers the files of each
         # design unit separately.
         file_map = {}
         source_table = inst.find("sourceTable")

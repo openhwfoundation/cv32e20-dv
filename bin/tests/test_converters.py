@@ -1,17 +1,17 @@
 # Copyright (c) 2026 Eclipse Foundation
 # SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
-"""Questa XML -> Cobertura / UCIS on a three-instance fixture.
+"""Questa XML => Cobertura / UCIS on a three-instance fixture.
 
 Two reasons these tests exist:
 
-1. ``bin/questa_xml_to_ucis_xml.py``'s own docstring says its output is validated
-   with ``xmllint`` "in .github/workflows/coverage.yml" -- a job that needs a
-   Questa licence and nobody had ever run the check. Everything here needs
-   nothing but Python (and ``xmllint`` when it happens to be installed), so the
-   schema promise is finally enforced by the hosted CI job.
-2. The fixture has an uncovered statement on purpose. The bug these guard
-   against was a converter that reported the exported subset as if it were the
-   whole design and published a line rate of 1.0000.
+1. ``bin/questa_xml_to_ucis_xml.py``'s own docstring says its output is
+   validated with ``xmllint`` "in .github/workflows/coverage.yml" -- a job
+   that needs a Questa licence. Everything here needs nothing but Python (and
+   ``xmllint`` when it happens to be installed), so the hosted CI job enforces
+   the schema promise without the simulator.
+2. The fixture has an uncovered statement on purpose: a converter that reports
+   the exported subset as if it were the whole design publishes a line rate of
+   1.0000, and this fixture is what keeps that failure visible.
 
 The fixtures substitute __REPO__ with the repository root at run time because
 Questa writes the compile host's absolute source paths, and the converters are
@@ -240,8 +240,8 @@ class TestUcis(FixtureCase):
 
     def test_the_sections_are_the_ones_the_schema_declares_in_the_order_it_wants(
             self):
-        """A reader that cannot validate the root element never gets as far as the
-        coverage in it -- which is exactly how this artifact used to fail."""
+        """A reader that cannot validate the root element never gets as far as
+        the coverage in it: that root check is the failure this test pins."""
         root = self.root()
         self.assertEqual(root.tag, "UCIS")
         for attribute in ("ucisVersion", "writtenBy", "writtenTime"):
@@ -595,12 +595,12 @@ class TestUcis(FixtureCase):
             self.assertTrue(root.findall("instanceCoverages"))
 
     def test_the_vendored_schema_is_the_one_its_recorded_digest_names(self):
-        """``schemas/ucis.xsd`` cannot carry a provenance comment of its own -- it is
-        vendored byte-for-byte -- so the only record in the repository of which
-        schema it is is the sha256 the converter's docstring quotes. Hash the file
-        against that quoted number, or "byte-for-byte" is a promise nothing checks:
-        an edit that "just relaxes one minOccurs" would leave every check below
-        validating against a schema no consumer of this document uses."""
+        """``schemas/ucis.xsd`` cannot carry a provenance comment of its own --
+        it is vendored byte-for-byte -- so the only record in the repository of
+        which schema it is is the sha256 the converter's docstring quotes. Hash
+        the file against that quoted number, or "byte-for-byte" is a promise
+        nothing checks: an edit that "just relaxes one minOccurs" would leave
+        every check below validating a schema no consumer of this document uses."""
         recorded = re.search(r"byte-for-byte \(sha256\s+(\S+),",
                              questa_xml_to_ucis_xml.__doc__)
         self.assertIsNotNone(recorded,

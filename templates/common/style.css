@@ -1,24 +1,4 @@
 /* Shared stylesheet for the published CV32E20 report tree.
- *
- * This is the single source of truth for everything the two dashboards used to
- * duplicate rule-for-rule: the OpenHW palette, the page chrome (header, logo,
- * titles, badge), the cards, the summary bar, the button, the footer and the
- * responsive rules. templates/coverage_dashboard/ and
- * templates/regression_dashboard/ keep only what is genuinely theirs (the TRL
- * levels and the results table, respectively).
- *
- * Published twice, once per directory, because the trees are siblings rather
- * than nested: bin/run_tests.py copies this file to coverage_report/common.css
- * and bin/regression_report.py to coverage_report/regression/common.css, so
- * each page can use the same relative href="common.css" and GitHub Pages needs
- * no extra path mapping. Both copy sites are guarded like the template copies
- * beside them.
- *
- * Buttons: exactly one style, .btn. There used to be a .btn-secondary with a
- * 2 px border and the .btn without, which made outlined buttons 4 px taller and
- * 4 px wider than the filled ones next to them and left the row looking
- * crooked. Every button now carries a transparent 2 px border and border-box
- * sizing, so all of them are the same box whether they are filled or not.
  */
 
 /* Both selectors, not one: :root is the ordinary published page and :host is the

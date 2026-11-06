@@ -507,9 +507,9 @@ class TestPublishedCites(unittest.TestCase):
 
     Three artifacts quote line numbers of cov.tcl and all three take them from
     the file's own text -- which is edited for a living, and a comment inserted
-    anywhere moves every cite below it. That silently invalidated the published
-    dumps on 2026-11-01: 43 of 64 rows pointed one line off their own exclusion,
-    and it stayed invisible because the numbers still looked plausible. The
+    anywhere moves every cite below it. A stale cite stays invisible in a
+    spreadsheet: the number is still in range and the row still reads fine,
+    which is exactly why the whole set is checked rather than sampled. The
     checker therefore ships as `bin/coverage_review.py --check-cites`, proved
     below on a fixture, and only then run against whatever the tree has
     published.

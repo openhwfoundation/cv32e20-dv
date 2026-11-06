@@ -10,7 +10,7 @@ plain-text ``sim/uvmt/test_results.log``, which answers "did the last run go
 green?" for whoever was watching the terminal. It leaves nothing behind for a
 browser: the published ``coverage_report/`` dashboard reports *coverage* and a
 single pass-rate number, so "which test failed, on which seed, and how long did
-it take?" still meant digging through per-test simulation logs by hand -- the
+it take?" still meant digging through per-test simulation logs by hand, the
 question a regression dashboard exists to answer.
 
 This module owns that answer. It turns the harness's result rows into one JSON
@@ -24,7 +24,7 @@ already on disk::
     bin/regression_report.py --results sim/uvmt/regression_results.json \
                              --out coverage_report/regression
 
-Output lands in ``coverage_report/regression/`` -- a *sub*directory of the
+Output lands in ``coverage_report/regression/``, a *sub*directory of the
 published report tree, so it cannot collide with the coverage dashboard's own
 ``style.css`` and it rides along with the Pages deployment
 (.github/workflows/coverage.yml) without that job having to learn about it.
@@ -46,7 +46,7 @@ Deliberate constraints
 Document schema (schema_version 1)
 ----------------------------------
 ``{schema_version, generated, tb, cfg, testlist, git, host, simulator,
-summary, tests}`` -- ``summary`` holds ``total/passed/failed/error/pass_rate``,
+summary, tests}``: ``summary`` holds ``total/passed/failed/error/pass_rate``,
 the per-set ``parked``/``parked_passed`` counts and the wall-clock window, and
 ``tests`` one object per result row with
 ``name, verdict, detail, gen_seed, run_seed, duration_s, description, log,
@@ -109,7 +109,7 @@ def test_entry(name, verdict, detail="", gen_seed=None, run_seed=None,
         "description": description,
         # Repository-relative so the document is portable, and only advisory:
         # the simulation logs themselves are gitignored, so publish_logs() has to
-        # copy them into the report for the path to be a link -- log_exists says
+        # copy them into the report for the path to be a link; log_exists says
         # whether there was one at all, published_log whether it got published.
         "log": log,
         "log_exists": bool(log_exists),
@@ -125,8 +125,8 @@ def summarize(entries):
     """The ``summary`` object for a list of test entries.
 
     ``pass_rate`` is ``None`` for an empty run: 0 tests is not a 0% pass rate,
-    and printing 0% for a run that selected nothing would be the same class of
-    lie the coverage dashboard used to publish."""
+    and printing 0% for a run that selected nothing would report a figure the
+    run never earned."""
     counts = dict((verdict, 0) for verdict in VERDICTS)
     for entry in entries:
         counts[entry["verdict"] if entry["verdict"] in counts else "ERROR"] += 1

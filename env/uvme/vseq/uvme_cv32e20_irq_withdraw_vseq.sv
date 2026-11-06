@@ -55,26 +55,26 @@
  *     so no single width is reliably right, and a single hit would have been
  *     enough, because a covered bin stays covered for the whole merged database.
  *
- * MEASURED 2026-11-01 (seed 1, Questa One 2025.3_2, USE_ISS=NO): the sweep does
- * not land, and the reason is not the distribution. The run passes (SIMULATION
- * PASSED, 10 m 34 s), all 3008 pulses go by, and the controller's
- * DECODE -> IRQ_TAKEN commit happens exactly *once* in the run: cve2_controller.sv:514
- * is evaluated twice, true both times, so the acceptance bin is still a miss
- * (docs/coverage/raw/phase_c_acceptance.csv). The two-cycle minimum above is not
- * a narrowing of the window, it is wider than the window: a withdrawal needs a
- * falling edge one cycle after the commit, and the driver's own irq_ack_clear()
- * drops the line when it samples irq_ack -- and the testbench asserts that as
- * `ctrl_fsm_cs == 4'h7` (tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107), that is during
- * the IRQ_TAKEN cycle in which :514 is sampled -- so the clear lands on the
- * next edge, when the FSM has already left IRQ_TAKEN: one cycle late at the
- * earliest. No hold_cycles/gap_cycles setting can beat that, so please do not
- * tune this sequence toward the window; closing the bin means driving the irq
- * line low for exactly one cycle from below uvma_interrupt_drv_c -- from
- * tb/uvmt/, which is where ctrl_fsm_cs is already probed, since vendor_lib/ is
- * a git-ignored clone of upstream core-v-verif and is not ours to patch -- or
- * documenting the miss on purpose. The sequence
- * stays wired up as the harness either way, so the measurement is reproducible
- * while that decision is open.
+ * MEASURED (seed 1, Questa One 2025.3_2, USE_ISS=NO): the sweep does not
+ * land, and the reason is structural, not the distribution. A run passes,
+ * every pulse goes by, the controller's DECODE commit to IRQ_TAKEN happens
+ * once, and :514 is still never sampled false
+ * (docs/coverage/raw/phase_c_acceptance.csv). The two-cycle minimum above
+ * is not a narrowing of the window, it is wider than the window: a
+ * withdrawal needs a falling edge one cycle after the commit, and the
+ * driver's own irq_ack_clear() drops the line when it samples irq_ack -- which
+ * this testbench asserts as `ctrl_fsm_cs == 4'h7`
+ * (tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107), during the very IRQ_TAKEN cycle
+ * that samples :514 -- so the clear lands the next edge, once the FSM has
+ * left IRQ_TAKEN: one cycle late at the earliest. No hold_cycles/gap_cycles
+ * setting beats that, so please do not tune this sequence toward the window;
+ * closing the bin means driving the irq line low for exactly one cycle from
+ * below uvma_interrupt_drv_c -- from tb/uvmt/, where ctrl_fsm_cs is already
+ * probed, since vendor_lib/ is a git-ignored clone of upstream core-v-verif
+ * and is not ours to patch -- or documenting the miss on purpose. The
+ * sequence stays wired up as the harness either way, so the measurement
+ * behind this comment stays reproducible while the choice between the
+ * two ways of closing the bin stays open.
  *
  * skew is zeroed after randomization. The sequence item's own valid_skew_wgt
  * (uvma_interrupt_seq_item.sv) hard-pins no_skew_wgt == 0 and skew_wgt == 1, so
@@ -91,7 +91,7 @@
  * (:321-322), so the NMI reaches handle_irq without the program first having
  * to enable mstatus.MIE and a mie bit -- one moving part less in the paired
  * test-program. And the BSP does install a returning handler for it
- * (bsp/vectors.S -> m_nmi_irq_handler), so the pulses that are *not* withdrawn
+ * (bsp/vectors.S => m_nmi_irq_handler), so the pulses that are *not* withdrawn
  * are taken and retired rather than derailing the program. That is a real cost
  * of this choice and it is documented in the test-program's own header.
  *

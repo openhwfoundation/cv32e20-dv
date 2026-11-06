@@ -20,4 +20,4 @@ holds test-*programs* and UVM testcases (see `AGENTS.md`), not Python tests.
 | `test_regression_report.py` | the results document: counting, N/A rules, publishing |
 | `test_run_tests.py` | testlist loading, verdict classification, seed handling |
 | `test_testlists.py` | every `regress/*.yaml` is well formed and names real tests |
-| `test_converters.py` | Questa XML -> Cobertura / UCIS on a tiny fixture |
+| `test_converters.py` | Questa XML => Cobertura / UCIS on a tiny fixture |

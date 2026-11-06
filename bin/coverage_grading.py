@@ -43,7 +43,7 @@ _METRICS = (
 )
 
 # Batches at or below this many tests compute the unique-contribution delta
-# by default -- each one costs a merged-database copy, a delcov replay and
+# by default: each one costs a merged-database copy, a delcov replay and
 # two more vcover exports, which is minutes at sanity size and an hour at
 # full-batch size.
 DELTA_MAX_TESTS = 20
@@ -124,11 +124,11 @@ def render_pertest_index(rows, html_reports=None, merged=None,
     """The HTML for coverage_report/pertest/index.html: one row per test,
     best-covered first, plus the merged totals as the summary line.
 
-    html_reports maps test name -> (code_dir, func_dir), relative links to
+    html_reports maps test name => (code_dir, func_dir), relative links to
     the per-test vcover HTML trees when --cov-report-html-tests generated
     them (either may be None). merged is the merged database's own
     test_row()-shaped dict, for the header line. unique_computed only
-    selects the footnote wording -- rows carry their own unique dicts, so an
+    selects the footnote wording; rows carry their own unique dicts, so an
     honest page never needs this to say more than which note is true.
     """
     html_reports = html_reports or {}

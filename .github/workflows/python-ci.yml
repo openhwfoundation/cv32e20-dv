@@ -2,9 +2,9 @@ name: Python CI
 
 # The two other workflows in this directory (coverage.yml, self-hosted.yml) both
 # need a self-hosted runner with Questa Sim, its license, and the CORE-V toolchain,
-# and both are workflow_dispatch-only -- which is exactly why the repository's CI
-# could not fail: nothing ran on a push. This job is the part of the regression
-# tooling that needs none of that: the Python harness, the regression testlists,
+# and both are workflow_dispatch-only, which is exactly why the repository's
+# CI could not fail: nothing ran on a push. This job is the part of the
+# regression tooling that needs none of that: the Python harness, the regression testlists,
 # the report converters and their schemas. It runs on a hosted runner on every
 # push to the trunk and on every pull request into it, so a broken
 # bin/run_tests.py or a malformed regress/*.yaml is caught by the bot that reviews
@@ -37,9 +37,9 @@ jobs:
         # 3.11 is what the development venv (venv_cv32e20-dv) uses; 3.12 is what
         # the self-hosted coverage job creates its venv with. bin/ must keep
         # working on a bare interpreter, so neither may gain an import that
-        # bin/requirements.txt happens to provide -- except through the lazy
-        # `import yaml` inside load_testlist(), which is why PyYAML is installed
-        # below rather than left to chance.
+        # bin/requirements.txt happens to provide, except through the lazy
+        # `import yaml` inside load_testlist(); PyYAML is installed below
+        # rather than left to chance.
         python-version: ['3.11', '3.12']
     steps:
       - name: Checkout code

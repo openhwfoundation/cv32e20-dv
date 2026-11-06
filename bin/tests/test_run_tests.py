@@ -97,8 +97,8 @@ class TestCorevDvDetection(unittest.TestCase):
     def test_every_curated_name_is_detected(self):
         """The curated list has to keep meaning "needs gen_corev-dv": a name
         added to COREV_DV_TESTS without a corev-dv.yaml still gets its
-        generation step (is_corev_dv() consults both), and one whose
-        corev-dv.yaml was renamed is still not skipped by accident."""
+        generation step (is_corev_dv() consults both), and a renamed
+        corev-dv.yaml never turns detection off by accident."""
         for name in run_tests.COREV_DV_TESTS:
             self.assertTrue(run_tests.is_corev_dv(name), name)
 

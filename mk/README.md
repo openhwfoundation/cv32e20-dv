@@ -479,5 +479,5 @@ Invoke GUI coverage browser for all executed tests with coverage databases.
 
 **make cov MERGE=1 GUI=1**
 
-Questa additionally has **cov_txt**, **cov_holes**, **cov_holes_details** and **cov_func** report targets (`mk/uvmt/vsim.mk`): a flat ASCII report, the two "what is still missing" views filtered by `COV_HOLES_THRESHOLD`, and the covergroup-only HTML report respectively. All four take `MERGE=1`/`TEST=`/`COV_INSTANCE=` like **cov** -- except **cov_func**, which deliberately ignores the instance scope, because covergroup coverage lives outside the DUT instance by construction. See `mk/uvmt/README.md`.
+Questa additionally has **cov_txt**, **cov_holes**, **cov_holes_details** and **cov_func** report targets (`mk/uvmt/vsim.mk`): a flat ASCII report, the two "what is still missing" views filtered by `COV_HOLES_THRESHOLD`, and the covergroup-only HTML report respectively. All four take `MERGE=1`/`TEST=`/`COV_INSTANCE=` like **cov**, except **cov_func**, which deliberately ignores the instance scope, because covergroup coverage lives outside the DUT instance by construction. See `mk/uvmt/README.md`.
 

@@ -56,7 +56,7 @@
  *                              testbench has.
  *
  * What this sequence contributes is the commit: one NMI per attempt, offered
- * until the core acks it. The NMI line (irq_uvma[0] -> irq_nm_i) is the one
+ * until the core acks it. The NMI line (irq_uvma[0] => irq_nm_i) is the one
  * that needs nothing from the program: handle_irq is
  * `~debug_mode_q & ~nmi_mode_q & (irq_nm_i | (irq_pending_i & csr_mstatus_mie_i))`
  * (:321-322), so no mstatus.MIE and no mie bit have to be set for the core to
@@ -147,7 +147,7 @@ task uvme_cv32e20_irq_single_cycle_vseq_c::body();
       start_item(irq_req);
       assert(irq_req.randomize() with {
         // Held until the fabricated ack, i.e. until the core commits: one item,
-        // one DECODE -> IRQ_TAKEN transition for the injector to blank.
+        // one DECODE => IRQ_TAKEN transition for the injector to blank.
         action       == UVMA_INTERRUPT_SEQ_ITEM_ACTION_ASSERT_UNTIL_ACK;
         repeat_count == 1;
         // Bit 0 of irq_mask is irq_uvma[0], the DUT's irq_nm_i.

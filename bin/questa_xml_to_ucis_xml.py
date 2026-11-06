@@ -11,13 +11,13 @@ instance. This converter turns three Questa exports of the same .ucdb into a
 document a UCIS consumer can open:
 
   * full-hierarchy rollup (vcover report -xml)
-        -> provenance only: the tool name/version and the vcover command line.
+        => provenance only: the tool name/version and the vcover command line.
   * DUT-scoped detail (vcover report -xml -details -code scb -instance=<dut>.)
-        -> one <instanceCoverages> per design instance: its statements
+        => one <instanceCoverages> per design instance: its statements
            (blockCoverage), condition expressions (conditionCoverage) and branch
            arms (branchCoverage), each at the source line Questa gives it.
   * DUT-independent covergroup detail (vcover report -xml -details -cvg)
-        -> one <instanceCoverages> per covergroup package: one <cgInstance> per
+        => one <instanceCoverages> per covergroup package: one <cgInstance> per
            instantiated covergroup, with its coverpoints, its crosses and every
            named bin together with its hit count.
 
@@ -74,13 +74,13 @@ Honest gaps, recorded rather than papered over:
     of the bin it combines. Questa writes that combination in the cross bin's own
     name (`<auto[ZERO],auto[POSITIVE]>`), so the name is translated into the
     `coverpointBin/@key` of this same document. A cross bin Questa names some other
-    way is counted as skipped instead; measured on the database this runs against,
-    those are 387 `*` bins for "anything else", not one of them hit, and 63
-    cross-level ignore bins (`IGN_HAZ`, `IGN_OFF`, `IGN_PREV_GROUP`), 37 of them
-    carrying a count -- and such a count is an occurrence of an *ignored*
-    combination rather than a hit, and an ignore bin names a whole set of
-    combinations, so no one index vector describes it either. The skip tally counts
-    bins, not hits, and the Questa HTML report is where those counts stay readable.
+    way is counted as skipped instead: the `*` bins for "anything else" and
+    the cross-level ignore bins (`IGN_HAZ`, `IGN_OFF`, `IGN_PREV_GROUP`). A
+    count on an ignore bin is an occurrence of an *ignored* combination rather
+    than a hit, and an ignore bin names a whole set of combinations, so no
+    one index vector describes it either. The skip tally counts bins, not
+    hits, and the Questa HTML report is where those counts stay readable
+    for the bins this document must leave out.
   * Questa reports assertion and FSM coverage only as counts, never naming the
     individual assertions, states or transitions, so those kinds are absent.
 """
@@ -183,7 +183,7 @@ class _Files(object):
 
     def __init__(self, repo_root):
         self.repo_root = repo_root
-        self.ids = {}      # file name -> id
+        self.ids = {}      # file name => id
         self.order = []    # file names, in registration order
 
     def register(self, path):

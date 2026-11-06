@@ -5,9 +5,9 @@
 #
 # PARKED, and it cannot become a self-checking PASS: the debug entry itself
 # works, but the assertion its debug ROM makes about that entry is a
-# placeholder.  Measured 2026-11-03 on Questa One 2025.3_2, `--tb uvmt`,
-# USE_ISS=NO (the first time this program ever ran - before that it did not
-# even link):
+# placeholder.  Measured on Questa One 2025.3_2, `--tb uvmt`, USE_ISS=NO
+# (it does not link at all without the test_fail label handlers.S
+# provides):
 #
 #   * main() writes the debug-request register and then executes `dret`, which
 #     is itself an illegal instruction outside debug mode.  The request has

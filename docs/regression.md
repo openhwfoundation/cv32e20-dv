@@ -11,7 +11,7 @@ somebody else afterwards. Three things, each with one owner:
 | --- | --- |
 | *Which* tests make up a regression? | a testlist in [`regress/`](../regress) |
 | Did they pass? | `bin/run_tests.py`, reading the testbench's verdict banner |
-| What happened? | `bin/regression_report.py` -> `regression_results.json` + a dashboard |
+| What happened? | `bin/regression_report.py` => `regression_results.json` + a dashboard |
 
 ## Quick start
 
@@ -74,9 +74,9 @@ banner, which is what makes it usable as a CI gate. Two documented exceptions:
 ## Testlists (`regress/*.yaml`)
 
 A testlist is the reviewable answer to "which tests make up a regression of this
-repository". They replaced the test lists that used to be duplicated inside
-`bin/ci_check` and the workflows -- see [Legacy tools](#legacy-tools) for why
-those two no longer run.
+repository", and the lists live here alone -- `bin/ci_check` and the
+workflows carry none of their own (see [Legacy tools](#legacy-tools) for why
+those two cannot run here).
 
 ```yaml
 name: cv32e20_sanity           # required; shown on the published dashboard
@@ -132,15 +132,15 @@ interpreter.
 
 The sanity list was measured, not estimated: all 12 tests pass on Questa One
 2025.3_2 with `--jobs 4` (12 passed, 0 failed, 0 error(s)) in **1154 s** of batch
-time against the `d7f2156` CVE2 pin (2026-11-05, coverage-instrumented, i.e.
-`--cov --cov-report`, which roughly doubles the loop: the same tests without
-coverage ran 11 of them in 562 s on 2026-10-30), slowest test
+time against the `d7f2156` CVE2 pin (coverage-instrumented, i.e.
+`--cov --cov-report`, which roughly doubles the loop: the same tests
+without coverage took 562 s for 11 of them), slowest test
 `irq_withdraw_test` (the interrupt-withdrawal pulse sweep) at 996.8 s, then
 `illegal_instr_test` at 903.1 s and the rest between 26.0 s and 151.6 s, which
 is what publishes a 100% pass rate on the dashboard. Those
 figures came from that run's own `regression_results.json`; the published
 document at `coverage_report/regression/regression_results.json` is
-last-batch-wins, and since 2026-11-05 it describes the
+last-batch-wins, and it currently describes the
 `--all-custom --include-corev-dv --cov-report` batch (44 tests, 42 PASS, the
 two parked FAILs documented in [the coverage review](coverage/coverage_review.md))
 -- re-measuring the list refreshes the dashboard, and this page from one source
@@ -218,7 +218,7 @@ module docstring states the invariant where both commands are).
 
 A `--cov-report` batch actually keeps **two** merged databases, each built from
 an explicit list of that batch's PASSing `.ucdb` files (never from a `find`
-over `vsim_results/<cfg>/`, which used to let leftover databases of earlier
+over `vsim_results/<cfg>/`, which would let leftover databases of earlier
 runs leak into the published numbers): `vsim_results/<cfg>/merged/merged.ucdb`
 is the **default scope**, and `vsim_results/<cfg>/merged_parked/merged.ucdb`
 is the same plus the **PARKED** tests that the batch also runs (`--all-custom
@@ -338,7 +338,7 @@ a deleted line of a testlist. Equally, "in a testlist" is not a claim that
 somebody watched it pass: the sanity set is (see the measurement above), while
 the extra directed tests in `cv32e20_ci_check.yaml` are listed because the
 harness supports running them. The 15 corev-dv templates were measured on
-Questa One 2025.3_2 (`--corev-dv-only --jobs 4`, 2026-10-31): 14 PASS, and
+Questa One 2025.3_2 (`--corev-dv-only --jobs 4`): 14 PASS, and
 `corev_rand_interrupt_wfi` FAILED on one generation seed -- its program read a
 debug CSR outside debug mode and tripped the core's illegal-cycle lockup check;
 the two seeds run after it passed. A generated test is therefore only as good as
@@ -349,8 +349,8 @@ per-test table is in
 | Test | Where | Why it is not in a list |
 | --- | --- | --- |
 | `riscv_arithmetic_basic_test_0`, `riscv_arithmetic_basic_test_1`, `csr_instr_asm` | `PARKED` | builds and runs on the core testbench but is not meaningfully self-checking there; verifying it needs `--tb uvmt` (step-and-compare against the ISS). `csr_instr_asm` is also in `cv32e20_ci_check.yaml`, where a PASS banner would be the evidence to take it out of `PARKED` |
-| `riscv_csr`, `perf_counters_instructions`, `debug_test_boot_set`, `debug_test_reset` | `PARKED`, but **PASS** on `--tb uvmt` | measured 2026-11-03 on Questa One 2025.3_2, `USE_ISS=NO`: all four end `TEST PASSED WITH CODE 123456789`. `riscv_csr` needed its CSR model corrected to this core (`env/corev-dv/cv32e20_csr_template.yaml` modelled the seven CSRs the core does not implement, and did not model the 57 `mhpmevent`/`mhpmcounter` addresses it *does* decode and tie to zero); `perf_counters_instructions` (and `debug_test_trigger`, still failing for its own reason below) died on a `uvm_hdl_deposit` of a `uvmt_cv32e20_step_compare` scope that is neither compiled nor instantiated, which `+rand_stall_obi_disable` no longer attempts; the two `debug_test_*` debug-entry checks expected the stale `dpc == 0x80` boot address instead of the linker's `__boot_address` (`bsp/link.ld`) -- that check is the debug ROM's own, and the ROM compares `dpc` and reports the verdict on the status port itself, so what these two verify is debug entry at boot with the right `dpc` and nothing more -- and `debug_test_boot_set` pulsed `debug_req` for one cycle inside `RESET`/`BOOT_SET`, which the controller never samples. They stay `PARKED` because `PARKED` is the key the coverage merge splits on -- promotion is one commit together with a `--cov-report` re-measure, not a one-line list edit |
-| `debug_test_known_miscompares` | `PARKED` | links, runs and leaves a log since 2026-11-03 (before that it did not even link: `handlers.S` jumped to `test_fail`, which was a file-local `.set` constant, not a label), and still FAILs: its debug ROM asserts `dpc == 0` where the core reports the PC of the `dret` that halted the hart. Whether either value is "right" is a step-and-compare (RVFI/ISS) question -- which is what "known miscompares" in its name means -- so its assertions are left as they are and its `test.yaml` records the measurement |
+| `riscv_csr`, `perf_counters_instructions`, `debug_test_boot_set`, `debug_test_reset` | `PARKED`, but **PASS** on `--tb uvmt` | measured on Questa One 2025.3_2, `USE_ISS=NO`: all four end `TEST PASSED WITH CODE 123456789`. `riscv_csr` needed its CSR model corrected to this core (`env/corev-dv/cv32e20_csr_template.yaml` modelled the seven CSRs the core does not implement, and did not model the 57 `mhpmevent`/`mhpmcounter` addresses it *does* decode and tie to zero); `perf_counters_instructions` (and `debug_test_trigger`, still failing for its own reason below) died on a `uvm_hdl_deposit` of a `uvmt_cv32e20_step_compare` scope that is neither compiled nor instantiated, which `+rand_stall_obi_disable` does not attempt; the two `debug_test_*` debug-entry checks expected the stale `dpc == 0x80` boot address instead of the linker's `__boot_address` (`bsp/link.ld`) -- that check is the debug ROM's own, and the ROM compares `dpc` and reports the verdict on the status port itself, so what these two verify is debug entry at boot with the right `dpc` and nothing more -- and `debug_test_boot_set` pulsed `debug_req` for one cycle inside `RESET`/`BOOT_SET`, which the controller never samples. They stay `PARKED` because `PARKED` is the key the coverage merge splits on -- promotion is one commit together with a `--cov-report` re-measure, not a one-line list edit |
+| `debug_test_known_miscompares` | `PARKED` | links, runs and leaves a log, and still FAILs: its debug ROM asserts `dpc == 0` where the core reports the PC of the `dret` that halted the hart. Whether either value is "right" is a step-and-compare (RVFI/ISS) question -- which is what "known miscompares" in its name means -- so its assertions are left as they are and its `test.yaml` records the measurement |
 | `debug_test_trigger` | `PARKED` | FAILs on its last stage, the one that wants debug entry *caused by* a trigger match: the debug ROM expects `dcsr == 0x40008083` (cause 2, TRIGGER) and reads `0x400080c3` (cause 3, HALTREQ). `cve2_controller.sv:556` reports TRIGGER only if `trigger_match_i` is still high in the cycle debug is taken, and no `start_delay` in the request word at `0x1500_0008` makes the two coincide at this RTL pin -- neither the delays the program ships with (`0x18`/`0x19`/`0x1d`/`0x1d`/`0x21`) nor a set re-calibrated from the RVFI trace (`0x1b`/`0x1f`/`0x23`/`0x27`/`0x2b`) does it. Earlier stages of the same program do enter debug mode, so the stimulus works; the cause code does not. Assertions untouched |
 | `isa_fcov_holes`, `riscv_ebreak_test_0` | `DISCOVERY_EXCLUDES` | known-broken and in no curated list, so even `--all-custom` skips them |
 | `cvxif_basic` | nowhere -- not a test-program | a UVM task in `tests/uvmt/firmware-tests/uvmt_cv32e20_general_purpose_test.sv`, compiled only with `CVE2_CONFIG=CV32E20X`; run it with the `cv32e20-dv: compile uvmt env (Questa, CV32E20X)` and `cv32e20-dv: run cvxif_basic UVM test (Questa, CV32E20X, no ISS)` tasks in `.theia/tasks.json`, or `make comp`/`make test TEST=cvxif_basic SIMULATOR=vsim CVE2_CONFIG=CV32E20X USE_ISS=NO` |
@@ -373,7 +373,7 @@ addresses and reports each one, so it is I/O-bound rather than compute-bound: a
 single run's `trace_core_*.log` measures 572 MB, which is also the case the 8 MiB
 log-publishing ceiling above exists for -- the dashboard prints that path as text
 instead of linking it. Under the load of a four-job `--cov-report` batch it
-exceeded 5400 s and became that batch's only `ERROR` row (2026-10-31); run alone
+exceeded 5400 s and became that batch's only `ERROR` row; run alone
 under `--timeout 7200` it printed PASS in 1:04:09 of wall time, per the
 simulator's own end-of-run line. Neither number is the one to write down: a
 per-test `timeout:` has to be measured on the configuration and the load the list
@@ -401,7 +401,7 @@ Questa jobs, never a substitute for them.
 
 The cite check beside it is the same kind of claim about the committed analysis:
 `bin/coverage_review.py --check-cites` re-reads `sim/tools/vsim/cov.tcl` and
-fails when a line number published by the sheet or a raw dump no longer names its
+fails when a line number published by the sheet or a raw dump does not name its
 own `coverage exclude` statement. It writes nothing, so it is cheap enough to run
 on every push, and it is the only review promise here that can be kept without a
 simulator or a license.

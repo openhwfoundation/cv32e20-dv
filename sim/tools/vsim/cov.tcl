@@ -7,7 +7,7 @@
 # "Coverage" section of mk/README.md explain how to run them.
 #
 # Read this before quoting a measurement in a new waiver: every hit count and
-# "N bins -> M bins" number below was taken against a merged .ucdb that has
+# "N bins => M bins" number below was taken against a merged .ucdb that has
 # since been rebuilt from different sources, so it is history, not something a
 # reviewer can re-check.  Re-derive it from the live
 # sim/uvmt/vsim_results/<cfg>/merged/merged.ucdb (`make cov_holes MERGE=YES`)
@@ -16,35 +16,11 @@
 # their intended target for exactly that reason, which is what the in-place
 # NOTEs record.
 #
-# Re-derive line targets with:
-#
-#     bin/coverage_waiver_audit.py            # does every exclusion still bite?
-#     bin/coverage_holes.py --apply-cov-tcl   # what is left open once they do?
-#
-# Both ask the live sim/uvmt/vsim_results/<cfg>/merged/merged.ucdb in a
-# report-only vsim session and are documented in docs/coverage/README.md. The
-# audit measures each statement by lifting it, because `coverage exclude`
-# accepts a target that matches nothing without saying so. The last full re-aim
-# (2026-11-01) moved twenty statements in six design units -- cve2_controller
-# by twenty lines on its own -- and changed the count from 61 statements to the
-# 64 it stood at then: two RVFI_CONNECT condition rows that a -linerange cannot
-# reach, the U-mode CSR-read arms, minus an ls_fsm_e default-case waiver that
-# measurement showed was hiding covered code rather than waiving a miss.
-#
-# Re-pin 2026-11-03 (CVE2 moved to upstream main @ d7f2156): rtl/
-# cve2_id_stage.sv is the only file the new pin changes (+11/-2 lines, a
-# register-file write-address mux plus the coprocessor result-address fix),
-# so every other unit's line targets carried over unchanged (verified
-# line-by-line against ce0fd917). The three cve2_id_stage statements below
-# were re-aimed (+1/+9 shifts), one new CV-X-IF statement was added for the new
-# mux's unreachable coprocessor arm, and two reset-transition statements were
-# retired -- the batch covers what they excused. 63 statements; audit re-run.
-#
 # The dated NOTE blocks below quote RTL line numbers as they stood the day each
 # one was written, and they keep those numbers on purpose: they are the audit
 # trail of a drift fix, not a pointer into today's source. What has to agree
-# with today's source is a waiver's own targets, and the audit above is what
-# enforces that.
+# with today's source is a waiver's own targets, and bin/coverage_waiver_audit.py
+# is what enforces that.
 
 # Control variable for CV-X-IF exclusions, enabled only for the CV32E20X config
 set XInterface 0
@@ -272,12 +248,12 @@ coverage exclude -du cve2_controller -feccondrow 521 4 -comment {Nested NMI (irq
 #   so a waiver would be HIDING-COVERED-CODE, and it would have no RTL
 #   reachability argument either (the arm is the design's own
 #   `irq_withdrawn_in_taken` case, cve2_controller.sv:826-836 -- an interrupt
-#   committed on the DECODE/FIRST_FETCH -> IRQ_TAKEN edge and dropped again
+#   committed on the DECODE/FIRST_FETCH => IRQ_TAKEN edge and dropped again
 #   before the PC redirect, leaving the state to return to DECODE with no
 #   csr_save_*).
 #   History, kept because the file is the audit trail: 2026-08-12 left it
 #   DELIBERATELY UNEXCLUDED; 2026-11-01 measured it a miss (3008 NMI
-#   assert/deassert pulses -> one commit, line 514 evaluated twice, both
+#   assert/deassert pulses => one commit, line 514 evaluated twice, both
 #   true; the merged .ucdb of that batch: 433 evaluations, 0 on this arm),
 #   and pinned the cause on the agent rather than on the timing lottery --
 #   uvma_interrupt_drv_c's wait_and_assert_irq_edge() holds a rising edge
@@ -332,7 +308,7 @@ coverage exclude -du cve2_controller -feccondrow 521 4 -comment {Nested NMI (irq
 #   reachable and already covered -- only this one row is excluded.
 coverage exclude -du cve2_controller -feccondrow 416 10 -comment {debug_single_step_i sensitized (all other wake terms 0) while in SLEEP is structurally unreachable: a single-stepped wfi always re-enters debug mode via enter_debug_mode_prio_q (cve2_controller.sv:713) before it can complete the FLUSH->WAIT_SLEEP->SLEEP transition, so debug_single_step_i can never be the sole wake reason once SLEEP is actually reached.}
 
-#   ctrl_fsm_cs FSM transitions: <STATE> -> RESET, of the 9 non-RESET states
+#   ctrl_fsm_cs FSM transitions: <STATE> => RESET, of the 9 non-RESET states
 #   8 remain excluded (DECODE->RESET was retired on measurement 2026-11-03,
 #   see the MEASURED note below).
 #   NOT dead code -- rst_ni is a real async input (see the `if (!rst_ni)`
@@ -374,7 +350,7 @@ coverage exclude -du cve2_controller -ftrans ctrl_fsm_cs {DBG_TAKEN_ID->RESET} -
 # cve2_multdiv_fast
 # =================
 #
-#   md_state_q (divider FSM) transitions: <STATE> -> MD_IDLE, of the 5
+#   md_state_q (divider FSM) transitions: <STATE> => MD_IDLE, of the 5
 #   non-MD_IDLE states 4 remain excluded (MD_COMP->MD_IDLE was retired on
 #   measurement 2026-11-03, see below). Same pattern/rationale as
 #   ctrl_fsm_cs above: NOT
@@ -563,7 +539,7 @@ coverage exclude -du cve2_core -feccondrow 1156 2 -comment {instr_valid_id==1 wh
 #   Exclude coverage for ID stage when CV-X-IF is disabled
 #
 #   NOTE (2026-11-03): re-aimed for the d7f2156 re-pin -- 494 -> 495 (+1) and
-#   829-832 -> 838-841 (+9), both verified verbatim against the pinned file
+#   829-832 => 838-841 (+9), both verified verbatim against the pinned file
 #   (the rf_wdata_id_mux coprocessor arm; the alu_multicycle_dec case arm).
 #   The pin also added the rf_waddr_id_mux block (new 500-507), whose
 #   RF_WD_COPROC line 503 is the same shape as the rf_wdata_id_mux one it
@@ -721,7 +697,7 @@ if {!$UmodeEnabled} {
     #   Line 635 is `EXC_CAUSE_ECALL_UMODE`, the same permanently-dead U-mode
     #   arm as line 313. Verified via -viewcov dry run alongside the
     #   XInterface/one-hot-default exclusions below: controller_i branches
-    #   86/77/9 -> 74/73/1, leaving one genuine, real branch miss, the
+    #   86/77/9 => 74/73/1, leaving one genuine, real branch miss, the
     #   irq_withdrawn_in_taken arm at line 514 -- closed 2026-11-04 by the
     #   testbench withdrawal injector (see the cve2_controller.sv:514 note
     #   above), which is why controller_i now reports no branch misses.

@@ -56,17 +56,17 @@
  * wfi in the program, and hence ctrl_fsm_cs WAIT_SLEEP->RESET and SLEEP->RESET
  * staying under their waivers.
  *
- * MEASURED 2026-11-01 (seeds 1-12): it runs, and the paired test passes on all
- * twelve seeds. What one asynchronous pulse retires is three rows of the
- * sixteen, not sixteen -- ctrl_fsm_cs DECODE->RESET on 12 of 12 seeds,
- * md_state_q MD_COMP->MD_IDLE on 8 of 12, gen_mult_fast/mult_state_q ALBH->ALBL
- * on 1 of 12. The other thirteen need stimulus this program does not contain (a
- * wfi, debug_req_i, an interrupt, an exception, a misaligned access) or a pulse
- * aimed at a one-cycle state, which a randomized delay cannot do. Per-row
- * numbers and the reason for each are in
+ * MEASURED (seeds 1-12): it runs, and the paired test passes on all twelve
+ * seeds. What one asynchronous pulse retires is three rows of the sixteen,
+ * not sixteen -- ctrl_fsm_cs DECODE->RESET on 12 of 12 seeds,
+ * md_state_q MD_COMP->MD_IDLE on 8 of 12, gen_mult_fast/mult_state_q
+ * ALBH->ALBL on 1 of 12. The other thirteen need stimulus this program does
+ * not contain (a wfi, debug_req_i, an interrupt, an exception, a misaligned
+ * access) or a pulse aimed at a one-cycle state, which a randomized delay
+ * cannot do. Per-row numbers and the reason for each are in
  * docs/coverage/raw/phase_c_acceptance.csv; none of them is retired on this
- * evidence, because a waiver is retired against the merged database of a real
- * batch, which is what bin/coverage_waiver_audit.py re-measures.
+ * evidence, because a waiver is retired against the merged database of a
+ * real batch, which is what bin/coverage_waiver_audit.py re-measures.
  */
 class uvme_cv32e20_mid_run_reset_c extends uvme_cv32e20_base_vseq_c;
 

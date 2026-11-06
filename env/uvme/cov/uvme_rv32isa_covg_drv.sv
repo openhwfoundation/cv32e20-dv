@@ -21,12 +21,12 @@
 /**
  * Drives uvmt_cv32e20_isa_covg_if from the RVFI instruction stream.
  *
- * That interface used to be filled by the reference-ISS wrapper which has since
- * been removed from this testbench, so uvme_rv32isa_covg never saw another
- * instruction and every covergroup in it stayed empty. The RVFI retire stream
- * (which the environment already taps for uvma_isacov) carries the same
- * information; this component rebuilds the `ins_t` record the coverage model
- * expects from it, decoding with the same Spike disassembler library
+ * uvme_rv32isa_covg hangs off an interface the retired reference-ISS wrapper
+ * once drove and nothing else does, so its covergroups stay empty unless a
+ * component feeds it. The RVFI retire stream (which the environment already
+ * taps for uvma_isacov) carries what it needs; this component rebuilds the
+ * `ins_t` record the coverage model expects from it, decoding with the same
+ * Spike disassembler library
  * uvma_isacov_mon_c uses (lib/dpi_dasm). Its DPI imports are reached through
  * the uvma_isacov_pkg scope: uvmc_rvfi_scoreboard_pkg declares the very same
  * names, so an unqualified call would be ambiguous in this package.

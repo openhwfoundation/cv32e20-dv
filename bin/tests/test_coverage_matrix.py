@@ -80,7 +80,7 @@ class TestParseDetailXml(unittest.TestCase):
             self.assertNotIn(key, self.parsed["objects"])
 
     def test_if_arm_covered_through_either_outcome(self):
-        # ielem st=1: true=12 false=5 -> covered; an implementation that
+        # ielem st=1: true=12 false=5 => covered; an implementation that
         # read only hits= (absent here) would report no B object at all.
         self.assertIn(("cve2_controller.sv", 514), self.parsed["objects"])
 

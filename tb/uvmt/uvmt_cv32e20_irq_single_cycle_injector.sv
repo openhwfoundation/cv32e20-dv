@@ -39,9 +39,9 @@
  * it is the testbench's own probe `ctrl_fsm_cs == 4'h7' in
  * tb/uvmt/uvmt_cv32e20_dut_wrap.sv -- high during the IRQ_TAKEN cycle in
  * which :514 is sampled -- so the driver's falling edge lands one cycle
- * later than the window, always, whatever the sequence asks for (measured
- * 2026-11-01: 3008 pulses, one commit, 0 hits on the arm; the comment above
- * the row in sim/tools/vsim/cov.tcl carries the analysis).
+ * later than the window, always, whatever the sequence asks for: a sweep of
+ * 3008 pulses committed once and hit the arm never, because the clear is
+ * structurally one cycle late, not mistuned (cov.tcl carries the analysis).
  *
  * The commit edge is the one signal that names the window, so the blank is
  * registered off it: ctrl_fsm_cs inside {FIRST_FETCH, DECODE} &&

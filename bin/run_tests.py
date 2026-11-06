@@ -25,7 +25,7 @@ for the verdict banner:
 Anything else (no banner, build error, timeout) is reported as ERROR.
 The process exit code is 0 only if every test that was run reported PASS, unless
 --allow-failures is given (see below), in which case per-test FAIL/ERROR verdicts
-still print and are summarized but do not affect the exit code -- useful when a
+still print and are summarized but do not affect the exit code. That matters when a
 coverage/report step must run after the tests regardless of their outcome.
 
 corev-dv tests (see COREV_DV_TESTS below) additionally need `make
@@ -73,7 +73,7 @@ relative to its own location in <repo>/bin).  A working RISC-V toolchain plus
 the relevant simulator (Verilator for core, Questa vsim for uvmt) must be on
 PATH, as for a normal `make test`.
 
-    # Run a regression testlist -- the curated, named, published way to run a
+    # Run a regression testlist, the curated, named, published way to run a
     # set of tests (regress/*.yaml; see 'Regression testlists' below):
     bin/run_tests.py --testlist regress/cv32e20_sanity.yaml
     bin/run_tests.py --testlist regress/cv32e20_ci_check.yaml --jobs 4
@@ -188,7 +188,7 @@ PATH, as for a normal `make test`.
     #   -h / --help     full option help
 
 Exit status is 0 only when every selected test PASSED, so the script is
-suitable for use as a CI gate -- including the coverage regression, which runs
+suitable for use as a CI gate, including the coverage regression, which runs
 through the same pass/fail machinery (banner-based classify(), not make's exit
 code) and therefore gates CI on test failures too. The one exception is
 --report-only, which launches no simulation at all and always exits 0.
@@ -229,7 +229,7 @@ the published artifact set that CI deploys to GitHub Pages:
     sim/uvmt/test_results.log           plain-text pass/fail list
 
     Every number in them comes from `vcover report -xml` exports of merged.ucdb --
-    never from the generated HTML -- and from two deliberately different scopes:
+    never from the generated HTML, and from two deliberately different scopes:
 
     * Code coverage (statements, branches, conditions, FSM states/transitions) is
     DUT-scoped, to TESTBENCHES['uvmt']['cov_instance']: the testbench's own
@@ -254,8 +254,8 @@ the published artifact set that CI deploys to GitHub Pages:
     buttons show the same wrong number.
 
 The merge step runs once per batch, after the last test, from an explicit list
-of this batch's PASSing .ucdb files -- never from a find over
-vsim_results/<cfg>, because whatever earlier runs left there used to leak
+of this batch's PASSing .ucdb files, never from a find over
+vsim_results/<cfg>, because whatever earlier runs left there would leak
 straight into the published numbers. --cov-report merges twice into sibling
 databases: vsim_results/<cfg>/merged/ holds the default scope (non-PARKED
 PASSes) and vsim_results/<cfg>/merged_parked/ the same plus the PARKED PASSes,
@@ -270,13 +270,13 @@ including-parked database.
 --all-custom selects every directory under TESTS_ROOTS instead of the curated
 lists above, which is what the coverage CI job uses so a newly added test
 program is picked up without editing this script. PARKED and corev-dv names are
-still skipped unless --include-parked / --include-corev-dv also ask for them,
+still skipped unless --include-parked or --include-corev-dv asks for them,
 and DISCOVERY_EXCLUDES is always skipped.
 
 Regression testlists (--testlist)
 --------------------------------
 A testlist is the named, reviewable answer to "which tests make up a regression
-of this repository?" -- the alternative to a caller re-listing tests in a CI job
+of this repository?", the alternative to a caller re-listing tests in a CI job
 or a second script, which is how bin/ci_check and bin/cv_regress drifted until
 they stopped running at all (see bin/README.md). They live in regress/ and are
 consumed by this script:
@@ -303,15 +303,15 @@ corev-dv.yaml, see is_corev_dv()), so no list has to be updated in two places.
 
 The file only supplies defaults: --tb/--cfg/--timeout/--jobs/--seed on the
 command line still win over it. A test cannot be repeated N times under one
-name (the old cv_regress 'num:' key); run the list again with a different
+name (the legacy cv_regress 'num:' key); run the list again with a different
 --seed, which is reproducible and keeps the two runs distinguishable in the
 results document.
 
-Regression results dashboard (--testlist / every run)
------------------------------------------------------
+Regression results dashboard (every run, --testlist included)
+------------------------------------------------------------
 Every batch that runs (or parses) tests also writes regression_results.json in
 the testbench's sim directory and publishes a dashboard of it under
-coverage_report/regression/ -- per-test verdict, generation and run seeds,
+coverage_report/regression/: per-test verdict, generation and run seeds,
 duration and a copy of the simulation log, plus the regression-level summary and
 the git/host/simulator provenance of the run. Two options are excepted because
 neither is a batch of tests in that sense: --report-only launches nothing, and
@@ -324,13 +324,13 @@ re-publish an existing document without running anything:
 
 The dashboard is a copy of the verdict table, never a second verdict: nothing
 here can turn a FAIL into a pass, and publishing failures (or --parse-only rows
-with null durations) is deliberately supported -- the page renders what is
+with null durations) is deliberately supported: the page renders what is
 missing as N/A rather than as zero. The summary's wall window obeys the same
 rule: it is only published when the batch timed something, so a parsed batch
 leaves summary.start/end/duration_s null instead of publishing the couple of
 seconds between two timestamps as a regression's wall time. Since a document
 describes the batch that wrote it, that same re-summarize replaces whatever
-measured window the previous document held -- re-run the batch to measure it
+measured window the previous document held. Re-run the batch to measure it
 again, or re-publish the older document from the copy it left behind.
 
 Concurrency (--jobs)
@@ -513,10 +513,10 @@ TESTS_ROOTS = [
 ]
 
 # Directories under TESTS_ROOTS that --all-custom must never select. Everything
-# already covered by PARKED / COREV_DV_TESTS is skipped through those lists (see
-# discover_all_custom()), so this only needs the known-broken tests that no
-# curated list covers -- the debug_test_* failures excluded by the old
-# bin/run_uvm_tests.py all live in PARKED now.
+# already covered by PARKED or COREV_DV_TESTS is skipped through those lists
+# (see discover_all_custom()), so this only needs the known-broken tests that
+# no curated list covers, among them the debug_test_* failures the curated
+# lists leave out and PARKED already holds.
 DISCOVERY_EXCLUDES = [
     "isa_fcov_holes",
     "riscv_ebreak_test_0",
@@ -879,13 +879,13 @@ def _parse_log(tb, test, path, cfg, dir_seed):
 
 def discover_all_custom():
     """--all-custom: the immediate subdirectories of each TESTS_ROOTS entry as a
-    sorted test-name list -- an opt-in alternative to the curated lists above,
+    sorted test-name list, an opt-in alternative to the curated lists above,
     for callers (the coverage CI job) that want 'whatever is in the tree' rather
     than the same list maintained in two places.
 
     Skipped: DISCOVERY_EXCLUDES (known-broken and covered by no curated list),
-    plus everything already listed in PARKED / COREV_DV_TESTS -- those stay
-    opt-in through --include-parked / --include-corev-dv, which still append to
+    plus everything already listed in PARKED and COREV_DV_TESTS: those stay
+    opt-in through --include-parked and --include-corev-dv, which append to
     the result as usual."""
     skip = set(PARKED) | set(COREV_DV_TESTS) | set(DISCOVERY_EXCLUDES)
     found = []
@@ -902,7 +902,7 @@ def discover_all_custom():
 # Optional keys of a --testlist file, and the keys of one of its test entries.
 # Anything else is rejected rather than ignored: a typo silently changing what a
 # regression runs is the failure mode this format exists to avoid (the curated
-# lists above drifted into exactly that -- csr_instr_asm is both a default test
+# lists above drifted into exactly that: csr_instr_asm is both a default test
 # and a parked one).
 TESTLIST_KEYS = ("name", "description", "tb", "cfg", "timeout", "jobs", "seed",
                  "make_args", "tests")
@@ -913,8 +913,8 @@ def load_testlist(path):
     """Read a regression testlist; return (meta, entries).
 
     regress/*.yaml is where bin/README.md has always told people to put
-    regression testlists, and this is the format bin/run_tests.py -- the repo's
-    one harness -- actually consumes. meta carries the file's run settings (name,
+    regression testlists, and this is the format bin/run_tests.py, the repo's
+    one harness, actually consumes. meta carries the file's run settings (name,
     description, tb, cfg, timeout, jobs, seed, make_args) and entries one dict
     per test, in file order.
 
@@ -991,8 +991,8 @@ def regression_document(tb, cfg, results, testlist=None, started=None,
     rows are (test, verdict, detail, gen_seed, run_seed, duration) tuples, the
     shape main() collects; --parse-only rows carry duration None because nothing
     was timed. Each row also gets its simulation log's repository-relative path
-    and whether that log is still on disk -- the published dashboard links to a
-    copy of it, so a path that no longer exists must not be offered as one.
+    and whether that log is still on disk. The published dashboard links to a
+    copy of it, so a path that has gone missing is not offered as one.
     descriptions come from the --testlist file and are the only human-readable
     text a reader of the dashboard gets per test."""
     descriptions = descriptions or {}
@@ -1008,7 +1008,7 @@ def regression_document(tb, cfg, results, testlist=None, started=None,
             log_exists=log.is_file(),
             description=descriptions.get(test),
             # The published regression document covers every test this batch
-            # ran, parked ones included -- flagged, so the dashboard can badge
+            # ran, parked ones included, flagged, so the dashboard can badge
             # them and keep the parked failures out of the default verdict.
             parked=test in PARKED))
     return regression_report.build_document(
@@ -1027,7 +1027,7 @@ def batch_ucdb_lists(results, tb, cfg, run_index=UVMT_RUN_INDEX):
     """Split a batch's result rows into the two merge input lists.
 
     Returns (default_paths, parked_paths): the absolute Paths of the .ucdb
-    files of PASSing tests that exist on disk -- parked tests in the second
+    files of PASSing tests that exist on disk, parked tests in the second
     list only. The default-scope merge consumes the first list, the
     including-parked merge the two together; a FAILED or ERROR row is in
     neither, because a truncated database says nothing trustworthy about the
@@ -1061,20 +1061,20 @@ def merge_batch_coverage(tb, cfg, timeout, ucdb_list=None, merge_dir="merged"):
     return whether the merge actually ran.
 
     cov_merge, not cov: cov is one of Common.mk's TEST_YAML_PARSE_TARGETS, so
-    it aborts without a TEST -- and a batch merge has no single test to name.
+    it aborts without a TEST, and a batch merge has no single test to name.
     cov_merge builds only the database; every report this harness publishes is
     generated from it by generate_coverage_reports() below, never by cov's
     in-tree vsim report.
 
     ucdb_list: file of .ucdb paths (write_ucdb_list()), passed to
     mk/uvmt/vsim.mk as COV_MERGE_LIST so the merge covers exactly those
-    databases -- the same batch can then be merged twice, into two scopes,
+    databases, so the same batch can then be merged twice, into two scopes,
     without an unrelated .ucdb on disk leaking into either number. None keeps
     the historical behaviour of merging every .ucdb found under the cfg, which
     is exactly what --merge-existing asks for.
 
     Unlike the per-test incremental merge this replaced, this runs once per
-    batch after the worker pool has joined -- there is no concurrent vcover
+    batch after the worker pool has joined; there is no concurrent vcover
     writer left to serialise against."""
     tbcfg = TESTBENCHES[tb]
     merge_dir_path = tbcfg["sim_dir"] / "vsim_results" / cfg / merge_dir
@@ -1134,9 +1134,9 @@ def graded_batch_tests(tb, cfg, merged_dir, results=None,
     The names come from the merged database's own input list (ucdb.list,
     written by merge_batch_coverage's COV_MERGE_LIST mechanism), not from
     this batch's result rows: the grading then describes exactly the tests
-    the merged database holds -- including a test appended to the list by a
-    targeted re-merge -- and --report-only can grade without any results.
-    A .ucdb named by the list but no longer on disk is dropped with a
+    the merged database holds, including a test appended to the list by a
+    targeted re-merge, and --report-only can grade without any results.
+    A .ucdb named by the list but missing from disk is dropped with a
     warning (the merged number still includes it; the per-test row cannot).
     Without a list (--merge-existing's find-merge), fall back to the
     results rows, and without either there is nothing to grade."""
@@ -1363,15 +1363,15 @@ def build_coverage_matrix(tb, timeout, tests, merged_dir, merged_ucdb,
 #         <cvgbins active="12695" hits="0" percent="0.00"/>
 #       </instanceData>
 #
-# Both kinds of metric therefore come from one real data source. They used to be
-# scraped out of the generated HTML report's files/overalldu.js, which can only
-# ever report the scope that HTML was generated for, and whose 'fc' field counts
-# the handful of cover *directives* in the RTL rather than the covergroup *bins*
-# of the environment -- which is how the dashboard came to advertise 100%
-# functional coverage while the env's bins sat at 0%. hits="na" shows up on
-# metrics nothing hit and has to be tolerated.
+# Both kinds of metric therefore come from one real data source rather than from
+# the generated HTML report's files/overalldu.js, which can only ever report the
+# scope that HTML was generated for, and whose 'fc' field counts the handful of
+# cover *directives* in the RTL rather than the covergroup *bins* of the
+# environment: scraping it advertises near-100% functional coverage while the
+# env's bins sit at 0%. hits="na" shows up on metrics nothing hit and has to be
+# tolerated.
 
-# <element name> -> metric name, for the code rollups of one instance.
+# <element name> => metric name, for the code rollups of one instance.
 _CODE_ROLLUPS = (
     ("statements", "statement"),
     ("branches", "branch"),
@@ -1413,7 +1413,7 @@ def parse_questa_code_rollup(xml_path, scope=None):
     """Sum the code-coverage rollups of a `vcover report -xml` export.
 
     scope (a hierarchy path, as passed to vcover's -instance) restricts the
-    totals to that subtree, which is this project's code-coverage policy -- the
+    totals to that subtree, which is this project's code-coverage policy: the
     testbench's own code is not the deliverable. Returns
 
         {metric: {"active": n, "hits": n, "percent": p}, …, "code": p}
@@ -1449,7 +1449,7 @@ def parse_questa_code_rollup(xml_path, scope=None):
     if not percents:
         return None
     # Headline number for the dashboard: the average of the TRL5 code metrics,
-    # which is what the scraped 'tc' field of the HTML report used to report.
+    # the one figure this dashboard publishes as its code-coverage percentage.
     metrics["code"] = round(sum(percents) / len(percents), 2)
     return metrics
 
@@ -1458,7 +1458,7 @@ def parse_questa_functional_rollup(xml_path):
     """Covergroup-bin coverage of a `vcover report -xml` export, whole hierarchy.
 
     The covergroup rollups hang off one <instanceData> per package, whose path
-    is the package itself (/uvme_cv32e20_pkg, …) -- always outside the DUT, so
+    is the package itself (/uvme_cv32e20_pkg, …), always outside the DUT, so
     this export must not be instance-restricted. Returns
 
         {"bins_total": n, "bins_covered": n, "percent": p,
@@ -1563,7 +1563,7 @@ def publish_coverage_analysis(dest_dir, source_root=None):
     for name in COVERAGE_ANALYSIS_FILES:
         source = source_root / name
         if not source.is_file():
-            # Each dump names the tool that measured it -- only the sheet is
+            # Each dump names the tool that measured it; only the sheet is
             # coverage_review.py's own output, and the Phase C rows come off
             # `vcover report -details` runs no script wraps. An absent dump is
             # a tool nobody has run on this tree, not a broken report; the
@@ -1599,7 +1599,7 @@ def publish_coverage_analysis(dest_dir, source_root=None):
 def read_merged_test_names(merge_dir):
     """The tests one merged database was built from, read back from the
     ucdb.list that vcover merge consumed (written into the merge directory by
-    mk/uvmt/vsim.mk). [] without a list -- the dashboard renders an absent set
+    mk/uvmt/vsim.mk). [] without a list; the dashboard renders an absent set
     rather than an invented one."""
     listing = Path(merge_dir) / "ucdb.list"
     if not listing.is_file():
@@ -1613,8 +1613,8 @@ def read_merged_test_names(merge_dir):
 def _disclose_unchecked_pairing(label, merge_dir, source, reason):
     """Say that a recovered pairing went unchecked, rather than saying nothing.
 
-    The shapes of unknown -- a database with no input list, a summary that
-    recorded no test names -- share one consequence: the counts about to be
+    The shapes of unknown, a database with no input list or a summary that
+    recorded no test names, share one consequence: the counts about to be
     published beside this database were never compared against it. Silence
     reads as a clean bill of health, which is the opposite of true."""
     print(f"warning: cannot check the {label} merged database against "
@@ -1626,10 +1626,10 @@ def _compare_names_with_database(label, recovered_names, merge_dir, source):
 
     The input list is the only record of what a merged database holds, so it is
     what any recovered set of counts has to be measured against. A difference
-    does not by itself prove two batches -- ``batch_ucdb_lists()`` leaves out a
+    does not by itself prove two batches: ``batch_ucdb_lists()`` leaves out a
     PASSing test whose ``.ucdb`` never reached the disk, and ``--merge-existing``
     merges every ``.ucdb`` the results tree holds, parked and leftover included
-    -- so both benign causes are named next to the two lists rather than the
+    so both benign causes are named next to the two lists rather than the
     reader being told which batch they came from. A database with no list beside
     it is the other shape of unknown: not agreeing, simply unrecorded."""
     listing = Path(merge_dir) / "ucdb.list"
@@ -1673,7 +1673,7 @@ def warn_recovered_vs_databases(rows, merged_dir, merged_parked_dir):
     another batch's coverage metrics. The merge input lists are the only record
     of what each database holds, so the document's PASS rows are compared to
     them, scope by scope. Both sides stay true of their own batch, so this warns
-    rather than withholding the report -- but never silently."""
+    rather than withholding the report, but never silently."""
     _compare_names_with_database(
         "default",
         {row.get("name") for row in rows
@@ -1690,17 +1690,17 @@ def warn_summary_vs_databases(prev, merged_dir, merged_parked_dir):
 
     A summary recovered from summary.json pairs that publish's counts with the
     databases now on disk, and summary.json records the names those databases
-    were built from -- ``test_sets`` is read out of the very ``ucdb.list`` files
-    below -- so the comparison costs nothing here either. A summary written
+    were built from, and ``test_sets`` is read out of the very ``ucdb.list``
+    files below, so the comparison costs nothing here either. A summary written
     before ``test_sets`` existed can say nothing, and does."""
     recorded = prev.get("test_sets") or {}
     default_names = set(recorded.get("default") or [])
     parked_names = set(recorded.get("parked") or [])
     if not default_names and not parked_names:
-        # Nothing recorded -- an older summary, or a publish whose databases had
+        # Nothing recorded: an older summary, or a publish whose databases had
         # no input list to read. Comparing an empty set would say "counts 0 as
         # PASS", which is a worse lie than silence, so the pairing is disclosed
-        # as unchecked instead -- and never silently agreed.
+        # as unchecked instead, and never silently agreed.
         for label, merge_dir in (("default", merged_dir),
                                  ("including-parked", merged_parked_dir)):
             if (Path(merge_dir) / "merged.ucdb").is_file():
@@ -1722,7 +1722,7 @@ EXTERNAL_REPOS_MK = Path("sim") / "ExternalRepos.mk"
 
 
 def parse_external_repos(path):
-    """Variable -> value for every live (uncommented) 'VAR ?= value' line of a
+    """Variable => value for every live (uncommented) 'VAR ?= value' line of a
     sim/ExternalRepos.mk. The commented rollback entries are meant to stay
     invisible here: a report must publish the pin that was actually used."""
     pins = {}
@@ -1741,7 +1741,7 @@ def parse_external_repos(path):
 
 
 def _git_output(cwd, *args):
-    """Trimmed git stdout, or None when git -- or the checkout -- is
+    """Trimmed git stdout, or None when git or the checkout is
     unavailable. Every version the report publishes is best-effort: a source
     tarball has no .git, and inventing a hash would defeat the point."""
     try:
@@ -1856,14 +1856,14 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
 
     results: this batch's (test, outcome, detail, gen_seed, run_seed) tuples, or
     None when nothing was executed (--report-only), in which case the pass/fail
-    counts are recovered from sim/uvmt/regression_results.json -- the authority
-    on this run's verdicts, whose rows carry the parked flag -- falling back to
+    counts are recovered from sim/uvmt/regression_results.json, the authority
+    on this run's verdicts, whose rows carry the parked flag, falling back to
     an existing coverage_report/summary.json, rather than reported as 0/0. Every coverage step is guarded on merged.ucdb actually
     existing, so a batch in which everything failed (or that never ran) still
     produces the dashboard plus summary.json, with N/A metrics.
 
     The top-level summary keys describe the default scope: rows for PARKED
-    tests never move them -- they only ever contribute to the including_parked
+    tests never move them; they only ever contribute to the including_parked
     block (and the regression document), computed from the batch's second
     merged database, merged_parked/merged.ucdb, when that exists.
 
@@ -1887,7 +1887,7 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
     summary_json_path = report_dest_root / "summary.json"
 
     # Pass/fail counts: from this batch, or recovered from the previous one.
-    # Top-level counts are the default scope -- parked rows move only the
+    # Top-level counts are the default scope; parked rows move only the
     # including_parked block; with no parked tests in the batch both views
     # count the same rows anyway.
     parked_names = set(PARKED)
@@ -1931,9 +1931,9 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
             parked_view = (prev_parked.get("passed", 0),
                            prev_parked.get("total_tests", 0))
             if prev:
-                # Any summary read is a pairing with the databases on disk. The
-                # counts used to gate this, so a summary whose only numbers
-                # were the parked block published beside them unchecked.
+                # Any summary read is a pairing with the databases on disk,
+                # so a summary whose only published numbers were the parked
+                # block gets the same check rather than a silent pass.
                 recovered_from = summary_json_path.name
                 warn_summary_vs_databases(prev, merged_dir, merged_parked_dir)
         log_lines = ["Tests skipped. Using recovered metrics from previous run."]
@@ -1960,15 +1960,15 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
     # of the Cobertura and UCIS conversions. Three of them, because the two
     # coverage policies have different scopes:
     #
-    #   merged.questasim.xml  whole hierarchy -> covergroup bins (functional)
-    #   dut_rollup.xml        DUT instance    -> code and TRL5 metrics
-    #   dut_detail.xml        DUT instance    -> per-file/per-line Cobertura
+    #   merged.questasim.xml  whole hierarchy => covergroup bins (functional)
+    #   dut_rollup.xml        DUT instance    => code and TRL5 metrics
+    #   dut_detail.xml        DUT instance    => per-file/per-line Cobertura
     #
     # The functional one must stay unrestricted: the environment's covergroups
     # live in packages outside the DUT, so restricting it reports the RTL's cover
     # directives instead (see parse_questa_functional_rollup). The -details
-    # exports are converter input rather than browsable reports -- the covergroup
-    # detail runs to tens of megabytes -- so they land next to the .ucdb instead
+    # exports are converter input rather than browsable reports: the covergroup
+    # detail runs to tens of megabytes, so they land next to the .ucdb instead
     # of in the published coverage_report/.
     questa_xml_path = report_dest_root / "merged.questasim.xml"
     dut_rollup_path = report_dest_root / "dut_rollup.xml"
@@ -2080,7 +2080,7 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
 
     # Including-parked view: the same metric set computed from the batch's
     # second merged database (the default scope plus the PARKED tests), and
-    # the two detail trees behind that view's buttons -- same scopes as their
+    # the two detail trees behind that view's buttons, same scopes as their
     # default-scope twins above, which is what lets the dashboard's toggle
     # swap one set for the other. Fail-soft in the same way: no parked
     # database simply means no including_parked block in summary.json, the
@@ -2168,16 +2168,16 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
     # directory down, so both pages use the same href="common.css".
     copy_common_css(report_dest_root)
 
-    # The waiver / open-hole analysis lives under docs/ (it is input to a
+    # The waiver and open-hole analysis lives under docs/ (it is input to a
     # review, not output of a run); this mirrors the whole of it, sheet and raw
     # dumps, into coverage_report/analysis/ next to the page that reads it.
     publish_coverage_analysis(report_dest_root)
 
     # TRL5 metrics: the five code metrics of the DUT scope, read out of
     # dut_rollup.xml. 'condition' is Questa's own condition metric
-    # (<fec_conditions> rollups); it used to be filled with the scraped
-    # functional number, which made the two dashboard cards agree by
-    # construction.
+    # (<fec_conditions> rollups), never the scraped functional number: the
+    # two dashboard cards must never be able to agree by construction,
+    # so each reads its own metric.
     trl5_metrics = None
     if code_metrics:
         trl5_metrics = {metric: (code_metrics[metric]["percent"]
@@ -2260,7 +2260,7 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
     # files vcover merge consumed: the published names then cannot disagree
     # with the databases, because both are read from the same file. A tree with
     # no input list publishes two empty sets, which means unrecorded rather
-    # than empty -- warn_summary_vs_databases() reads it that way and says the
+    # than empty; warn_summary_vs_databases() reads it that way and says the
     # pairing went unchecked. The keys themselves always ship: the Pages
     # validation step in .github/workflows/coverage.yml requires test_sets.
     summary_data["test_sets"] = {
@@ -2269,7 +2269,7 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
                          & parked_names),
     }
     # Where this report's sources come from: the dashboard's Build Versions
-    # table and footer timestamp. Metadata only -- nothing gates on it, and a
+    # table and footer timestamp. Metadata only: nothing gates on it, and a
     # component without git renders as such rather than as a placeholder.
     summary_data["generated"] = regression_report.now()
     simulator = regression_report.simulator_meta("uvmt")
@@ -2613,7 +2613,7 @@ def main(argv=None):
             # A coverage batch owns both dashboard views: the PARKED tests run
             # for the including-parked database even when the caller did not
             # spell out --include-parked. Only PASSes are ever merged, so a
-            # parked failure can only ever lower the parked view -- which is
+            # parked failure can only ever lower the parked view, which is
             # why CI can add them unconditionally behind --allow-failures.
             print("note: --cov-report also runs the parked tests "
                   "(including-parked report)")
@@ -2716,7 +2716,7 @@ def main(argv=None):
 
     # Per-test make args from the testlist (e.g. CVE2_CONFIG=CV32E20X for a
     # core built with an extension interface). Combined with, not replacing,
-    # the batch-level args -- COMP=NO from setup_comp() has to survive.
+    # the batch-level args: COMP=NO from setup_comp() has to survive.
     per_test_make_args = {}
     if testlist_entries is not None:
         for entry in testlist_entries:
@@ -2736,7 +2736,7 @@ def main(argv=None):
 
     def run_one(test):
         """Rows (test, outcome, detail, gen_seed, run_seed, duration) for one
-        test -- several when --parse-only finds more than one seed directory."""
+        test, several when --parse-only finds more than one seed directory."""
         action = "Parsing" if just_parse else "Running"
         with _print_lock:
             print(f"[{action}/{args.tb}] {test} ...")
@@ -2753,11 +2753,11 @@ def main(argv=None):
                 gen_seed=args.gen_seed, seed=seed,
                 cov=args.cov, spike_tandem=args.spike_tandem)]
         # Nothing is measured when a verdict is read back out of an old log, and
-        # an unmeasured duration is null rather than 0 -- see regression_report.
+        # an unmeasured duration is null rather than 0; see regression_report.
         duration = None if just_parse else round(time.monotonic() - start, 1)
 
         # The .ucdb files are merged once, after the whole batch, from an
-        # explicit list of this batch's PASSes -- see the "Coverage reports"
+        # explicit list of this batch's PASSes; see the "Coverage reports"
         # section of the module docstring and merge_batch_coverage().
 
         if args.jobs > 1:
@@ -2818,8 +2818,8 @@ def main(argv=None):
 
     # Deterministic, batch-scoped merges: write each scope's input list from
     # this batch's PASSing .ucdb files, then merge each scope into its own
-    # database. --merge-existing has no batch of its own to scope by -- it
-    # merges whatever is already on disk -- so it keeps the historical
+    # database. --merge-existing has no batch of its own to scope by: it
+    # merges whatever is already on disk, so it keeps the historical
     # default-scope find merge and produces no including-parked database.
     if args.cov_report and not no_exec:
         default_paths, parked_paths = batch_ucdb_lists(
@@ -2854,7 +2854,7 @@ def main(argv=None):
     # The regression dashboard goes out after the coverage report on purpose:
     # a --cov-report run wipes coverage_report/ before it starts, and publishing
     # into coverage_report/regression/ before that would delete the page again.
-    # Publishing is reporting, not gating -- a dashboard that could not be
+    # Publishing is reporting, not gating: a dashboard that could not be
     # written must not change what this batch's exit code says about the tests.
     # Nothing is timed when the verdicts were read back out of existing logs, so
     # the window between two now() calls in the same second is not this
@@ -2877,7 +2877,7 @@ def main(argv=None):
     except (OSError, ValueError) as exc:
         print(f"warning: could not publish the regression results: {exc}")
 
-    # Exit non-zero unless everything ran and passed -- which is also what makes
+    # Exit non-zero unless everything ran and passed, which is also what makes
     # a --cov-report batch usable as the CI gate. --allow-failures downgrades a
     # failing batch to exit 0 so downstream report/publish steps still run.
     if counts["PASS"] != total and args.allow_failures:

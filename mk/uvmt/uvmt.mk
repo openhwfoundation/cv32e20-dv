@@ -169,7 +169,7 @@ SIM_LIBS    := $(CV32E20_DV)/lib/sim_libs
 
 RTLSRC_VLOG_TB_TOP	:= $(basename $(notdir $(TBSRC_TOP)))
 RTLSRC_VOPT_TB_TOP	:= $(addsuffix _vopt, $(RTLSRC_VLOG_TB_TOP))
-# Coverage scope: the DUT core only -- the testbench and the top-level
+# Coverage scope: the DUT core only: the testbench and the top-level
 # wrappers stay out of the database and out of every report.  This is the one
 # definition; mk/uvmt/vsim.mk's VOPT_COV and COV_INST_ARG consume it, and
 # bin/run_tests.py keeps a matching copy of the path in its uvmt
