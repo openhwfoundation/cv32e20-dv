@@ -1,7 +1,5 @@
 ﻿# source: sim/uvmt/vsim_results/default/merged/merged.ucdb with sim/tools/vsim/cov.tcl applied in vsim -viewcov (report-only session; the .ucdb is not modified)
 Design Unit,Instance,File,Line,Metric,Target,Hits,Misses,Source
-cve2_compressed_decoder,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/if_stage_i/compressed_decoder_i,rtl/cve2_compressed_decoder.sv,260,branch,item 1,0,1,"3'b101,"
-cve2_controller,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/id_stage_i/controller_i,rtl/cve2_controller.sv,514,branch,All False Count (else arm),0,1,All False Count
 cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,39,branch,item 1,0,1,if (counterh_we_i) begin
 cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,45,branch,item 1,0,1,if (we) begin
 cve2_counter,/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/cs_registers_i/gen_cntrs[9]/gen_imp/mcounters_variable_i,rtl/cve2_counter.sv,40,stmt,,0,1,counter_load[63:32] = counter_val_i;

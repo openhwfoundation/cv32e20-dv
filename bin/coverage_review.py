@@ -83,7 +83,7 @@ DEFAULT_OUT = REPO / "docs" / "coverage" / "coverage_review.csv"
 # The tests this plan of record adds. A row that names one of these is waiting
 # on stimulus; tests/programs/custom/<name>/ is where it lives.
 MID_RUN_RESET_TEST = "mid_run_reset_test"
-IRQ_WITHDRAW_TEST = "irq_withdraw_test"
+IRQ_SINGLE_CYCLE_TEST = "irq_single_cycle_test"
 
 # The status strings bin/coverage_waiver_audit.py writes.
 NOT_INSTRUMENTED = "NOT-INSTRUMENTED"
@@ -120,7 +120,7 @@ HOLE_TRIAGE = {
     ("cve2_controller", "branch", "514"): {
         "classification": "B-new-test",
         "category": "stimulus-gap",
-        "test": IRQ_WITHDRAW_TEST,
+        "test": IRQ_SINGLE_CYCLE_TEST,
         "justification": (
             "handle_irq is committed by the DECODE->IRQ_TAKEN transition "
             "(cve2_controller.sv:496-498) and sampled again the next cycle in "
@@ -128,12 +128,17 @@ HOLE_TRIAGE = {
             "window takes the false arm -- the irq_withdrawn_in_taken case the RTL's "
             "own assertion block (:835-836) exists to describe. Reachable in the "
             "RTL, so it is stimulus, not dead code: waive nothing, direct an "
-            "interrupt withdrawal at the window instead. MEASURED 2026-11-01: "
-            "irq_withdraw_test passes and the bin is still a miss, because the ack "
-            "the agent's irq_ack_clear() waits for is the testbench's own "
-            "ctrl_fsm_cs == 4'h7 probe (tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107) and not "
-            "a DUT output (cve2_controller.sv:66-72), so its own clear lands one cycle "
-            "after the window closes -- see "
+            "interrupt withdrawal at the window instead. MEASURED CLOSED "
+            "2026-11-05: irq_single_cycle_test runs the bind-file testbench "
+            "injector (tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv, "
+            "blanking the core's irq bus for exactly one cycle after a commit "
+            "edge, +irq_single_cycle +irq_single_cycle_shots=3) and hits the "
+            "arm -- uvmt_cv32e20_tb.sv's end_of_test fails an armed injector "
+            "that never fired, so a PASS is the measurement. The merged-bin "
+            "numbers and the history of why the vendored agent's own clear "
+            "lands one cycle after the window closes (its irq_ack is the "
+            "testbench probe tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107, not a DUT "
+            "output) are kept in docs/coverage/coverage_review.md and "
             "docs/coverage/raw/phase_c_acceptance.csv."),
     },
     ("cve2_controller", "assertion", "CVE2NoDoubleSpecialReqPCSet"): {

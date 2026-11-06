@@ -201,7 +201,7 @@ class TestTriageRules(unittest.TestCase):
             {"Design Unit": "cve2_controller", "Metric": "branch",
              "Line": "514", "Target": "All False Count (else arm)"})
         self.assertEqual(triaged["classification"], "B-new-test")
-        self.assertEqual(triaged["test"], "irq_withdraw_test")
+        self.assertEqual(triaged["test"], "irq_single_cycle_test")
         self.assertEqual(triaged["status"], "triaged")
         # An assertion is keyed by its own name, not by a line number.
         by_name = coverage_review.triage_hole(
@@ -242,7 +242,7 @@ class TestTriageRules(unittest.TestCase):
             {"Design Unit": "cve2_controller", "Metric": "branch",
              "Line": "514", "Target": "All False Count (else arm)"},
             parked_keys=set())
-        self.assertEqual(h001["test"], "irq_withdraw_test")
+        self.assertEqual(h001["test"], "irq_single_cycle_test")
 
     def test_new_rtl_comp_dec_hole_is_a_steerable_gap(self):
         """cve2_compressed_decoder.sv is unchanged across the d7f2156 re-pin;
@@ -352,7 +352,7 @@ class TestSheet(unittest.TestCase):
             self.assertEqual(rows[0]["Status"], "triaged")
             # The one triaged hole this tool knows by heart.
             self.assertEqual(rows[1]["Classification"], "B-new-test")
-            self.assertEqual(rows[1]["Proposed Test"], "irq_withdraw_test")
+            self.assertEqual(rows[1]["Proposed Test"], "irq_single_cycle_test")
 
     def test_main_applies_the_parked_evidence_rule(self):
         """Three dumps in: the hole the parked database covered is classed from

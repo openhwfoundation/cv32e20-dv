@@ -265,48 +265,46 @@ coverage exclude -du cve2_controller -linerange 678 -code b -comment {default ar
 #   this one row is excluded.
 coverage exclude -du cve2_controller -feccondrow 521 4 -comment {Nested NMI (irq_nm_i sensitized while nmi_mode_q==1) is structurally unreachable: entry into the only FSM state that evaluates this condition (IRQ_TAKEN) requires handle_irq, which is unconditionally 0 whenever nmi_mode_q==1 (cve2_controller.sv:321-322, explicit RTL comment: nested NMIs not supported).}
 
-#   cve2_controller.sv:514 `if (handle_irq) begin` (inside IRQ_TAKEN) --
-#   its false arm ("All False Count") is a real branch-coverage miss, left
-#   DELIBERATELY UNEXCLUDED (user decision, 2026-08-12): this is
-#   `irq_withdrawn_in_taken` (see the `` `ifdef INC_ASSERT `` block further
-#   down in cve2_controller.sv) -- an interrupt can be
-#   committed (DECODE->IRQ_TAKEN, handle_irq=1 at commit) and then
-#   withdrawn one cycle later, right as IRQ_TAKEN would perform the PC
-#   redirect. This is genuinely reachable and has been empirically
-#   confirmed once via a cycle-accurate signal dump on
-#   corev_rand_interrupt_exception -- not dead code, just a rare,
-#   interrupt-noise-timing-dependent window that doesn't reproduce on
-#   every regression seed.
-#   Superseded 2026-11-01: classified B-new-test rather than accepted, and the
-#   directed test written for it (irq_withdraw_test, which pulses the NMI line
-#   -- not irq_pending_i -- and withdraws it) now builds, runs and PASSES.
-#   MEASURED 2026-11-01 (seed 1, Questa One 2025.3_2, USE_ISS=NO): the bin is
-#   still a miss, and the reason is the agent, not the timing lottery. 3008
-#   assert/deassert pulses produced exactly one DECODE->IRQ_TAKEN commit, and
-#   line 514 was evaluated twice, true both times. In
-#   uvma_interrupt_drv_c, wait_and_assert_irq_edge() holds every rising edge
-#   for two cycles and irq_ack_clear() only drops the line after it samples
-#   irq_ack -- which is no DUT signal at all: CVE2's interrupts are
-#   level-sensitive and the controller's entire interrupt interface is the
-#   irq_pending_i/irqs_i/irq_nm_i inputs (cve2_controller.sv:66-72). What the
-#   agent waits for is the testbench's own
-#   tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107 `ctrl_fsm_cs == 4'h7` -- 4'h7 is
-#   IRQ_TAKEN, the eighth member of the module-local ctrl_fsm_e at
-#   cve2_controller.sv:106-109 -- so the ack is high during the IRQ_TAKEN cycle
-#   itself: the driver samples it at that cycle's end and drives low on the
-#   next edge, when the FSM has already left IRQ_TAKEN. One cycle too late, and
-#   no hold/gap setting is earlier.
-#   The 2026-08-12 note above that this had been confirmed once cannot be
-#   reproduced from any database that still exists: the merged .ucdb
-#   (md5 7d8c430e78b4648bb75c8a0b4b6c7670) has 433 evaluations, 0 on this arm.
-#   Still left unexcluded, and still not waivable under the policy of
-#   docs/coverage/coverage_review.md -- what is unreachable here is the
-#   stimulus path, not the RTL. Closing it means a cycle-accurate irq stimulus
-#   below uvma_interrupt_drv_c: drive irq_nm low for one cycle from tb/uvmt/,
-#   which is where ctrl_fsm_cs is already probed -- vendor_lib/ holds a
-#   git-ignored clone of upstream core-v-verif, so the driver itself is not
-#   ours to patch. Row H001 of docs/coverage/coverage_review.csv and the last
-#   row of docs/coverage/raw/phase_c_acceptance.csv carry the measurement.
+#   cve2_controller.sv:514 `if (handle_irq) begin` (inside IRQ_TAKEN), false
+#   arm ("All False Count") -- RESOLVED 2026-11-04 by testbench stimulus;
+#   since 2026-11-05 the injector is a dedicated bound file, not TB code. No
+#   exclusion is applied here, and none may ever be added: the bin has hits,
+#   so a waiver would be HIDING-COVERED-CODE, and it would have no RTL
+#   reachability argument either (the arm is the design's own
+#   `irq_withdrawn_in_taken` case, cve2_controller.sv:826-836 -- an interrupt
+#   committed on the DECODE/FIRST_FETCH -> IRQ_TAKEN edge and dropped again
+#   before the PC redirect, leaving the state to return to DECODE with no
+#   csr_save_*).
+#   History, kept because the file is the audit trail: 2026-08-12 left it
+#   DELIBERATELY UNEXCLUDED; 2026-11-01 measured it a miss (3008 NMI
+#   assert/deassert pulses -> one commit, line 514 evaluated twice, both
+#   true; the merged .ucdb of that batch: 433 evaluations, 0 on this arm),
+#   and pinned the cause on the agent rather than on the timing lottery --
+#   uvma_interrupt_drv_c's wait_and_assert_irq_edge() holds a rising edge
+#   for two cycles and irq_ack_clear() drops the line only after sampling
+#   irq_ack, which is no DUT signal but the testbench's own probe
+#   tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107 `ctrl_fsm_cs == 4'h7`, high during
+#   the very cycle this line is read: the driver lets go one edge too late.
+#   The fix is that same probe, used to withdraw at the DUT pins instead:
+#   the injector tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv, bound
+#   into uvmt_cv32e20_dut_wrap itself, detects the commit edge (`commit_to_irq`,
+#   ctrl_fsm_cs inside {FIRST_FETCH, DECODE} && ctrl_fsm_ns == IRQ_TAKEN --
+#   which inherits every commit gate of :431-436 and :496-498) and blanks
+#   the irq bus into the core for exactly the next cycle, N times. It is
+#   armed by the plusargs `+irq_single_cycle` (starts
+#   env/uvme/vseq/uvme_cv32e20_irq_single_cycle_vseq.sv, which offers the
+#   NMI) and `+irq_single_cycle_shots=N`; with no plusarg the injector is
+#   inert and the core sees the interrupt bus unfiltered, so no other test
+#   is affected. Legal stimulus: CVE2's interrupt inputs are asynchronous
+#   and level-sensitive, so a source releasing one cycle after the core
+#   sampled it is ordinary behaviour, not a force hack.
+#   MEASURED 2026-11-05 (irq_single_cycle_test, seed 1, Questa One 2025.3_2,
+#   USE_ISS=NO, +irq_single_cycle +irq_single_cycle_shots=3, PASS in 150.9 s;
+#   own .ucdb 6/8): 6 of 1479 evals, 2 of 2 bins = 100.00 % in both merged
+#   databases. Self-checking: uvmt_cv32e20_tb.sv's end_of_test fails an
+#   armed injector that never fired, so a PASS here *is* the measurement.
+#   If the bin ever opens again, check that +irq_single_cycle_shots still
+#   reaches vsim (tests/programs/custom/irq_single_cycle_test/test.yaml).
 
 #   cve2_controller.sv:416 (SLEEP state's wfi wake condition)
 #   `(irq_nm_i || irq_pending_i || debug_req_i || debug_mode_q ||
@@ -723,8 +721,10 @@ if {!$UmodeEnabled} {
     #   Line 635 is `EXC_CAUSE_ECALL_UMODE`, the same permanently-dead U-mode
     #   arm as line 313. Verified via -viewcov dry run alongside the
     #   XInterface/one-hot-default exclusions below: controller_i branches
-    #   86/77/9 -> 74/73/1 (only the genuine, real irq_withdrawn_in_taken
-    #   miss at line 514 remains -- see the cve2_controller.sv:514 note above).
+    #   86/77/9 -> 74/73/1, leaving one genuine, real branch miss, the
+    #   irq_withdrawn_in_taken arm at line 514 -- closed 2026-11-04 by the
+    #   testbench withdrawal injector (see the cve2_controller.sv:514 note
+    #   above), which is why controller_i now reports no branch misses.
     coverage exclude -du cve2_controller -linerange 312-314 -code b -comment $UMODE_DISABLED_COMMENT
     coverage exclude -du cve2_controller -linerange 635 -code b -comment $UMODE_DISABLED_COMMENT
 }

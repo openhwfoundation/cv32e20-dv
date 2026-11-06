@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal excerpt of `vcover report -xml -details`, matching the real
+     Questa 2025.3 export element for element (fileMap plus the singular
+     stmt, ielem, celem, condition, state, trans and asrt objects, and the
+     plural per-instance rollups the parser must skip). Consumed by
+     bin/tests/test_coverage_matrix.py. -->
+<coverage_report>
+<code_coverage_report lines="1" byInstance="1">
+<instanceData path="/tb/dut_wrap/core_i/id_stage_i/controller_i" du="cve2_controller">
+<sourceTable files="1">
+<fileMap fn="0" path="/repo/core-v-cores/cv32e20/rtl/cve2_controller.sv"/>
+</sourceTable>
+<statements active="4" hits="2" percent="50.00"/>
+<stmt fn="0" ln="100" st="1" hits="17"/>
+<stmt fn="0" ln="100" st="2" hits="0"/>
+<stmt fn="0" ln="101" st="1" hits="3"/>
+<branches active="4" hits="2" percent="50.00"/>
+<if hasElse="1" active="2" hits="1" percent="50.00">
+<ielem fn="0" ln="514" st="1" true="12" false="5"/>
+<ielem fn="0" ln="514" st="2" true="0" false="0"/>
+</if>
+<case active="2" hits="1" percent="50.00">
+<celem fn="0" ln="300" st="1" hits="9"/>
+<celem fn="0" ln="300" st="2" hits="0"/>
+</case>
+<fec_conditions active="2" hits="1" percent="50.00"/>
+<condition fn="0" ln="60" st="1" active="1" hits="1" percent="100.00">
+<table rows="1" cols="0" unknown="0">
+<row j="1" hits_0="0" hits_1="1" body="(a &amp; b)" input_patterns_0="-" input_patterns_1="-"/>
+</table>
+</condition>
+<condition fn="0" ln="61" st="1" active="1" hits="0" percent="0.00">
+<table rows="1" cols="0" unknown="0">
+<row j="1" hits_0="0" hits_1="0" body="(c | d)" input_patterns_0="-" input_patterns_1="-"/>
+</table>
+</condition>
+<states active="2" hits="1" percent="50.00"/>
+<state ln="381" hits="2" state="RESET"/>
+<state ln="382" hits="0" state="RESET_DONE"/>
+<transitions active="2" hits="1" percent="50.00"/>
+<trans ln="387" tid="0" hits="1" state="RESET -&gt; BOOT_SET"/>
+<trans ln="388" tid="1" hits="0" state="BOOT_SET -&gt; FIRST_FETCH"/>
+<assertion_successes active="2" hits="1" percent="50.00"/>
+<asrt><asrtname>/tb/dut_wrap/core_i/id_stage_i/controller_i/CVE2ExceptionPrioOnehot</asrtname><source>/repo/core-v-cores/cv32e20/rtl/cve2_controller.sv(272)</source><failcount>0</failcount><passcount>1</passcount></asrt>
+<asrt><asrtname>/tb/dut_wrap/core_i/id_stage_i/controller_i/CVE2NoDoubleExceptionReq</asrtname><source>/repo/core-v-cores/cv32e20/rtl/cve2_controller.sv(873)</source><failcount>0</failcount><passcount>0</passcount></asrt>
+</instanceData>
+<instanceData path="/tb/dut_wrap/core_i/id_stage_i/ex_stage_i/alu_i" du="cve2_alu">
+<sourceTable files="2">
+<fileMap fn="0" path="/repo/core-v-cores/cv32e20/rtl/cve2_alu.sv"/>
+<fileMap fn="1" path="/repo/core-v-cores/cv32e20/rtl/added_package.sv"/>
+</sourceTable>
+<stmt fn="0" ln="45" st="1" hits="80340"/>
+<stmt fn="1" ln="12" st="1" hits="5"/>
+<state ln="77" hits="3" state="SOME"/>
+</instanceData>
+</code_coverage_report>
+</coverage_report>

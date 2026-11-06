@@ -127,17 +127,24 @@ interpreter.
 
 | List | Tests | Use |
 | --- | --- | --- |
-| `regress/cv32e20_sanity.yaml` | 11 directed, self-checking, no generation | blocks a change; minutes |
-| `regress/cv32e20_ci_check.yaml` | the 11 + slow directed tests + the 15 corev-dv templates | nightly/weekly; hours |
+| `regress/cv32e20_sanity.yaml` | 12 directed, self-checking, no generation | blocks a change; minutes |
+| `regress/cv32e20_ci_check.yaml` | the 12 + slow directed tests + the 15 corev-dv templates | nightly/weekly; hours |
 
-The sanity list was measured, not estimated: all 11 tests pass on Questa One
-2025.3_2 with `--jobs 4` (11 passed, 0 failed, 0 error(s)) in **644 s** of batch
-time against the `d7f2156` CVE2 pin, slowest test `illegal_instr_test` at
-612.7 s and the rest between 23.6 s and 123.1 s, which is what publishes a 100%
-pass rate on the dashboard. Those
-figures *are* the published document's -- `coverage_report/regression/regression_results.json`
-of that run holds the same 644 s and the same per-test times -- so re-measuring
-the list updates the dashboard and this page from one source. One caveat travels
+The sanity list was measured, not estimated: all 12 tests pass on Questa One
+2025.3_2 with `--jobs 4` (12 passed, 0 failed, 0 error(s)) in **1154 s** of batch
+time against the `d7f2156` CVE2 pin (2026-11-05, coverage-instrumented, i.e.
+`--cov --cov-report`, which roughly doubles the loop: the same tests without
+coverage ran 11 of them in 562 s on 2026-10-30), slowest test
+`irq_withdraw_test` (the interrupt-withdrawal pulse sweep) at 996.8 s, then
+`illegal_instr_test` at 903.1 s and the rest between 26.0 s and 151.6 s, which
+is what publishes a 100% pass rate on the dashboard. Those
+figures came from that run's own `regression_results.json`; the published
+document at `coverage_report/regression/regression_results.json` is
+last-batch-wins, and since 2026-11-05 it describes the
+`--all-custom --include-corev-dv --cov-report` batch (44 tests, 42 PASS, the
+two parked FAILs documented in [the coverage review](coverage/coverage_review.md))
+-- re-measuring the list refreshes the dashboard, and this page from one source
+when the sanity batch is the last run. One caveat travels
 with `summary.duration_s`: it is the window from the first test starting to the
 last one finishing, so it excludes the one-time `make comp` that `--jobs > 1`
 does before the loop (and, in `self-hosted.yml`, the `make clean_all` that starts
@@ -175,6 +182,19 @@ coverage_report/questasim/                Questa HTML report, code, DUT-scoped
 coverage_report/questasim_func/           Questa HTML report, covergroups, full hierarchy
 coverage_report/questasim_parked/         the code report from merged_parked/ instead
 coverage_report/questasim_func_parked/    the covergroup report from merged_parked/
+coverage_report/pertest/index.html        per-test grading: each merged test's
+                                          own code + functional metrics (and,
+                                          for batches of <= 20 databases, the
+                                          Unique column -- what only that test
+                                          contributes, by a `vcover delcov`
+                                          replay; `--no-cov-delta` skips the
+                                          replays)
+coverage_report/matrix/index.html         line-to-tests matrix: which tests hit
+                                          each RTL source object of the CVE2
+                                          core (`bin/coverage_matrix.py`);
+                                          `--cov-report-html-tests` additionally
+                                          drops each test's own `vcover` HTML
+                                          trees under `pertest/`
 coverage_report/coverage_review.csv       the waiver/open-hole review sheet (from docs/)
 coverage_report/analysis/index.html       the analysis page (templates/analysis_dashboard/)
 coverage_report/analysis/style.css        its own rules, plus common.css beside it
@@ -401,7 +421,8 @@ the one this repository runs.
 
 1. Add the test program under `tests/programs/custom/<name>/` (or a corev-dv
    template under `tests/programs/corev-dv/<name>/`).
-2. If it is self-checking and finishes in a minute or two, add it to
+2. If it is self-checking and costs no more than the slowest test already on
+   the list (687.4 s of the 732 s measured above), add it to
    `regress/cv32e20_sanity.yaml`; otherwise to `regress/cv32e20_ci_check.yaml`.
    Give it a `description:` -- it is the only human-readable text the dashboard
    shows for it.

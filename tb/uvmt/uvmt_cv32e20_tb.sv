@@ -425,6 +425,20 @@ module uvmt_cv32e20_tb;
 
       void'(uvm_config_db#(bit)::get(null, "", "sim_finished", sim_finished));
 
+      // Single-cycle interrupt-withdrawal stimulus (the injector bound into
+      // dut_wrap, see uvmt_cv32e20_irq_single_cycle_injector.sv): an armed
+      // injector that never fired stimulated nothing, which would make a
+      // PASSing run a measurement of nothing. Fail it instead -- this is what
+      // lets irq_single_cycle_test gate the branch bin it exists for
+      // (cve2_controller.sv:514, IRQ_TAKEN's false arm) rather than hope to
+      // hit it. Counted here, in the block that already owns the verdict,
+      // because final blocks have no defined order between a module and its
+      // instances, and this harness classifies on the banner printed below.
+      if (dut_wrap.u_irq_single_cycle.en && (dut_wrap.u_irq_single_cycle.fired_q == 0)) begin
+        $display("    IRQ_SINGLE_CYCLE: injector armed with +irq_single_cycle_shots=%0d never fired: no IRQ_TAKEN commit was withdrawn.", dut_wrap.u_irq_single_cycle.shots);
+        err_count++;
+      end
+
       // FIXME: Shutdown the Reference Model
       //void'(rvviRefShutdown());
 

@@ -1,4 +1,5 @@
 *~
+/.*/
 *.nm
 *.elf
 *.hex
@@ -19,8 +20,6 @@ vsim_results
 vmgr_sessions
 __pycache__
 *.swp
-/.cproject
-/.project
 .dvt/
 dvt_build.log
 xrun.history
@@ -48,9 +47,8 @@ vcs.cmd
 venv*
 /dist/
 .claude
-!.github/workflows/
+!.github/
 A*.md
-coverage_report_bkp/
 # Generated coverage reports: published as CI artifacts / GitHub Pages, never
 # committed (bin/run_tests.py --cov-report regenerates the whole tree).
 coverage_report/

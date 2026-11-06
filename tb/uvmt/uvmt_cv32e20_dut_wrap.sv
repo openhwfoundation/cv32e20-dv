@@ -118,7 +118,12 @@ module uvmt_cv32e20_dut_wrap #(
     // FIXME: need a sol'n that does not require probing the core RTL.
     assign vp_interrupt_if.id_in_ready          = cv32e20_top_i.u_cve2_top.u_cve2_core.id_stage_i.controller_i.id_in_ready_o;
 
-    assign irq = irq_uvma | irq_vp;
+    // irq (the checkers' view: what the core sees) is driven in the injector
+    // section at the end of this module, beside the blank it must match.
+    // irq_dut is what the core's .irq_*_i ports below read and what that
+    // injector drives; it is declared here because Questa's vlog requires a
+    // net to be declared before a core instantiation names it in a port map.
+    wire [31:0]                   irq_dut;
 
     // ------------------------------------------------------------------------
     // Instantiate the core
@@ -180,11 +185,11 @@ module uvmt_cv32e20_dut_wrap #(
          .x_result_i             ( '0                             ),
 
   // Interrupt inputs
-         .irq_software_i         ( irq_uvma[3]                    ),
-         .irq_timer_i            ( irq_uvma[7]                    ),
-         .irq_external_i         ( irq_uvma[11]                   ),
-         .irq_fast_i             ( irq_uvma[31:16]                ),
-         .irq_nm_i               ( irq_uvma[0]                    ), // non-maskable interrupt
+         .irq_software_i         ( irq_dut[3]                     ),
+         .irq_timer_i            ( irq_dut[7]                     ),
+         .irq_external_i         ( irq_dut[11]                    ),
+         .irq_fast_i             ( irq_dut[31:16]                 ),
+         .irq_nm_i               ( irq_dut[0]                     ), // non-maskable interrupt
 
   // Debug Interface
          .debug_req_i             ( debug_req_uvma ),
@@ -208,6 +213,39 @@ module uvmt_cv32e20_dut_wrap #(
 `define DUT_PATH        cv32e20_top_i
 `define CSR_PATH        `DUT_PATH.u_cve2_top.u_cve2_core.cs_registers_i
 
+    // ------------------------------------------------------------------------
+    // Directed interrupt withdrawal -- the instance bound here is the whole
+    // stimulus footprint of irq_single_cycle_test in this file (all logic
+    // and the full rationale live in
+    // uvmt_cv32e20_irq_single_cycle_injector.sv).  The bind carries the
+    // stimulus path only: irq_uvma -- the agent's drive of the core's
+    // interrupt pins -- goes in, the blanked irq_dut comes out, and the
+    // commit-edge probes use the same hierarchical-path precedent as the
+    // irq_ack probe above.  uvmt_cv32e20_tb.sv's end_of_test reads the
+    // instance's en/fired_q the same way.  The one footprint line this
+    // section cannot keep here is irq_dut's declaration: Questa's vlog
+    // requires a net before a port map names it, so it sits just above the
+    // core instantiation.
+    // ------------------------------------------------------------------------
+    bind uvmt_cv32e20_dut_wrap uvmt_cv32e20_irq_single_cycle_injector
+        u_irq_single_cycle (
+            .clk         (clknrst_if.clk                                                ),
+            .reset_n     (clknrst_if.reset_n                                            ),
+            .ctrl_fsm_cs (cv32e20_top_i.u_cve2_top.u_cve2_core.id_stage_i.controller_i.ctrl_fsm_cs),
+            .ctrl_fsm_ns (cv32e20_top_i.u_cve2_top.u_cve2_core.id_stage_i.controller_i.ctrl_fsm_ns),
+            .irq_in      (irq_uvma                                                      ),
+            .irq_out     (irq_dut                                                       )
+        );
+
+    // The checkers (uvmt_cv32e20_interrupt_assert, uvmt_cv32e20_debug_cov_assert_if,
+    // the RVVI net push of uvmt_cv32e20_imperas_dv_wrap.sv) must see exactly
+    // what the core saw, and irq_dut already is that -- one blanking rule,
+    // in the injector, with no second copy here to drift out of sync.  With
+    // the injector unarmed irq_dut == irq_uvma, and irq_vp is a copy of
+    // irq_uvma (vp_interrupt_if.irq itself is not driven), so this remains
+    // the expression this file has always had.  If that VP drive is ever
+    // revived, blank irq_vp the same way and restore the union here.
+    assign irq = irq_dut;
 
 endmodule : uvmt_cv32e20_dut_wrap
 

@@ -109,22 +109,36 @@ covered the transitions they excused.
 
 ## Current state
 
-Both Questa dumps in `raw/` were re-measured on 2026-11-03 against
+Both Questa dumps in `raw/` were measured on 2026-11-05 against
 `sim/uvmt/vsim_results/default/merged/merged.ucdb`, md5
-`3ddf367f8732d92b60c74f364e045e00`: the 43-test `--cov-report` batch of
-2026-11-03 (34 default tests and the 9 PARKED tests, `--include-corev-dv
---all-custom`, upstream CVE2 pin `d7f2156`, Questa One 2025.3_2) merged through
-the batch-scoped lists of `bin/run_tests.py`. The optional third dump,
-`raw/holes_parked.csv` (md5 `5374a0b3a43467afa4e2ef3a2195195d`), is the same
-export run against `merged_parked/merged.ucdb`, md5
-`44eb3424dd559a373f16173eb0e7c6df`. The sheet has 175 rows: **63 waivers and
-112 holes**, every one of them classified (0 `open`).
+`e8ac28486576b87be52c8196e05d460f`, and `merged_parked/merged.ucdb`, md5
+`973109826b5ac23ddac93bf59fa3ffa7` (md5s of the regenerated dumps: holes
+`bef11a783c2a2b1a9aee9d5b0eb1b0b8`, holes_parked
+`0d78f88cb82597a14b108e5847bf9786`, waiver_audit
+`5b629e9b618792557b1fa504452fae52`, sheet `319000c980d8ca60dae7c65fde7871f2`).
+Those databases are one fresh batch: the 2026-11-05
+`--all-custom --include-corev-dv --cov-report` regression -- 44 tests, 42 PASS
+(the two FAILs are the documented parked pair), 35 default inputs and 42
+including parked -- which also published the metrics below and ran
+`irq_single_cycle_test`, the dedicated `cve2_controller.sv:514` stimulus
+(below). The default holes dump, the waiver audit and the sheet are
+byte-identical to the 2026-11-04 publication above, which is exactly what
+pinning md5s is for; `holes_parked.csv` alone moved, because its input list
+grew by `irq_single_cycle_test`'s database. The sheet has
+173 rows: **63 waivers and 110 holes**, every one of them classified (0 `open`).
 
-Two waivers and many rows moved since 2026-11-01, so the sheet's `ID`s
-renumbered: the `cve2_controller.sv:514` branch is `H002` now (was `H001`), the
-three assertion holes are `H110`–`H112` (were `H002`–`H004`), the
-`cve2_tracer` waiver is `W038` (was `W040`), and the 14 surviving
-reset-transition waivers are `W006` and `W022`–`W034`.
+The hole `ID`s moved again because two hole rows left the dump: the
+`cve2_controller.sv:514` branch (closed, below) and
+`cve2_compressed_decoder.sv:260` branch item `3'b101` (covered again by the
+regenerated stream -- see the family table). The CSR/counter family is `H001`–
+`H107` and the three assertion holes are `H108`–`H110` (they were `H003`–`H109`
+and `H110`–`H112` on the 2026-11-03 sheet, `H002`–`H004` before that). The
+waiver `ID`s did not move: `W038` is still `cve2_tracer`, and the 14 surviving
+reset-transition waivers are still `W006` and `W022`–`W034`. Only 13 of those 14
+`cov.tcl` cites moved, by two lines: the `cve2_controller.sv:514` note above
+`W022`–`W034` shortened, while `W006`'s exclusion sits higher up the file and
+did not. (`ID`s are stable across a re-export; line numbers are not, which is
+what `--check-cites` is for.)
 
 **Why the numbers moved, and why that is not a regression.** The 97.28% /
 4-hole baseline this section carried on 2026-11-01 had been merged by the old
@@ -133,38 +147,41 @@ parked tests' PASSing `.ucdb`s left under `vsim_results/` by earlier runs --
 stimulus counted in the default number that no fresh CI batch reproduces. This
 is the first default-scope measurement of the suite merged from its own scope;
 read it against the including-parked view, not against the contaminated one:
-with the parked tests merged, code coverage is **99.97%** -- matching the old
-100%-class local figures -- and the 98.46 % ↔ 99.97 % gap *is* the parked gap
-that used to hide inside the default number.
+with the parked tests merged, code coverage is **100.0%** -- every code metric
+at 100% except the three never-attempted assertions -- and the 98.49 % ↔
+100.0 % gap *is* the parked gap that used to hide inside the default number.
 
 The percentages that database was published with, recorded here because this
 sheet is the document that has to say whether a later number moved and why. They
-are `coverage_report/summary.json` of the 2026-11-03 batch copied verbatim, and
-the generated file itself is not committed:
+are `coverage_report/summary.json` copied verbatim from the 2026-11-05
+batch's report, and the generated file itself is not committed:
 
 | Metric | Active | Hits | Coverage |
 | --- | --- | --- | --- |
 | statement (line) | 1808 | 1776 | 98.23% |
-| branch | 1302 | 1225 | 94.09% |
+| branch | 1302 | 1227 | 94.24% |
 | condition | 95 | 95 | 100.0% |
 | FSM state | 26 | 26 | 100.0% |
-| FSM transition | 39 | 39 | 100.0% |
+| FSM transition | 41 | 41 | 100.0% |
 | assertion | 74 | 71 | 95.95% |
 | cover directive | 0 | 0 | n/a |
 
-That is the **98.46%** DUT-scoped code coverage
+That is the **98.49%** DUT-scoped code coverage
 (`/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core`) beside
-**67.74%** functional coverage: 31119 bins covered of 45942 across the full
+**70.19%** functional coverage: 32247 bins covered of 45942 across the full
 hierarchy, environment covergroups included, which splits into
-`uvma_isacov_pkg` 21441/33172 (64.64%), `uvma_obi_memory_pkg` 75/75 (100.0%) and
-`uvme_cv32e20_pkg` 9603/12695 (75.64%). The same document's
-`including_parked` block reads **99.97%** code (line 100.0%, branch 99.85%,
-condition and both FSM metrics 100.0%) and **68.38%** functional
-(31416/45942), over 37 passed of 43 test rows: every FAIL/ERROR row is a parked
-test (`riscv_csr`, `perf_counters_instructions` and the four `debug_test_*`s;
-`sim/uvmt/regression_results.json` names them), and the default set is 34/34.
-A `cover directive` of 0 of 0 is `n/a` rather than 100% or 0% for the same
-reason the dashboards render it that way: there was no denominator to divide by.
+`uvma_isacov_pkg` 22133/33172 (66.72%), `uvma_obi_memory_pkg` 75/75 (100.0%) and
+`uvme_cv32e20_pkg` 10039/12695 (79.08%). The same document's
+`including_parked` block reads **100.0%** code (line 100.0%, branch 100.0%,
+condition and both FSM metrics 100.0%; the only code metric below 100% is
+`assertion` at 95.95%, the three `C-waive` rows below) and **70.96%** functional
+(32599/45942). The regression counts beside them are **35 of 35** in the
+default scope and **42 of 44** including parked (the two FAILs are
+`debug_test_known_miscompares` and `debug_test_trigger`, the documented parked
+pair) because this document's metrics and verdicts finally come from the one
+`--cov-report` batch that published both. A `cover directive` of 0 of 0 is
+`n/a` rather than 100% or 0% for the same reason the dashboards render it that
+way: there was no denominator to divide by.
 
 Of the 63 waivers, 62 measure `VALID` (each removes at least the miss it was
 written for) and one measures `NOT-INSTRUMENTED`:
@@ -191,30 +208,79 @@ below it, and a stale cite still looks plausible.
 1; `TestPublishedCites` in `bin/tests/test_coverage_review.py` keeps that
 command honest.
 
-The 112 holes come in three families, and the sheet classifies every row:
+The 110 holes come in three families, and the sheet classifies every row:
 
 | Family | Rows | Verdict |
 | --- | --- | --- |
-| `cve2_cs_registers` and `cve2_counter` CSR/counter arms (`H003`–`H109`) | 107 | `B-new-test` / `stimulus-gap`, classified from measured evidence, not guesswork: `raw/holes_parked.csv` shows every one of these bins covered when the parked tests are merged. The merge measures *that* the parked set covers them and, from the two `ucdb.list` files, *which set* it can be: the parked database is the default one plus exactly `csr_instr_asm`, `riscv_arithmetic_basic_test_0` and `riscv_arithmetic_basic_test_1`, so the covering stimulus is one of those three (`riscv_csr` and `perf_counters_instructions` failed in that batch, so they are not among them; both print PASS under `--tb uvmt` as of 2026-11-03, lane 2 below). Which of the three covers which bin is not measurable from a merge and is not claimed here. One of the three is a listing artifact: `csr_instr_asm` is in `ASM_TESTS` and in `PARKED` (`bin/run_tests.py`), and the merge split keys on `PARKED`, so its coverage lands in the parked database in every batch whatever selects it -- part of this default-to-parked delta is list membership, not parked-by-intent stimulus. Closed by promoting the stimulus (lane 2 below), never by a waiver: waiving bins the toggle already covers would delete achieved coverage from the metric. |
-| `H001` `cve2_compressed_decoder.sv:260` branch item `3'b101` | 1 | `A-existing-state` / `stimulus-gap`. The reserved quadrant-2 compressed encoding sharing the illegal-instruction arm with `3'b001`/`3'b011`/`3'b111` (`:258-262`); all three siblings measure hit and only this arm has never been fetched. The file is unchanged between the `ce0fd917` and `d7f2156` pins (empty `git diff`), and the previous database covered the item: the 2026-11-03 `--gen-seed random` stream simply never drew the encoding. Coverage by seed luck is not coverage -- extend the directed illegal-compressed sequence with `3'b101` and it closes deterministically. Not waivable: the arm is reachable RTL. |
-| `H002` and `H110`–`H112` | 4 | The same four open items the 2026-11-01 sheet carried; their arguments stand unchanged and `raw/holes_parked.csv` proves they are no one's stimulus gap -- they miss in both merges. The table below carries them (renumbered). |
+| `H001`–`H107` CSR/counter arms (`cve2_counter` 48, `cve2_cs_registers` 59) | 107 | `B-new-test` / `stimulus-gap`, classified from measured evidence, not guesswork: `raw/holes_parked.csv` shows every one of these bins covered when the parked tests are merged (its only three rows are the assertions below). The merge measures *that* the parked set covers them and, from the two `ucdb.request` input lists, *which set* it can be: the parked database is the default one plus exactly the seven parked tests that pass today -- `csr_instr_asm`, `riscv_arithmetic_basic_test_0`, `riscv_arithmetic_basic_test_1`, `riscv_csr`, `perf_counters_instructions`, `debug_test_boot_set` and `debug_test_reset` -- so the covering stimulus is one of those seven (the last four were FAILing when this row was first written and were repaired on 2026-11-03; they are in the merge because the merge split keys on PASSing `.ucdb`s, not on list membership). Which of the seven covers which bin is not measurable from a merge and is not claimed here. One of them is a listing artifact: `csr_instr_asm` is in `ASM_TESTS` *and* in `PARKED` (`bin/run_tests.py`), so its coverage lands in the parked database in every batch whatever selects it -- part of this default-to-parked delta is list membership, not parked-by-intent stimulus. Closed by promoting the stimulus (lane 2 below), never by a waiver: waiving bins the toggle already covers would delete achieved coverage from the metric. |
+| ~~`H001` `cve2_compressed_decoder.sv:260` branch item `3'b101`~~ | 0 | **Not in the 2026-11-04 dump** -- the arm measures covered again (`corev_rand_illegal_instr_test` 8 hits, `corev_rand_debug` and `corev_rand_debug_single_step` 1 each), exactly as this row predicted: the file is unchanged between the `ce0fd917` and `d7f2156` pins and the bin appears and disappears with the `--gen-seed random` stream. Coverage by seed luck is not coverage: the row is *not* closed as far as the plan is concerned, and lane 2 item 1 (extend the directed illegal-compressed sequence in `illegal_instr_test` with `3'b101`) is what would close it deterministically. Not waivable either way: the arm is reachable RTL. |
+| `H108`–`H110` | 3 | Three of the four open items the 2026-11-01 sheet carried; their arguments stand unchanged and `raw/holes_parked.csv` proves they are no one's stimulus gap -- they miss in both merges. The fourth, `H002` `cve2_controller.sv:514`, is **closed** (2026-11-04, below) and no longer appears in either hole dump. The table below carries the three (renumbered). |
 
-The four standing holes, verbatim from the 2026-11-01 review with their
+The three standing holes, verbatim from the 2026-11-01 review with their
 measured status refreshed: they miss in both the default and the
-including-parked merge of the 2026-11-03 database as well
+including-parked merge of the current database as well
 (`raw/holes.csv`, `raw/holes_parked.csv`).
 
 | ID | Row | Verdict |
 | --- | --- | --- |
-| H002 | `cve2_controller.sv:514` branch, `All False Count` (the `else` arm of `if (handle_irq)` inside `IRQ_TAKEN`) | `B-new-test` / `stimulus-gap` → `irq_withdraw_test`. `handle_irq` is committed by the `DECODE -> IRQ_TAKEN` transition (`cve2_controller.sv:496-498`) and sampled again the next cycle; an interrupt that drops in that one-cycle window is the `irq_withdrawn_in_taken` case the RTL's own assertion block (`:835-836`) exists to describe. Reachable in the RTL, so it gets directed stimulus, not a waiver. That stimulus now exists: `env/uvme/vseq/uvme_cv32e20_irq_withdraw_vseq.sv`, kicked by `+irq_withdraw` from the general-purpose test, with `tests/programs/custom/irq_withdraw_test/` registered on `regress/cv32e20_ci_check.yaml`. It has now been compiled and run: `SIMULATION PASSED`, 2026-11-01, Questa One 2025.3_2, `USE_ISS=NO`, seed 1, 10 m 34 s wall. **And the bin is still a miss**: line 514 was evaluated twice in that run and was true both times ([`raw/phase_c_acceptance.csv`](raw/phase_c_acceptance.csv)). The reason is structural, not bad luck. 3008 assert/deassert pulses produced exactly **one** `DECODE -> IRQ_TAKEN` commit, and the vendored `uvma_interrupt_drv_c` cannot put a falling edge on the cycle this window is open: `wait_and_assert_irq_edge()` holds every rising edge for two cycles, and `irq_ack_clear()` only drops the line once it has *sampled* `irq_ack`, and `irq_ack` is no DUT signal: CVE2's interrupts are level-sensitive with no acknowledge (the controller's entire interrupt interface is the `irq_pending_i`/`irqs_i`/`irq_nm_i` inputs at `cve2_controller.sv:66-72`), and `uvma_interrupt_if.irq_ack` is fabricated by the testbench as `ctrl_fsm_cs == 4'h7` (`tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107`). `4'h7` is `IRQ_TAKEN`, the eighth member of the module-local `ctrl_fsm_e` at `cve2_controller.sv:106-109`, and that state lasts exactly one cycle. So the driver samples the ack during the very cycle `:514` is evaluated and drives the line low on the *next* edge: the earliest withdrawal that agent can build lands one cycle after `IRQ_TAKEN` samples `handle_irq`. The 2026-08-12 claim that the window had been seen once on `corev_rand_interrupt_exception` cannot be reproduced from the current database either: the merged `.ucdb` of the 32-test `--all-custom` batch, which holds 39 per-test databases, counts 433 evaluations of line 514 and **0** false-arm hits; with the two runs of the new test that is 435 evaluations, still 0 hits. The row stays open and `triaged`, and more pulses will not close it: what would is a one-cycle-wide withdrawal driven below the agent (a `tb/uvmt/` stimulus path, which is where `ctrl_fsm_cs` is already being probed; `vendor_lib/openhwgroup_core-v-verif` is a git-ignored clone of upstream core-v-verif, not a fork this repository patches), or a decision to document it as a gap. It is not waivable under the policy below, because the argument that holds is about the verification environment, not about the RTL. This remains the design's only open code miss outside the three assertions below. |
-| H110 | `CVE2NoDoubleSpecialReqPCSet` (controller) | `C-waive` / `dead-code`. Never attempted (`pass=0 fail=0`). The antecedent needs `seen_exception_pc_set`, which is `(seen_exception_pc_set \| exception_pc_set) & ~exception_req_done` (`:867`); every state that performs an exception PC set also returns `ctrl_fsm_ns` to `DECODE` in that same cycle, so `exception_req_done` (`:809`) clears it on the very edge it would be set. A guarded-by-construction safety assertion, not DUT behaviour to cover. |
-| H111 | `IllegalInsnStallMustBeMemStall` (id_stage) | `C-waive` / `dead-code`. Never attempted. The antecedent `illegal_insn_o & stall_id` needs one instruction that both decodes illegal and asks for a stall, while `stall_id = stall_mem \| stall_multdiv \| stall_jump \| stall_branch \| stall_alu` (`cve2_id_stage.sv:898-899`) is qualified by the decode of a memory/divide/jump/branch/ALU instruction and `illegal_insn_o` by `illegal_csr_insn_i \| illegal_insn_dec` (`:408`). Never entered across the 32-test batch, which includes the illegal-instruction and misalign programs. |
-| H112 | `IbexStallIfValidInstrNotExecuting` (id_stage) | `C-waive` / `dead-code`. Constant-false antecedent, provable with no stimulus: this build has no writeback stage, so `instr_executing` *is* `instr_executing_spec` (`:924`) `= instr_valid_i & ~instr_fetch_err_i & controller_run` (`:923`), and the antecedent `instr_valid_i & ~instr_fetch_err_i & ~instr_executing & controller_run` is `X & ~X`. |
+| H108 | `CVE2NoDoubleSpecialReqPCSet` (controller) | `C-waive` / `dead-code`. Never attempted (`pass=0 fail=0`). The antecedent needs `seen_exception_pc_set`, which is `(seen_exception_pc_set \| exception_pc_set) & ~exception_req_done` (`:867`); every state that performs an exception PC set also returns `ctrl_fsm_ns` to `DECODE` in that same cycle, so `exception_req_done` (`:809`) clears it on the very edge it would be set. A guarded-by-construction safety assertion, not DUT behaviour to cover. |
+| H109 | `IllegalInsnStallMustBeMemStall` (id_stage) | `C-waive` / `dead-code`. Never attempted. The antecedent `illegal_insn_o & stall_id` needs one instruction that both decodes illegal and asks for a stall, while `stall_id = stall_mem \| stall_multdiv \| stall_jump \| stall_branch \| stall_alu` (`cve2_id_stage.sv:898-899`) is qualified by the decode of a memory/divide/jump/branch/ALU instruction and `illegal_insn_o` by `illegal_csr_insn_i \| illegal_insn_dec` (`:408`). Never entered across the 32-test batch, which includes the illegal-instruction and misalign programs. |
+| H110 | `IbexStallIfValidInstrNotExecuting` (id_stage) | `C-waive` / `dead-code`. Constant-false antecedent, provable with no stimulus: this build has no writeback stage, so `instr_executing` *is* `instr_executing_spec` (`:924`) `= instr_valid_i & ~instr_fetch_err_i & controller_run` (`:923`), and the antecedent `instr_valid_i & ~instr_fetch_err_i & ~instr_executing & controller_run` is `X & ~X`. |
 
-H110-H112 are `C-waive`, i.e. they should end up in `cov.tcl`, and they are
+H108-H110 are `C-waive`, i.e. they should end up in `cov.tcl`, and they are
 deliberately **not** waived by this analysis. Waiving three assertions on an
 argument nobody has reviewed is exactly how a waiver rot like the one above
 starts; `Proposed cov.tcl Exclusion` holds the paste-ready line, the bare `-assertpath` form for the reason in the columns table, and the row stays `triaged` until a reviewer signs the `Justification` off.
+
+### H002 closed: the interrupt-withdrawal injector (2026-11-04)
+
+The `All False Count` of `if (handle_irq)` in `IRQ_TAKEN`
+(`cve2_controller.sv:514`) is closed by stimulus, and nothing else -- it is
+reachable RTL (the design describes the case itself in its
+`irq_withdrawn_in_taken` assertion model, `:826-836`), so a waiver would have
+had no reachability argument to stand on and, once the bin has hits, would be
+`HIDING-COVERED-CODE`. `cov.tcl` gained no exclusion; it gained a dated
+`RESOLVED` note recording the measurement.
+
+What was wrong was the stimulus path, not the design or the test: the vendored
+`uvma_interrupt_drv_c` lets go of the line only after sampling `irq_ack`, which
+is this testbench's own `ctrl_fsm_cs == 4'h7` probe
+(`tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107`) and is high during the very cycle
+`:514` is read -- so the earliest withdrawal that agent builds lands one cycle
+after the window closes, and 3008 pulse pairs found exactly one commit. The
+withdrawal is injected where the cycle reference already lives: the probe
+`commit_to_irq` fires on the commit edge itself (`ctrl_fsm_cs` in
+{`FIRST_FETCH`, `DECODE`} and `ctrl_fsm_ns == IRQ_TAKEN`, which inherits every
+commit gate of `:431-436` and `:496-498`), and a registered one-cycle blank
+pulls the whole `irq` bus low into the DUT for exactly the `IRQ_TAKEN` cycle,
+N times. Blanking an asynchronous, level-sensitive input for one cycle is what
+a real source withdrawing looks like, so the core sees legal stimulus. Since
+2026-11-05 the injector is a dedicated bound file rather than TB-internal
+code: `tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv`, `bind`-ed into
+`uvmt_cv32e20_dut_wrap` itself -- footprint: the injector section at that
+file's end plus the `irq_dut` net it drives -- and it is inert without
+`+irq_single_cycle_shots=N`. `+irq_single_cycle` starts
+`env/uvme/vseq/uvme_cv32e20_irq_single_cycle_vseq.sv`, which extends the
+pulse-sweep vseq and offers the NMI a few times more than the shot count, so
+the last offer is genuinely taken and the program ends. The dedicated test is
+`tests/programs/custom/irq_single_cycle_test` (`+irq_single_cycle
++irq_single_cycle_shots=3`), deliberately on no `regress/*.yaml` list --
+sanity keeps the pulse-sweep `irq_withdraw_test` -- and coverage batches pick
+it up through directory discovery. The run is self-checking --
+`uvmt_cv32e20_tb.sv`'s `end_of_test` fails an armed injector that never
+fired -- so a PASS *is* the measurement. Measured 2026-11-05 (seed 1, PASS in
+150.9 s run alone): **6 hits of 8 evaluations** in the test's own `.ucdb`,
+and **6 hits of 1479 evaluations**, **2 of 2 branches** of line 514, in both
+merged databases -- this time from a fresh `--cov-report` batch, no re-merge
+disclosure owed. The pulse sweep itself still measures 2 evaluations, 0 on
+the arm, on these same databases: `irq_withdraw_test` passing was never this
+row's measurement, which is why the dedicated test exists. As on 2026-11-04,
+`cve2_compressed_decoder.sv:260` branch item `3'b101`, the other hole the
+2026-11-03 sheet carried, measures covered again in these databases -- the
+reserved encoding is drawn by the random stream, not by any directed
+stimulus, which is exactly why this sheet treats seed variance as an open
+action rather than a closed hole. The 110 remaining holes are therefore 107
+CSR/counter arms plus the 3 assertions.
 
 The 14 remaining reset-transition waivers (`W006`, `W022`-`W034`) are a
 different animal and are **not** dead code: `rst_ni` is a real asynchronous
@@ -249,10 +315,10 @@ vcover report -details -annotate -precision 2 -code f -showexcluded \
 vcover report -details -annotate -precision 2 -code b -showexcluded \
     -instance=/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core. \
     -output log_agent/acc/br.txt \
-    sim/uvmt/vsim_results/default/irq_withdraw_test/0/irq_withdraw_test.ucdb
+    sim/uvmt/vsim_results/default/irq_single_cycle_test/0/irq_single_cycle_test.ucdb
 ```
 
-`-showexcluded` is not optional: the exclusions a run saves are baked into its `.ucdb`, and `coverage exclude -clear -all` is rejected (`vish-4003`), so the only way to read a waived bin's own hit count is to print the report with the exclusions shown. `E-hit` is excluded-but-covered, `E` is excluded and still a miss, and a branch that never went the other way prints `***0***  All False Count`.
+`-showexcluded` is not optional: the exclusions a run saves are baked into its `.ucdb`, and `coverage exclude -clear -all` is rejected (`vish-4003`), so the only way to read a waived bin's own hit count is to print the report with the exclusions shown. `E-hit` is excluded-but-covered, `E` is excluded and still a miss, and a branch that never went the other way prints `***0***  All False Count`. In that report the `:514` arm no longer prints `***0***`: it reads `6     All False Count` and the block closes `Branch totals: 2 hits of 2 branches = 100.00%`.
 
 ## Reaching 100% code coverage
 
@@ -267,13 +333,15 @@ waiver policy above is what separates the two.
 
 ### Three facts that bound the problem
 
-1. The distance from 98.46% to 100% is made entirely of `cov.tcl` exclusions
-   plus the 112 open holes, and no part of it is unargued: 107 of the holes
-   vanish when the parked tests' stimulus is merged (code 99.97%), 3 are
+1. The distance from 98.49% to 100% is made entirely of `cov.tcl` exclusions
+   plus the 110 open holes, and no part of it is unargued: 107 of the holes
+   vanish when the parked tests' stimulus is merged (code 100.0%), 3 are
    guarded-by-construction safety assertions with a paste-ready waiver line
-   awaiting review, and 2 need one directed piece of stimulus each.
+   awaiting review, and 1 (the reserved compressed encoding, plus the reset
+   transitions behind the 14 surviving waivers) needs one directed piece of
+   stimulus each.
 2. Every open item is already classified on the sheet (0 `open` rows), and
-   107 of the 112 holes share one measured fact: `raw/holes_parked.csv` proves
+   107 of the 110 holes share one measured fact: `raw/holes_parked.csv` proves
    the repository's own parked stimulus covers them.
 3. Nothing on the list requires new RTL knowledge. The arguments, the audit
    verdicts and the exclusions are written down; what is missing is stimulus
@@ -283,10 +351,10 @@ waiver policy above is what separates the two.
 
 | Item | Class | Lane |
 | --- | --- | --- |
-| `H001` `cve2_compressed_decoder.sv:260` branch `3'b101` | A (steer the existing illegal-compressed sequence; seed luck is not coverage) | 2 |
-| `H002` `cve2_controller.sv:514` All False (the IRQ-withdraw window) | B (one-cycle `irq` withdrawal below the vendored agent, timed against the `ctrl_fsm_cs == 4'h7` probe at `tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107`) | 2 |
-| `H003`–`H109` CSR/counter arms (107) | B (the stimulus exists parked: promote `csr_instr_asm`; `riscv_csr` and `perf_counters_instructions` no longer need a repair, only the promotion -- lane 2) | 2 |
-| `H110`–`H112` `CVE2NoDoubleSpecialReqPCSet`, `IllegalInsnStallMustBeMemStall`, `IbexStallIfValidInstrNotExecuting` | C (guarded by construction; the sheet's `Proposed cov.tcl Exclusion` holds the bare `-assertpath` line -- never `-du` + `-assertpath`, which matches nothing) | 1 |
+| `cve2_compressed_decoder.sv:260` branch `3'b101` (the row the 2026-11-03 sheet carried as `H001`) | A (steer the existing illegal-compressed sequence; seed luck is not coverage -- the bin measures covered again in the 2026-11-04 dump and that is not a fix) | 2 |
+| `H001`–`H107` CSR/counter arms (107) | B (the stimulus exists parked: promote `csr_instr_asm`; `riscv_csr` and `perf_counters_instructions` no longer need a repair, only the promotion -- lane 2) | 2 |
+| `H108`–`H110` `CVE2NoDoubleSpecialReqPCSet`, `IllegalInsnStallMustBeMemStall`, `IbexStallIfValidInstrNotExecuting` | C (guarded by construction; the sheet's `Proposed cov.tcl Exclusion` holds the bare `-assertpath` line -- never `-du` + `-assertpath`, which matches nothing) | 1 |
+| ~~`H002` `cve2_controller.sv:514` All False (the IRQ-withdraw window)~~ | **CLOSED 2026-11-04**, and since 2026-11-05 held closed by the dedicated bound injector (`tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv`, run as `irq_single_cycle_test` with `+irq_single_cycle_shots`) -- see "H002 closed" above; the test is deliberately on no `regress/*.yaml` list, and no waiver was involved | done |
 | 14 reset-transition waivers (`W006`, `W022`–`W034`) | B (reset injection: `mid_run_reset_test` retired 2 by measurement; a single asynchronous pulse cannot reach the rest, per `raw/phase_c_acceptance.csv` -- per-state variant stimulus retires more, or they stay as documented permanent gaps) | 2 |
 
 ### The plan, in three lanes
@@ -300,22 +368,29 @@ and re-measure: assertion coverage goes 95.95% -> 100%, and
 
 **Lane 2 -- stimulus, in ascending cost.**
 
-1. `H001`: extend the directed illegal-compressed sequence in
-   `illegal_instr_test` with the reserved `3'b101` encoding.
-2. `H003`–`H109`: promote `csr_instr_asm` (it passes today; promoting it means
+1. `cve2_compressed_decoder.sv:260` `3'b101`: extend the directed
+   illegal-compressed sequence in `illegal_instr_test` with the reserved
+   encoding, so the arm stops depending on which stream `--gen-seed random`
+   draws. (It measures covered again in the 2026-11-04 dump; that is the seed
+   variance, not the fix.)
+2. `H001`–`H107`: promote `csr_instr_asm` (it passes today; promoting it means
    leaving `PARKED`, which is the list the merge split keys on, not leaving the
    default test set -- it is in `ASM_TESTS` too and already runs), then
    re-measure with a `--cov-report` batch and watch `raw/holes.csv` shrink
-   toward the four standing items. The two tests this lane used to ask to be
+   toward the three standing items. The two tests this lane used to ask to be
    repaired, `riscv_csr` and `perf_counters_instructions`, no longer need it:
    both print PASS under `--tb uvmt` as of 2026-11-03
    ([regression](../regression.md)), so what is left is the `PARKED`
    promotion -- and the re-measure is what makes this document's own
    including-parked numbers move.
-3. `H002`: drive a one-cycle IRQ withdrawal below the vendored agent --
-   `tb/uvmt/` is where the needed cycle reference (`irq_ack` as
-   `ctrl_fsm_cs == 4'h7`) already lives; acceptance is `H002` gone from
-   `raw/holes.csv`.
+3. ~~`H002`~~ **done 2026-11-04, re-measured 2026-11-05**: the one-cycle IRQ
+   withdrawal is driven at the DUT pins by a bound testbench file --
+   `tb/uvmt/uvmt_cv32e20_irq_single_cycle_injector.sv`, beside where the
+   cycle reference (`irq_ack` as `ctrl_fsm_cs == 4'h7`) already lives --
+   armed by `+irq_single_cycle_shots` and run as `irq_single_cycle_test`;
+   acceptance (`H002` gone from `raw/holes.csv` *and* `raw/holes_parked.csv`)
+   is measured: 6 hits of 1479 evaluations (6 of 8 in the test's own
+   database), 2 of 2 branches of `cve2_controller.sv:514`.
 4. Reset transitions: give `mid_run_reset_test` per-state siblings (debug,
    interrupt, `wfi`, exception variants) to retire more of the 14, or record
    the remainder as permanent documented gaps.
@@ -330,7 +405,7 @@ visible instead of leaking back into the default number, as it did before
 
 ### Explicit non-goals
 
-* **Functional coverage** (67.74% default, 68.38% including parked): a separate
+* **Functional coverage** (70.19% default, 70.96% including parked): a separate
   covergroup programme with its own review loop; no item in this section moves
   it and it gates nothing here.
 * **Toggle and expression coverage**: not instrumented (`COV_TYPES=bcsf`), and

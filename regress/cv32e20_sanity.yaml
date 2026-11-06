@@ -10,15 +10,20 @@
 # listed: each of those needs a gen_corev-dv generation step and routinely takes
 # 10-15 minutes on its own (see regress/cv32e20_ci_check.yaml for the full set).
 #
-# Verified as a set: all 11 tests below reported SIMULATION PASSED (with
+# Verified as a set: all 12 tests below reported SIMULATION PASSED (with
 # WARNINGS) with Questa One 2025.3_2 (vsim 2025.11 build), USE_ISS=NO, seed 1 at
-# --jobs 4 -- 11 passed, 0 failed, 0 error(s). The timings are that run's own
-# published regression_results.json: 562 s for the batch, slowest being
-# illegal_instr_test at 537.9 s (whose simulation alone runs 11 us of virtual
-# time) and the rest between 22.3 s and 107.4 s. The 562 s is the test loop
-# only -- it excludes the one-time `make comp` that --jobs > 1 does up front, so
-# it is not what the CI job costs end to end. Nothing here is a guess: a test
-# whose verdict nobody has watched does not belong on a blocking list.
+# --jobs 4 -- 12 passed, 0 failed, 0 error(s). The timings are that run's own
+# published regression_results.json (2026-11-05, coverage-instrumented: --cov
+# --cov-report): 1154 s for the batch, slowest being the irq_withdraw_test pulse
+# sweep at 996.8 s, then illegal_instr_test at 903.1 s (whose simulation alone
+# runs 11 us of virtual time) and the rest between 26.0 s and 151.6 s.
+# Instrumentation roughly doubles the loop -- the same tests without coverage
+# ran 11 of them in 562 s on 2026-10-30 -- so the batch is priced here for the
+# coverage job that consumes it, not as a plain-sanity budget. Either way the
+# window is the test loop only -- it excludes the one-time `make comp` that
+# --jobs > 1 does up front, so it is not what the CI job costs end to end.
+# Nothing here is a guess: a test whose verdict nobody has watched does not
+# belong on a blocking list.
 #
 # NOT consumable by the legacy bin/cv_regress / bin/ci_check utilities, which
 # cannot run in this repository at all -- they import the absent
@@ -63,17 +68,25 @@ tests:
     description: External timer and software interrupts
   - name: nmi_test
     description: Non-maskable interrupt stimulus
+  # Interrupt-withdrawal pulse sweep (uvme_cv32e20_irq_withdraw_c): thousands
+  # of NMI assert/deassert pulses. It keeps its slot here because the sweep is
+  # the documented harness for the cve2_controller.sv:514 withdrawal-window
+  # analysis (docs/coverage/raw/phase_c_acceptance.csv) -- and because the
+  # cycle-accurate stimulus that actually closes that bin is deliberately NOT
+  # on this list: irq_single_cycle_test (+irq_single_cycle_shots, bound TB
+  # injector, self-checking via uvmt_cv32e20_tb.sv's end_of_test) is run as a
+  # dedicated single test so this list keeps its pulse-sweep coverage of the
+  # agent path.
+  - name: irq_withdraw_test
+    description: Interrupt-withdrawal pulse sweep (harness for the :514 window analysis)
 
-  # NOT YET: mid_run_reset_test and irq_withdraw_test (the two directed
-  # coverage-stimulus tests of regress/cv32e20_ci_check.yaml). Watching them
-  # pass is no longer the reason: on 2026-11-01 mid_run_reset_test passed on
-  # twelve consecutive seeds (~63 s each) and irq_withdraw_test passed once, in
-  # 10 m 34 s. Two things keep them off this list, and both are decisions rather
-  # than unknowns. mid_run_reset_test would become a twelfth member whose cost
-  # has to be inside the measured window above -- it runs the program twice,
-  # because the core restarts after the pulse -- so promoting it means
-  # re-measuring this set end to end, not adding a line here. irq_withdraw_test
-  # is an order of magnitude too slow for a list meant to finish in minutes.
-  # And neither test closes the coverage bin it exists for yet (see
-  # docs/coverage/raw/phase_c_acceptance.csv), so today they would buy this list
-  # cost without buying a gate it does not already have.
+  # NOT YET: mid_run_reset_test (the other directed coverage-stimulus test of
+  # regress/cv32e20_ci_check.yaml). Watching it pass is not the reason -- on
+  # 2026-11-01 it passed on twelve consecutive seeds (~63 s each). It stays off
+  # because it would become a thirteenth member whose cost has to be inside the
+  # measured window above: it runs the program twice, because the core restarts
+  # after the pulse, and promoting it therefore means re-measuring this set end
+  # to end rather than adding a line here. Its coverage bins are a separate
+  # question, documented in docs/coverage/raw/phase_c_acceptance.csv: one
+  # asynchronous pulse lands 1-2 of the 16 reset-transition bins, so 14 waivers
+  # stay.

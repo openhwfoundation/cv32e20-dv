@@ -205,6 +205,18 @@ the published artifact set that CI deploys to GitHub Pages:
     coverage_report/questasim_func/     vcover -html -cvg report, full hierarchy
     coverage_report/questasim_parked/   the code report rebuilt from merged_parked/
     coverage_report/questasim_func_parked/  the func report from merged_parked/
+    coverage_report/pertest/index.html  per-test grading: one row per test of
+                                        the merged input list (its code and
+                                        functional metrics, and Unique --
+                                        what only it contributes, by a
+                                        vcover delcov replay; --no-cov-delta
+                                        skips the replays, and
+                                        --cov-report-html-tests adds each
+                                        test's own vcover HTML trees here)
+    coverage_report/matrix/index.html   line-to-tests matrix: which tests
+                                        hit each RTL source object, over
+                                        core-v-cores/cv32e20/rtl
+                                        (bin/coverage_matrix.py)
     coverage_report/analysis/           the coverage analysis as a page: the
                                         viewer, the review sheet and the five
                                         raw dumps it reads
@@ -389,6 +401,8 @@ REPO = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 from questa_xml_to_cobertura import generate_cobertura_xml  # noqa: E402
 from questa_xml_to_ucis_xml import generate_ucis_xml  # noqa: E402
+import coverage_grading  # noqa: E402
+import coverage_matrix  # noqa: E402
 import regression_report  # noqa: E402
 
 # Serializes stdout so concurrent --jobs workers don't interleave output.
@@ -1097,6 +1111,243 @@ def merge_batch_coverage(tb, cfg, timeout, ucdb_list=None, merge_dir="merged"):
     return True
 
 
+def _vcover_report(sim_dir, dest, options, ucdb, timeout, what):
+    """One `vcover report <options> -output dest ucdb` invocation; True on
+    success. The same fail-soft contract as every other report step here --
+    a warning is printed and the caller keeps publishing the rest."""
+    returncode, _, stderr = _run(
+        ["vcover", "report"] + list(options) + ["-output", str(dest),
+                                                str(ucdb)],
+        sim_dir, None, timeout, capture=True)
+    if returncode != 0:
+        last = (stderr or "").strip().splitlines()
+        print(f"  warning: failed to export {what} (exit {returncode}): "
+              f"{last[-1] if last else 'no output'}")
+        return False
+    return True
+
+
+def graded_batch_tests(tb, cfg, merged_dir, results=None,
+                       run_index=UVMT_RUN_INDEX):
+    """The (test, ucdb Path) pairs to grade and matrix, sorted by name.
+
+    The names come from the merged database's own input list (ucdb.list,
+    written by merge_batch_coverage's COV_MERGE_LIST mechanism), not from
+    this batch's result rows: the grading then describes exactly the tests
+    the merged database holds -- including a test appended to the list by a
+    targeted re-merge -- and --report-only can grade without any results.
+    A .ucdb named by the list but no longer on disk is dropped with a
+    warning (the merged number still includes it; the per-test row cannot).
+    Without a list (--merge-existing's find-merge), fall back to the
+    results rows, and without either there is nothing to grade."""
+    list_path = Path(merged_dir) / "ucdb.list"
+    pairs = []
+    if list_path.is_file():
+        for line in list_path.read_text().splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            path = Path(line)
+            name = path.parents[1].name
+            if not path.is_file():
+                print(f"warning: {list_path.name} names {line}, which is "
+                      "gone; it stays in the merged totals but gets no "
+                      "per-test row")
+                continue
+            pairs.append((name, path))
+    elif results:
+        for test, outcome, *_rest in results:
+            if outcome != "PASS":
+                continue
+            ucdb = test_ucdb_path(tb, test, run_index, cfg)
+            if ucdb.is_file():
+                pairs.append((test, ucdb))
+    else:
+        print("warning: no merged input list and no batch results; the "
+              "per-test grading has no test list to work from")
+    return sorted(pairs)
+
+
+def grade_per_test_coverage(tb, cfg, timeout, tests, merged_dir, merged_ucdb,
+                            merged_code, merged_functional,
+                            report_dest_root, html_tests=False,
+                            cov_delta=True):
+    """Publish coverage_report/pertest/: every per-test .ucdb gets the same
+    two Questa XML exports and the same two parsers as the merged database
+    (DUT-scoped code, whole-hierarchy covergroups), the rows render through
+    coverage_grading, and the block is returned for summary.json.
+
+    The unique-contribution delta (coverage_grading.delta) replays the
+    merged database once per test with that test deleted (vcover delcov on
+    a scratch copy); it runs when cov_delta allows it and the batch is
+    sanity-sized, and each per-test copy is deleted again the moment it is
+    parsed. Fail-soft all the way through: a test whose exports fail still
+    gets a row (N/A cells), because a partial grading is worth publishing
+    and the merged numbers do not depend on any of this."""
+    tbcfg = TESTBENCHES[tb]
+    sim_dir = tbcfg["sim_dir"]
+    cov_instance = tbcfg["cov_instance"]
+    pertest_root = report_dest_root / "pertest"
+    xml_dir = Path(merged_dir) / "pertest_xml"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"Grading coverage per test ({len(tests)} database(s)) ...")
+    rows = []
+    html_reports = {}
+    for name, ucdb in tests:
+        code_xml = xml_dir / f"{name}.code.xml"
+        func_xml = xml_dir / f"{name}.func.xml"
+        code_metrics = None
+        functional = None
+        if _vcover_report(sim_dir, code_xml,
+                          ["-xml", f"-instance={cov_instance}."], ucdb,
+                          timeout, f"{name} code rollup"):
+            code_metrics = parse_questa_code_rollup(code_xml, cov_instance)
+        if _vcover_report(sim_dir, func_xml, ["-xml"], ucdb, timeout,
+                          f"{name} functional rollup"):
+            functional = parse_questa_functional_rollup(func_xml)
+        rows.append(coverage_grading.test_row(name, ucdb, code_metrics,
+                                              functional))
+        if html_tests:
+            dirs = []
+            for suffix, options in (
+                ("code", ["-html", "-details", "-precision", "2",
+                          "-annotate", f"-instance={cov_instance}."]),
+                ("func", ["-html", "-details", "-precision", "2", "-cvg"]),
+            ):
+                dest = pertest_root / f"{name}_{suffix}"
+                dirs.append(dest.name if _vcover_report(
+                    sim_dir, dest, options, ucdb, timeout,
+                    f"{name} {suffix} html") else None)
+            html_reports[name] = tuple(dirs)
+
+    unique_computed = False
+    if (cov_delta and merged_ucdb.is_file()
+            and len(rows) <= coverage_grading.DELTA_MAX_TESTS):
+        print("Computing unique per-test contributions (vcover delcov "
+              "replays) ...")
+        delta_dir = Path(merged_dir) / "pertest_delta"
+        shutil.rmtree(delta_dir, ignore_errors=True)
+        delta_dir.mkdir(parents=True)
+        for row in rows:
+            name = row["test"]
+            work_ucdb = delta_dir / f"{name}.ucdb"
+            try:
+                shutil.copy2(str(merged_ucdb), str(work_ucdb))
+            except OSError as exc:
+                print(f"  warning: could not copy {merged_ucdb} "
+                      f"for {name}: {exc}")
+                continue
+            # The stored UCIS test name is the vsim run name the mk flow
+            # gives the run; the plain test name is the fallback for a
+            # database saved by a different flow. delcov is an in-place
+            # edit, so a failed first candidate costs nothing.
+            deleted = False
+            for candidate in (f"{name}_{UVMT_RUN_INDEX}", name):
+                returncode, _, _ = _run(["vcover", "delcov",
+                                         "-test", candidate,
+                                         str(work_ucdb)],
+                                        sim_dir, None, timeout, capture=True)
+                if returncode == 0:
+                    deleted = True
+                    break
+            if not deleted:
+                print(f"  warning: vcover delcov found no test named "
+                      f"{name} in {merged_ucdb}; its Unique cell stays N/A")
+                work_ucdb.unlink(missing_ok=True)
+                continue
+            residual_code_xml = delta_dir / f"{name}.residual.code.xml"
+            residual_func_xml = delta_dir / f"{name}.residual.func.xml"
+            residual_code = None
+            residual_functional = None
+            if _vcover_report(sim_dir, residual_code_xml,
+                              ["-xml", f"-instance={cov_instance}."],
+                              work_ucdb, timeout,
+                              f"{name} residual code rollup"):
+                residual_code = parse_questa_code_rollup(residual_code_xml,
+                                                         cov_instance)
+            if _vcover_report(sim_dir, residual_func_xml, ["-xml"],
+                              work_ucdb, timeout,
+                              f"{name} residual functional rollup"):
+                residual_functional = parse_questa_functional_rollup(
+                    residual_func_xml)
+            row["unique"] = coverage_grading.delta(
+                merged_code, residual_code, merged_functional,
+                residual_functional)
+            unique_computed = True
+            work_ucdb.unlink(missing_ok=True)
+        shutil.rmtree(delta_dir, ignore_errors=True)
+    elif cov_delta and merged_ucdb.is_file():
+        print(f"Batch larger than {coverage_grading.DELTA_MAX_TESTS} tests: "
+              "unique contributions not computed (--no-cov-delta forces it "
+              "off; --report-only recomputes for the merged input list)")
+
+    merged_row = coverage_grading.test_row("(merged)", merged_ucdb,
+                                           merged_code, merged_functional)
+    pertest_root.mkdir(parents=True, exist_ok=True)
+    index = pertest_root / "index.html"
+    index.write_text(coverage_grading.render_pertest_index(
+        rows, html_reports, merged_row, unique_computed))
+    print(f"Per-test grading written to {index}")
+    return coverage_grading.pertest_summary_json(rows, unique_computed,
+                                                 bool(html_reports))
+
+
+def build_coverage_matrix(tb, timeout, tests, merged_dir, merged_ucdb,
+                          report_dest_root):
+    """Publish coverage_report/matrix/: which tests hit each RTL source
+    object (statements, branches, conditions, FSM states/transitions,
+    assertions). Every per-test .ucdb gets a -details DUT-scoped XML export
+    and the merged database the same one as the 100%-reference column; the
+    parsing and the HTML are bin/coverage_matrix.py's."""
+    tbcfg = TESTBENCHES[tb]
+    sim_dir = tbcfg["sim_dir"]
+    cov_instance = tbcfg["cov_instance"]
+    xml_dir = Path(merged_dir) / "matrix_xml"
+    xml_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"Building the line-to-tests coverage matrix "
+          f"({len(tests)} database(s)) ...")
+    test_maps = {}
+    missing = []
+    for name, ucdb in tests:
+        xml_path = xml_dir / f"{name}.xml"
+        if not _vcover_report(sim_dir, xml_path,
+                              ["-xml", "-details",
+                               f"-instance={cov_instance}."],
+                              ucdb, timeout, f"{name} matrix export"):
+            missing.append(name)
+            continue
+        test_maps[name] = coverage_matrix.parse_detail_xml(xml_path)
+    if missing:
+        print("  warning: matrix skipped -- no XML export for "
+              + ", ".join(missing))
+        return None
+    merged_map = None
+    if merged_ucdb.is_file():
+        merged_xml = xml_dir / "merged.xml"
+        if _vcover_report(sim_dir, merged_xml,
+                          ["-xml", "-details",
+                           f"-instance={cov_instance}."],
+                          merged_ucdb, timeout, "merged matrix export"):
+            merged_map = coverage_matrix.parse_detail_xml(merged_xml)
+        else:
+            print("  warning: no merged matrix export; the merge column "
+                  "falls back to the union of the per-test maps")
+    sources_dir = REPO / "core-v-cores" / "cv32e20" / "rtl"
+    out_dir = report_dest_root / "matrix"
+    try:
+        summary = coverage_matrix.render_matrix(
+            test_maps, merged_map, sources_dir, out_dir)
+    except OSError as exc:
+        print(f"  warning: matrix rendering failed: {exc}")
+        return None
+    print(f"Coverage matrix written to {out_dir / 'index.html'} "
+          f"({summary['files']} file(s), {summary['objects']} source "
+          "object(s) attributed)")
+    return summary
+
+
 # Coverage metrics come from `vcover report -xml`, whose document is a flat list
 # of per-scope rollups:
 #
@@ -1597,7 +1848,8 @@ def build_including_parked_summary(code_metrics, functional, passed_count,
     return block
 
 
-def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
+def generate_coverage_reports(tb, cfg, results, timeout, clean=False,
+                              html_tests=False, cov_delta=True):
     """Publish the full coverage-report artifact set from merged.ucdb and write
     sim/uvmt/test_results.log; returns (passed_count, total_count) as recorded in
     coverage_report/summary.json.
@@ -1877,6 +2129,28 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
         print(f"No including-parked merged database ({merged_parked_ucdb}); "
               "summary.json carries the default scope only")
 
+    # Per-test grading and the line-to-tests matrix: what each test of the
+    # merged batch covers on its own, what only it covers, and which tests
+    # hit each RTL source object. Both read the merged database's own input
+    # list (see graded_batch_tests), publish under coverage_report/ next to
+    # the reports they annotate, and are fully fail-soft: no per-test .ucdb
+    # (a --merge-existing tree without one, say) simply skips them.
+    pertest_summary = None
+    matrix_summary = None
+    if merged_ucdb.is_file():
+        graded = graded_batch_tests(tb, cfg, merged_dir, results)
+        if graded:
+            pertest_summary = grade_per_test_coverage(
+                tb, cfg, timeout, graded, merged_dir, merged_ucdb,
+                code_metrics, functional, report_dest_root,
+                html_tests=html_tests, cov_delta=cov_delta)
+            matrix_summary = build_coverage_matrix(
+                tb, timeout, graded, merged_dir, merged_ucdb,
+                report_dest_root)
+        else:
+            print("No per-test .ucdb inputs found beside the merged "
+                  "database; pertest/ and matrix/ not generated")
+
     # Dashboard shell that reads summary.json; copied unconditionally so even a
     # run without coverage data publishes something browsable.
     dashboard_templates = REPO / "templates" / "coverage_dashboard"
@@ -1978,6 +2252,10 @@ def generate_coverage_reports(tb, cfg, results, timeout, clean=False):
         })
     if parked_summary is not None:
         summary_data["including_parked"] = parked_summary
+    if pertest_summary is not None:
+        summary_data["pertest"] = pertest_summary
+    if matrix_summary is not None:
+        summary_data["matrix"] = matrix_summary
     # Which tests each database actually holds, read back from the ucdb.list
     # files vcover merge consumed: the published names then cannot disagree
     # with the databases, because both are read from the same file. A tree with
@@ -2157,6 +2435,20 @@ def main(argv=None):
                          "artifact set under coverage_report/ (uvmt only; "
                          "requires --tb uvmt). Tests that did not PASS are not "
                          "merged -- see --merge-existing.")
+    ap.add_argument("--cov-report-html-tests", action="store_true",
+                    help="with --cov-report, additionally generate the full "
+                    "vcover HTML report (annotated code + functional) "
+                    "for EVERY per-test .ucdb under "
+                    "coverage_report/pertest/ and link them from the "
+                    "grading index. Off by default: one Questa report "
+                    "per test multiplies an already-slow step, so the "
+                    "index ships with per-test metrics only.")
+    ap.add_argument("--no-cov-delta", action="store_true",
+                    help="skip the unique-contribution column of the "
+                    "per-test grading (per test: copy the merged "
+                    "database, vcover delcov -test <name>, re-export). "
+                    "It runs by default only for batches of at most "
+                    "coverage_grading.DELTA_MAX_TESTS tests.")
     ap.add_argument("--all-custom", action="store_true",
                     help="select every directory under TESTS_ROOTS "
                          "(tests/programs/custom, tests/programs/corev-dv) "
@@ -2367,7 +2659,9 @@ def main(argv=None):
 
     if args.report_only:
         passed, total_ran = generate_coverage_reports(
-            args.tb, args.cfg, None, args.timeout, clean=clean_report)
+            args.tb, args.cfg, None, args.timeout, clean=clean_report,
+            html_tests=args.cov_report_html_tests,
+            cov_delta=not args.no_cov_delta)
         print(f"\n{passed}/{total_ran} test(s) passed in the run these "
               "reports describe")
         # Nothing was executed here, so there is nothing to gate on.
@@ -2553,7 +2847,9 @@ def main(argv=None):
     if cov_pipeline:
         print()
         generate_coverage_reports(args.tb, args.cfg, results, args.timeout,
-                                  clean=clean_report)
+                                  clean=clean_report,
+                                  html_tests=args.cov_report_html_tests,
+                                  cov_delta=not args.no_cov_delta)
 
     # The regression dashboard goes out after the coverage report on purpose:
     # a --cov-report run wipes coverage_report/ before it starts, and publishing

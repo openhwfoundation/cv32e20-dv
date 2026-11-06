@@ -84,6 +84,13 @@ class uvmt_cv32e20_general_purpose_test_c extends uvmt_cv32e20_base_test_c;
    extern virtual task irq_withdraw();
 
    /**
+    *  Offer the NMI a few times; the injector bound into dut_wrap withdraws
+    *  the first offers on the exact commit cycle. See
+    *  uvme_cv32e20_irq_single_cycle_vseq.sv.
+    */
+   extern virtual task irq_single_cycle();
+
+   /**
     *  Randomly assert/deassert fetch_enable_i
     */
    extern virtual task random_fetch_toggle();
@@ -135,6 +142,12 @@ task uvmt_cv32e20_general_purpose_test_c::run_phase(uvm_phase phase);
    if ($test$plusargs("irq_withdraw")) begin
     fork
       irq_withdraw();
+    join_none
+   end
+
+   if ($test$plusargs("irq_single_cycle")) begin
+    fork
+      irq_single_cycle();
     join_none
    end
 
@@ -276,6 +289,16 @@ task uvmt_cv32e20_general_purpose_test_c::irq_withdraw();
   assert(irq_withdraw_vseq.randomize());
   irq_withdraw_vseq.start(vsequencer);
 endtask : irq_withdraw
+
+task uvmt_cv32e20_general_purpose_test_c::irq_single_cycle();
+  uvme_cv32e20_irq_single_cycle_vseq_c irq_single_cycle_vseq;
+
+  `uvm_info("TEST", "Starting IRQ Single-Cycle Withdraw thread in UVM test", UVM_NONE);
+
+  irq_single_cycle_vseq = uvme_cv32e20_irq_single_cycle_vseq_c::type_id::create("irq_single_cycle_vseqr", vsequencer);
+  assert(irq_single_cycle_vseq.randomize());
+  irq_single_cycle_vseq.start(vsequencer);
+endtask : irq_single_cycle
 
 task uvmt_cv32e20_general_purpose_test_c::random_fetch_toggle();
   `uvm_info("TEST", "Starting random_fetch_toggle thread in UVM test", UVM_NONE);
