@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
     printf("\nBasic test checking debug functionality.\n");
 
     printf("------------------------\n");
-    printf(" Test1: check initilazation values\n");
+    printf(" Test1: check initialization values\n");
 
     temp1 = 0xFFFFFFFF;
     /* get relevant CSRs and compare init values*/

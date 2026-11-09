@@ -33,7 +33,20 @@ VCOVER                  = vcover
 # Paths
 QUESTASIM_HOME         ?= $(abspath $(shell which $(VLIB))/../../)
 VWORK                   = work
-VSIM_COV_MERGE_DIR      = $(SIM_CFG_RESULTS)/merged
+# Merge output directory. Overridable (command line or environment) so a
+# caller can merge the same batch of per-test databases into sibling outputs
+# -- bin/run_tests.py --cov-report writes the default-scoped merged/ and the
+# including-parked merged_parked/ side by side. Always pass an absolute path
+# when overriding: this file is included with CWD sim/uvmt, and every consumer
+# (run_tests.py, docs/regression.md) keys off vsim_results/<cfg>/.
+VSIM_COV_MERGE_DIR      ?= $(SIM_CFG_RESULTS)/merged
+# Name the run log -- and, with COV=YES, the per-test coverage database -- after
+# the *test*, not after the test *program*: bin/run_tests.py looks both up by
+# test name, so a test whose "program:" differs from its name
+# (debug_test_boot_set) would otherwise publish a log and a .ucdb nobody asks
+# for.  A default rather than a `test:`-only assignment so that a bare
+# `make run TEST=<t>` names its log too; `compliance:` below still overrides it.
+VSIM_TEST              ?= $(TEST)
 UVM_HOME                = $(QUESTASIM_HOME)/verilog_src/uvm-1.2/src
 USES_DPI = 1
 
@@ -44,12 +57,26 @@ USES_DPI = 1
 # b=branch coverage; c=condition coverage; e=expression coverage; s=statement coverage==line; t=toggle; f=Finite State Machine coverage
 COV_TYPES              ?= bcsf
 
-# Default coverage report scope: the DUT and below only, excluding the
-# testbench itself (agents, interfaces, etc.). Used by COV_INST_ARG (below)
-# to build -instance=<path>. for the cov*/trl5_coverage_metrics targets.
+# Coverage scope: the DUT and below only, excluding the testbench itself
+# (agents, interfaces, etc.).  Deliberately not defaulted here: mk/uvmt/uvmt.mk
+# -- the only file that includes this one -- already sets COV_INSTANCE before
+# the include, to
+#   /uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core
+# and bin/run_tests.py keeps a matching copy for its own report scoping.  A
+# second default in this file would therefore be shadowed, and would only give
+# the two copies a chance to disagree.  It is used twice below: by VOPT_COV to
+# scope what gets instrumented, and by COV_INST_ARG to build
+# -instance=<path>. for the cov*/cov_holes* report targets.  The TRL5 metrics
+# themselves are not scraped from a report here: bin/run_tests.py reads
+# them out of this database's Questa XML exports (trl5_metrics.json).
 # Override e.g. `make cov_holes COV_INSTANCE=` for whole-design coverage, or
 # to any other subtree.
-COV_INSTANCE           ?= /uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i
+
+# Percent at or above which cov_holes / cov_holes_details omit an
+# instance/coverage-type from their output: the default reports everything
+# short of a fully covered 100%.  Override e.g. `make cov_holes
+# COV_HOLES_THRESHOLD=95` to ask only what is still missing some slack.
+COV_HOLES_THRESHOLD    ?= 100
 
 # Special var to point to tool and installation dependent path of DPI headers.
 # Used to recompile dpi_dasm_spike if needed (by default, not needed).
@@ -264,18 +291,24 @@ VSIM_FLAGS += -do $(VSIM_SCRIPT_DIR)/vsim.tcl
 COV_FLAGS =
 COV_REPORT = cov_report
 COV_INST_ARG = $(if $(COV_INSTANCE),-instance=$(COV_INSTANCE).,)
-# Threshold for the cov_holes/cov_holes_details targets: instances/types at or
-# above this percentage are omitted from the report entirely. Override e.g.
-# `make cov_holes COV_HOLES_THRESHOLD=95` to also see near-complete items.
-COV_HOLES_THRESHOLD ?= 100
 COV_MERGE_TARGET =
+# Explicit merge input list. When COV_MERGE_LIST names a file of .ucdb paths
+# (one per line, absolute), it replaces the find below wherever the merge
+# inputs are needed -- the prerequisite list and the producer of
+# <merge dir>/ucdb.list -- so the merge covers exactly the databases the
+# caller chose. bin/run_tests.py --cov-report uses this to merge one batch's
+# PASSing tests twice into two scopes (merged/ without the parked tests,
+# merged_parked/ with them) without any unrelated .ucdb on disk leaking into
+# either number.
+COV_MERGE_LIST ?=
 COV_MERGE_FIND = find $(abspath $(SIM_CFG_RESULTS)) -type f -name "*.ucdb" | grep -v merged.ucdb
+COV_MERGE_INPUTS = $(if $(COV_MERGE_LIST),cat $(COV_MERGE_LIST),$(COV_MERGE_FIND))
 COV_MERGE_FLAGS=merge -64 -out merged.ucdb -inputs ucdb.list
 # Evaluated at parse time so it can serve as a file prerequisite list below --
 # lets 'make' skip re-merging (and skip re-running any target that depends on
 # it, e.g. cov_holes) when merged.ucdb is already newer than every per-test
 # .ucdb it would be built from.
-COV_MERGE_UCDB_LIST := $(shell $(COV_MERGE_FIND))
+COV_MERGE_UCDB_LIST := $(shell $(COV_MERGE_INPUTS))
 
 ifeq ($(call IS_YES,$(MERGE)),YES)
 	COV_DIR=$(VSIM_COV_MERGE_DIR)
@@ -428,6 +461,10 @@ gen_corev-dv: $(LIBS) rvvi_stub $(SVLIB_PKG)
 			$(GEN_PLUSARGS)
 	# Copy out final assembler files to test directory
 	for (( idx=${GEN_START_INDEX}; idx < $$((${GEN_START_INDEX} + ${GEN_NUM_TESTS})); idx++ )); do \
+		if [ ! -f ${SIM_COREVDV_RESULTS}/${TEST}/${TEST}_$$idx.S ]; then \
+			echo "ERROR: the generator produced no ${TEST}_$$idx.S in ${SIM_COREVDV_RESULTS}/${TEST}/ (see ${SIM_COREVDV_RESULTS}/${TEST}/${TEST}_$(GEN_START_INDEX)_$(GEN_NUM_TESTS).log)"; \
+			exit 1; \
+		fi; \
 		cp -f ${BSP}/link_corev-dv.ld ${SIM_TEST_RESULTS}/$$idx/test_program/link.ld; \
 		cp ${SIM_COREVDV_RESULTS}/${TEST}/${TEST}_$$idx.S ${SIM_TEST_RESULTS}/$$idx/test_program; \
 	done
@@ -586,7 +623,9 @@ run: $(VSIM_RUN_PREREQ) gen_ovpsim_ic
 ################################################################################
 # The new general test target
 
-test: VSIM_TEST=$(TEST_PROGRAM)
+# The +firmware/+elf_file/+itb_file flags below stay keyed on TEST_PROGRAM,
+# which is what the build produced, while the run is named after TEST (see
+# VSIM_TEST in the Paths block above).
 test: VSIM_FLAGS += +firmware=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).hex
 test: VSIM_FLAGS += +elf_file=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).elf
 test: VSIM_FLAGS += +itb_file=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).itb
@@ -612,7 +651,7 @@ waves:
 # next merge picks it up automatically -- no manual cache-busting needed.
 $(VSIM_COV_MERGE_DIR)/merged.ucdb: $(COV_MERGE_UCDB_LIST)
 	$(MKDIR_P) $(VSIM_COV_MERGE_DIR)
-	$(COV_MERGE_FIND) > $(VSIM_COV_MERGE_DIR)/ucdb.list
+	$(COV_MERGE_INPUTS) > $(VSIM_COV_MERGE_DIR)/ucdb.list
 	cd $(VSIM_COV_MERGE_DIR) && \
 		$(VCOVER) \
 			$(COV_MERGE_FLAGS)
@@ -631,6 +670,22 @@ cov_txt: $(COV_MERGE_TARGET)
 		$(VCOVER) report \
 			-details -precision 2 -annotate $(COV_INST_ARG) -code $(COV_TYPES) \
 			-output $(COV_REPORT)/cov_txt \
+			$(COV_UCDB)
+
+# Functional-coverage HTML report: covergroup bins only, and deliberately
+# WITHOUT $(COV_INST_ARG). The environment's covergroups live in packages
+# (/uvme_cv32e20_pkg, /uvma_isacov_pkg, /uvma_obi_memory_pkg) outside the DUT
+# instance, so a scoped 'fc' report counts the RTL's own cover directives
+# instead and reads near 100% while the real covergroups sit at zero -- the
+# exact bug bin/run_tests.py documents next to its two report scopes. If you
+# are looking for the covergroup holes this reports, see docs/coverage/.
+# Output: <COV_DIR>/$(COV_REPORT)/cov_func
+cov_func: $(COV_MERGE_TARGET)
+	$(MKDIR_P) $(COV_DIR)/$(COV_REPORT)
+	cd $(COV_DIR) && \
+		$(VCOVER) report \
+			-html -details -precision 2 -cvg \
+			-output $(COV_REPORT)/cov_func \
 			$(COV_UCDB)
 
 # Compact "holes" report: instances/coverage-types at or above
@@ -654,14 +709,6 @@ cov_holes_details: $(COV_MERGE_TARGET)
 			-details -precision 2 -annotate -below $(COV_HOLES_THRESHOLD) $(COV_INST_ARG) -code $(COV_TYPES) \
 			-output $(COV_REPORT)/cov_holes_details \
 			$(COV_UCDB)
-
-# Target to extract TRL5 coverage metrics
-trl5_coverage_metrics: $(VSIM_COV_MERGE_DIR)/merged.ucdb
-	$(MKDIR_P) $(VSIM_COV_MERGE_DIR)
-	cd $(VSIM_COV_MERGE_DIR) && \
-		COV_INSTANCE="$(COV_INSTANCE)" $(VCOVER) \
-		load merged.ucdb -test dummy -run $(VSIM_SCRIPT_DIR)/coverage_extract.tcl \
-		> $(VSIM_COV_MERGE_DIR)/trl5_metrics.txt
 
 ###############################################################################
 # Clean up your mess!

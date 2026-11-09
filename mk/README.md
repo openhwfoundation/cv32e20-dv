@@ -281,7 +281,11 @@ Running these is a two-step process.  The first step is to clone riscv-dv and co
 ```
 make corev-dv
 ```
-Note that the `corev-dv` target need only be run once.  The next step is to generate, compile
+Note that the `corev-dv` target need only be run once.  It starts with
+`clean_riscv-dv`, i.e. it wipes and re-clones riscv-dv every time; `make
+comp_corev-dv` is the incremental form (it clones each vendor repository only
+when it is missing) and is what `bin/run_tests.py` runs before a corev-dv
+batch.  The next step is to generate, compile
 and run a test.  For example:
 ```
 make gen_corev-dv test TEST=corev_rand_jump_stress_test
@@ -445,7 +449,9 @@ Invoke debug tool on hello-world test using the advanced debug tool.
 
 The makefile supports the generation of coverage databases during simulation and invoking simulator-specific coverage reporting and browsing tools.
 
-By default coverage information is not generated during a simulation for <i>xrun, questa, and vcs.</i>  Therefore a flag was added to the makefiles to enable generation of a coverage database during simulation.  The coverage database will include line, expression, toggle, functional and assertion coverage in the generated database.
+By default coverage information is not generated during a simulation for <i>xrun, questa, and vcs.</i>  Therefore a flag was added to the makefiles to enable generation of a coverage database during simulation.  Which code-coverage metrics that database holds is set by the <i>COV_TYPES</i> make variable; for Questa the default is <i>bcsf</i>: branch, condition, statement (==line) and FSM coverage (see `mk/uvmt/vsim.mk`).  Expression (<i>e</i>) and toggle (<i>t</i>) metrics are NOT collected by that default.  <i>COV_TYPES</i> selects code-coverage metrics only: assertion coverage (immediate and concurrent assertions and cover directives) and SystemVerilog covergroups (functional coverage) come from the simulator's own <i>-coverage</i> runtime instead, so both are in the database whenever coverage is enabled, whatever <i>COV_TYPES</i> says.  `bin/run_tests.py` surfaces them in `coverage_report/summary.json` as `code_metrics.assertion`, `code_metrics.cover_directive` and `functional_coverage`.
+
+Questa also scopes the database by the <i>COV_INSTANCE</i> variable (the DUT and below by default); clear it with <i>COV_INSTANCE=</i> to instrument the whole design.
 
 To generate coverage database, set **COV=1**.
 
@@ -463,7 +469,7 @@ Invoke GUI coverage browser for the hello-world test:
 
 **make cov TEST=hello-world GUI=1**
 
-An additional option to the **make cov** target exists to <i>merge</i> coverage.  To merge coverage the makefiles will look in **all** existing test results directories <i>for the selected simulator</i> and configuration, and generate a merged coverage report in <i>&lt;simulator>_results/&lt;cfg>/merged_cov</i>.  The respective coverage report of GUI invocation will use that directory as the coverage database.  Coverage merging is selected by setting the <i>MERGE=1</i> flag.
+An additional option to the **make cov** target exists to <i>merge</i> coverage.  To merge coverage the makefiles will look in **all** existing test results directories <i>for the selected simulator</i> and configuration, and generate a merged coverage database; for Questa that is <i>&lt;simulator>_results/&lt;cfg>/merged/merged.ucdb</i>, and the report is written beside it in <i>merged/cov_report</i>.  The respective coverage report of GUI invocation will use that database.  Coverage merging is selected by setting the <i>MERGE=1</i> flag.
 
 Generate coverage report for all executed tests with coverage databases.
 
@@ -472,4 +478,6 @@ Generate coverage report for all executed tests with coverage databases.
 Invoke GUI coverage browser for all executed tests with coverage databases.
 
 **make cov MERGE=1 GUI=1**
+
+Questa additionally has **cov_txt**, **cov_holes**, **cov_holes_details** and **cov_func** report targets (`mk/uvmt/vsim.mk`): a flat ASCII report, the two "what is still missing" views filtered by `COV_HOLES_THRESHOLD`, and the covergroup-only HTML report respectively. All four take `MERGE=1`/`TEST=`/`COV_INSTANCE=` like **cov**, except **cov_func**, which deliberately ignores the instance scope, because covergroup coverage lives outside the DUT instance by construction. See `mk/uvmt/README.md`.
 

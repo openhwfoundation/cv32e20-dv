@@ -1,0 +1,144 @@
+/* Regression-results dashboard: page-specific rules.
+ *
+ * The visual language of this page is not merely similar to the coverage
+ * dashboard's any more -- it is the same file. templates/common/style.css is
+ * published into this directory as common.css and linked before this sheet, so
+ * the palette, body, header, .header-*, .badge, .card, .summary-bar,
+ * .stats-container, .links-container, .btn, footer and the responsive stacking
+ * all come from there and are shared *by file*, not by copy-paste. What follows
+ * is only what this page owns: the verdict badge colours, the results table and
+ * its verdict colours, and the run-metadata line.
+ */
+
+:root {
+    --pass-green: #1F8A4C;
+    --fail-red:   #C0392B;
+    --error-amber: #B8860B;
+    }
+
+.badge-pass {
+    background-color: var(--pass-green);
+    color: #fff;
+    border: 2px solid #16653A;
+    }
+
+.badge-fail {
+    background-color: var(--fail-red);
+    color: #fff;
+    border: 2px solid #8E2A1F;
+    }
+
+.badge-default {
+    background-color: #D3D3D3;
+    color: #666;
+    border: 2px solid #A9A9A9;
+    }
+
+.table-wrap {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    }
+
+thead th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    color: #FFFFFF;
+    background-color: var(--openhw-navy);
+    padding: 0.6rem 0.8rem;
+    }
+
+tbody td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #EDF1F5;
+    vertical-align: top;
+    }
+
+tbody tr:nth-child(even) {
+    background-color: #FAFCFE;
+    }
+
+tbody tr.empty td {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 1.5rem;
+    }
+
+td.test-name {
+    font-weight: 600;
+    color: var(--openhw-navy);
+    white-space: nowrap;
+    }
+
+td.mono, td code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    }
+
+td.detail {
+    color: #6b7280;
+    /* Long "gen_corev-dv failed (exit 2)" strings must not stretch the table. */
+    max-width: 26rem;
+    overflow-wrap: anywhere;
+    }
+
+td code {
+    color: #6b7280;
+    }
+
+/* Parked-test marker: sits inside the test-name cell, so it must survive
+ * the cell's nowrap and stay readable at the table's font size. */
+.parked-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0 0.4rem;
+    border-radius: 8px;
+    background-color: var(--error-amber);
+    color: #FFFFFF;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    }
+
+.verdict {
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 0.5px;
+    }
+
+.verdict.pass {
+    color: var(--pass-green);
+    }
+
+.verdict.fail {
+    color: var(--fail-red);
+    }
+
+.verdict.error {
+    color: var(--error-amber);
+    }
+
+.meta-container {
+    margin: 1.5rem 0;
+    text-align: center;
+    }
+
+.meta-line {
+    display: inline-block;
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }

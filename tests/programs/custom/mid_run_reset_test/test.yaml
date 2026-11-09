@@ -1,0 +1,6 @@
+name: mid_run_reset_test
+uvm_test: uvmt_$(CV_CORE_LC)_firmware_test_c
+description: >
+    Drop reset once in the middle of a running program (FSM reset-transition coverage)
+plusargs: >
+    +mid_run_reset

@@ -1,0 +1,118 @@
+/* Coverage-analysis page: page-specific rules.
+ *
+ * templates/common/style.css is published into this directory as common.css and
+ * linked before this sheet, so the palette, body, header, .header-*, .card,
+ * .summary-bar, .stats-container, .links-container, .btn, footer and the
+ * responsive stacking all come from there. What is left here is this page's own
+ * vocabulary: the three review statuses and the two row kinds, and the tables
+ * of a sheet read rather than a table of test verdicts.
+ *
+ * The regression dashboard's table rules are its own and stay there: this table
+ * has a target and a justification column that page has no room for, and the
+ * two have never needed to agree about anything else.
+ */
+
+.table-wrap {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    }
+
+thead th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+    color: #FFFFFF;
+    background-color: var(--openhw-navy);
+    padding: 0.6rem 0.7rem;
+    /* The first column of a sheet is an ID and the last is a one-word status;
+     * neither is worth wrapping, and the table scrolls anyway. */
+    white-space: nowrap;
+    }
+
+tbody td {
+    padding: 0.45rem 0.7rem;
+    border-bottom: 1px solid #EDF1F5;
+    vertical-align: top;
+    }
+
+tbody tr:nth-child(even) {
+    background-color: #FAFCFE;
+    }
+
+tbody tr.empty td {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 1.5rem;
+    }
+
+td.mono, th.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    }
+
+/* A target is an RTL construct: `All False Count (else arm)`, an assertion
+ * path, a `feccondrow` exclusion. Paths are one unbreakable word to the line
+ * breaker, which is what sets min-content width on a table this wide. */
+td.target {
+    overflow-wrap: anywhere;
+    color: #374151;
+    }
+
+td.reason {
+    color: #6b7280;
+    max-width: 32rem;
+    overflow-wrap: anywhere;
+    }
+
+/* The sheet's own vocabulary, kept visually distinct from the regression
+ * dashboard's pass/fail verdicts: these are review states, and none of them is
+ * a failure. Colors of the shared palette, same rule as every other page. */
+td.status {
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    }
+
+td.status.open {
+    color: #B8860B;
+    }
+
+td.status.triaged {
+    color: #1B6CA8;
+    }
+
+td.status.waived {
+    color: #1F8A4C;
+    }
+
+td.status-hole {
+    font-weight: bold;
+    color: var(--openhw-navy);
+    }
+
+td.status-waiver {
+    color: var(--openhw-muted);
+    }
+
+/* The sheet is five columns wide on a phone before it is readable at all, so
+ * let the wrap scroll it instead of shrinking the type into nothing; the rest
+ * of the page keeps common.css's stacking. */
+@media (max-width: 640px) {
+    .table-wrap {
+        overflow-x: scroll;
+        }
+
+    thead th {
+        font-size: 0.65rem;
+        }
+    }

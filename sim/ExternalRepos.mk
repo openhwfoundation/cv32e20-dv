@@ -10,12 +10,9 @@
 
 export SHELL = /bin/bash
 
-#CV_CORE_REPO   ?= https://github.com/openhwgroup/cve2
-#CV_CORE_BRANCH ?= main
-#CV_CORE_HASH   ?= d079e8c
-CV_CORE_REPO   ?= https://github.com/MikeOpenHWGroup/cve2
-CV_CORE_BRANCH ?= cs_registers
-CV_CORE_HASH   ?= 094e974
+CV_CORE_REPO   ?= https://github.com/openhwfoundation/cve2
+CV_CORE_BRANCH ?= main
+CV_CORE_HASH   ?= d7f2156
 
 CV_VERIF_REPO   ?= https://github.com/openhwfoundation/core-v-verif
 CV_VERIF_BRANCH ?= cv32e20-dv/dev
@@ -24,6 +21,12 @@ CV_VERIF_HASH   ?= c525ca3
 RISCVDV_REPO    ?= https://github.com/google/riscv-dv
 RISCVDV_BRANCH  ?= master
 RISCVDV_HASH    ?= 0b625258549e733082c12e5dc749f05aefb07d5a
+
+# This Spike repo is only cloned when the DPI disassembler needs to be rebuilt
+# Typically users can simply use the checked-in shared library
+DPI_DASM_SPIKE_REPO   ?= https://github.com/riscv/riscv-isa-sim.git
+DPI_DASM_SPIKE_BRANCH ?= master
+DPI_DASM_SPIKE_HASH   ?= 8faa928819fb551325e76b463fc0c978e22f5be3
 
 # SVLIB
 SVLIB_REPO       ?= https://bitbucket.org/verilab/svlib/src/master/svlib

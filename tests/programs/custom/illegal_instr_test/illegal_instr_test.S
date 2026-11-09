@@ -47745,15 +47745,16 @@ main:
 .half(0x9C21) # c.addw slot [15:13]=100,[12]=1,[11:10]=11,[6:5]=01
 # 2026-08-13: line 170 (110 slot) flipped to a miss on a fresh corev_rand_illegal_instr_test
 # seed (was previously hit only by random stimulus, never hand-built). Closed
-# deterministically the same way as the other slots in this group -- see
-# docs/RTL-STATEMENT-COVERAGE-AUDIT.md for the seed-variance history.
+# deterministically the same way as the other slots in this group; the
+# seed-variance history is these comments themselves.
 .half(0x9C41) # reserved slot [15:13]=100,[12]=1,[11:10]=11,[6:5]=10
 # 2026-08-14: fresh-from-scratch regression exposed 3 more misses relying only on random
 # stimulus, never hand-built -- same seed-variance pattern as above:
 #   cve2_compressed_decoder.sv:171 -- the 111 sibling of the 100/101/110 group just above
 #   cve2_compressed_decoder.sv:121 -- C1 c.lui reserved when nzimm==0 ({instr[12],instr[6:2]}==0)
 #   cve2_compressed_decoder.sv:133 -- C1 c.srli/c.srai reserved when shamt[5](instr[12])==1 on RV32
-# See docs/RTL-STATEMENT-COVERAGE-AUDIT.md for the seed-variance history.
+# This block is the seed-variance history; the waivers it fed are the
+# RTL-exclusion comments in sim/tools/vsim/cov.tcl.
 .half(0x9C61) # reserved slot [15:13]=100,[12]=1,[11:10]=11,[6:5]=11
 .half(0x6081) # c.lui rd=x1, nzimm=0 -- RESERVED, cve2_compressed_decoder.sv:121
 .half(0x9005) # c.srli rd'=x8, shamt[5]=1 -- RESERVED on RV32, cve2_compressed_decoder.sv:133

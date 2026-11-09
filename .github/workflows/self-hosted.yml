@@ -1,0 +1,61 @@
+name: Manual Questa self-hosted sanity regression
+
+on:
+  workflow_dispatch:
+
+jobs:
+  uvm-test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python virtual environment
+        run: |
+          python3.12 -m venv venv_cv32e20-dv/
+          source venv_cv32e20-dv/bin/activate
+          pip install --upgrade pip
+          pip install -r bin/requirements.txt
+          source venv_cv32e20-dv/bin/activate
+
+      - name: Set up RISC-V Toolchain
+        run: |
+          export CV_SW_TOOLCHAIN=/opt/riscv
+          echo "Ensuring RISC-V toolchain is present at $CV_SW_TOOLCHAIN"
+          if [ ! -f $CV_SW_TOOLCHAIN/bin/riscv32-corev-elf-gcc ]; then
+            echo "Toolchain not found at $CV_SW_TOOLCHAIN/bin/riscv32-corev-elf-gcc. Please ensure it is installed on the host."
+            exit 1
+          fi
+
+      # The blocking sanity list, through the same harness that developers and
+      # coverage.yml use -- not a hard-coded `make test TEST=hello-world`, so
+      # what this job proves is "the list a reviewer can read passed", and the
+      # list is one file rather than a line of YAML in a workflow.
+      #
+      # No --allow-failures here: this job exists to answer yes or no, and the
+      # harness exits non-zero unless every test printed its PASS banner. The
+      # publish step below runs either way, because a failing regression is the
+      # one whose dashboard anybody reads.
+      - name: Run the sanity regression (Questa, no ISS)
+        run: |
+          source venv_cv32e20-dv/bin/activate
+          export CV_SW_TOOLCHAIN=/opt/riscv
+          set_questa_one_2025
+          export SIMULATOR=vsim
+          cd sim/uvmt/
+          make clean_all
+          cd ../..
+          python3 bin/run_tests.py --testlist regress/cv32e20_sanity.yaml --jobs 4 --timeout 3600
+
+      # Uploaded even for a failed run, and even when the harness never got as
+      # far as publishing (no document, no page): the raw make/vsim output of the
+      # failing test is then all there is.
+      - name: Upload regression results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanity-regression
+          path: |
+            coverage_report/regression/
+            sim/uvmt/regression_results.json
+            sim/uvmt/test_results.log

@@ -1,0 +1,230 @@
+/* Coverage dashboard: page-specific rules.
+ *
+ * Everything shared with the regression dashboard -- palette, body, header,
+ * .header-*, .badge, .card, .summary-bar, .stats-container, .links-container,
+ * .btn, footer and the responsive stacking -- lives in templates/common/style.css,
+ * published next to this file as common.css and linked before it. What is left
+ * here is the TRL badge colouring and the TRL5 metric grid, which this page is
+ * the only user of.
+ */
+
+:root {
+    /* TRL badge colours: this page's own semantics, not the shared palette. */
+    --trl-green: #1F8A4C;
+    --trl-blue:  #1B6CA8;
+    --trl-red:   #C0392B;
+    }
+
+.trl-5 {
+    background-color: var(--trl-green);
+    color: #fff;
+    border: 2px solid #16653A;
+    }
+
+.trl-4 {
+    background-color: var(--trl-blue);
+    color: #fff;
+    border: 2px solid #134E7A;
+    }
+
+.trl-3 {
+    background-color: var(--trl-red);
+    color: #fff;
+    border: 2px solid #8E2A1F;
+    }
+
+.trl-default {
+    background-color: #D3D3D3;
+    color: #666;
+    border: 2px solid #A9A9A9;
+    }
+
+.trl5-grid {
+    display: grid;
+    /* auto-fit rather than a hard repeat(5, 1fr): five equal cards on a wide
+     * screen, but mid-widths wrap to two or three per row instead of squeezing
+     * the metric values into unreadable columns. */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+    }
+
+@media (min-width: 1100px) {
+    /* Room enough for all five metrics on one row, which is what the section
+     * was designed for. minmax(0, 1fr) so one long value cannot widen its own
+     * column. */
+    .trl5-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+    }
+
+.trl5-grid .card h3 {
+    font-size: 1.1rem;
+    color: var(--openhw-navy);
+    margin-bottom: 1rem;
+    }
+
+.trl5-grid .card .value {
+    font-size: 2.5rem;
+    }
+
+/* ---------------------------------------------------------------------
+ * Test-set toggle (Default | Including Parked), top right of the header.
+ * A checkbox under a sliding knob; the two labels name the states and the
+ * active one carries .active. The whole control disappears (display: none
+ * from the page script) when summary.json has no including_parked block.
+ * ------------------------------------------------------------------- */
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+    }
+
+.scope-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 0.35rem 0.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 0.85rem;
+    }
+
+.scope-option {
+    color: var(--openhw-muted);
+    font-weight: 600;
+    user-select: none;
+    white-space: nowrap;
+    }
+
+.scope-option.active {
+    color: var(--openhw-navy);
+    }
+
+.scope-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+    flex: none;
+    }
+
+.scope-switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    }
+
+.scope-knob {
+    position: absolute;
+    inset: 0;
+    background-color: #D3D3D3;
+    border-radius: 20px;
+    transition: background-color 0.2s;
+    pointer-events: none;
+    }
+
+.scope-knob::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+    }
+
+.scope-switch input:checked + .scope-knob {
+    background-color: var(--openhw-teal);
+    }
+
+.scope-switch input:checked + .scope-knob::before {
+    transform: translateX(22px);
+    }
+
+.scope-switch input:focus-visible + .scope-knob {
+    outline: 3px solid var(--openhw-navy);
+    outline-offset: 2px;
+    }
+
+@media (max-width: 900px) {
+    /* The stacked header gives the toggle its own row; keep it hugging the
+     * badge rather than floating off to the right of an empty row. */
+    .header-right {
+        width: 100%;
+        justify-content: flex-start;
+        }
+    }
+
+/* ---------------------------------------------------------------------
+ * Build Versions: the three checkouts behind the numbers, in the page's
+ * card language. overflow-wrap: anywhere because the repo URLs and full
+ * hashes are single long words; the wrap container scrolls on a phone like
+ * the regression table's does.
+ * ------------------------------------------------------------------- */
+.versions-wrap {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    }
+
+#versions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    }
+
+#versions-table th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+    color: #FFFFFF;
+    background-color: var(--openhw-navy);
+    padding: 0.5rem 0.7rem;
+    }
+
+#versions-table td {
+    padding: 0.45rem 0.7rem;
+    border-bottom: 1px solid #EDF1F5;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    }
+
+#versions-table tbody tr:nth-child(even) {
+    background-color: #FAFCFE;
+    }
+
+#versions-table td.component {
+    font-weight: 600;
+    color: var(--openhw-navy);
+    white-space: nowrap;
+    }
+
+#versions-table td.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    }
+
+/* The checked-out hash differing from the pin is the one finding this table
+ * exists to surface: never let it read as a neutral value. */
+.pin-mismatch {
+    color: var(--trl-red);
+    font-weight: 700;
+    }
+
+.build-meta {
+    font-size: 0.85rem;
+    }
+

@@ -72,6 +72,25 @@ class uvmt_cv32e20_general_purpose_test_c extends uvmt_cv32e20_base_test_c;
    extern virtual task nmi_assert();
 
    /**
+    *  Drop reset once in the middle of the running program, after a bounded
+    *  random delay. See uvme_cv32e20_mid_run_reset_vseq.sv.
+    */
+   extern virtual task mid_run_reset();
+
+   /**
+    *  Pulse and withdraw the NMI line repeatedly. See
+    *  uvme_cv32e20_irq_withdraw_vseq.sv.
+    */
+   extern virtual task irq_withdraw();
+
+   /**
+    *  Offer the NMI a few times; the injector bound into dut_wrap withdraws
+    *  the first offers on the exact commit cycle. See
+    *  uvme_cv32e20_irq_single_cycle_vseq.sv.
+    */
+   extern virtual task irq_single_cycle();
+
+   /**
     *  Randomly assert/deassert fetch_enable_i
     */
    extern virtual task random_fetch_toggle();
@@ -111,6 +130,24 @@ task uvmt_cv32e20_general_purpose_test_c::run_phase(uvm_phase phase);
    if ($test$plusargs("nmi_assert")) begin
     fork
       nmi_assert();
+    join_none
+   end
+
+   if ($test$plusargs("mid_run_reset")) begin
+    fork
+      mid_run_reset();
+    join_none
+   end
+
+   if ($test$plusargs("irq_withdraw")) begin
+    fork
+      irq_withdraw();
+    join_none
+   end
+
+   if ($test$plusargs("irq_single_cycle")) begin
+    fork
+      irq_single_cycle();
     join_none
    end
 
@@ -178,14 +215,14 @@ endfunction : build_phase
 task uvmt_cv32e20_general_purpose_test_c::bootset_debug();
     uvme_cv32e20_random_debug_bootset_c debug_vseq;
     debug_vseq = uvme_cv32e20_random_debug_bootset_c::type_id::create("random_debug_bootset_vseqr", vsequencer);
-    `uvm_info("TEST", "Applying single cycle debug_req after reset", UVM_NONE);
+    `uvm_info("TEST", "Applying debug_req_i across reset", UVM_NONE);
     @(negedge env_cntxt.clknrst_cntxt.vif.reset_n);
 
-    // Delay debug_req_i by up to 35 cycles.Should hit BOOT_SET
-    if (!test_randvars.randomize() with { random_int inside {[1:35]}; }) begin
-        `uvm_fatal("TEST", "Cannot randomize test_randvars for debug_req_delay!")
-    end
-    repeat(test_randvars.random_int) @(posedge env_cntxt.clknrst_cntxt.vif.clk);
+    // Assert debug_req_i from the first clock edge after reset and hold it.
+    // Do *not* delay it: cve2_controller.sv never evaluates debug_req_i while
+    // in RESET or BOOT_SET (enter_debug_mode is only sampled from FIRST_FETCH
+    // and DECODE), so a delayed short pulse misses the boot window entirely
+    // and the core boots normally instead of entering debug mode.
 
     if (!debug_vseq.randomize()) begin
         `uvm_fatal("TEST", "Cannot randomize the debug sequence!")
@@ -232,6 +269,36 @@ task uvmt_cv32e20_general_purpose_test_c::nmi_assert();
   assert(nmi_assert_vseq.randomize());
   nmi_assert_vseq.start(vsequencer);
 endtask : nmi_assert
+
+task uvmt_cv32e20_general_purpose_test_c::mid_run_reset();
+  uvme_cv32e20_mid_run_reset_c mid_run_reset_vseq;
+
+  `uvm_info("TEST", "Starting Mid-Run Reset thread in UVM test", UVM_NONE);
+
+  mid_run_reset_vseq = uvme_cv32e20_mid_run_reset_c::type_id::create("mid_run_reset_vseqr", vsequencer);
+  assert(mid_run_reset_vseq.randomize());
+  mid_run_reset_vseq.start(vsequencer);
+endtask : mid_run_reset
+
+task uvmt_cv32e20_general_purpose_test_c::irq_withdraw();
+  uvme_cv32e20_irq_withdraw_c irq_withdraw_vseq;
+
+  `uvm_info("TEST", "Starting IRQ Withdraw thread in UVM test", UVM_NONE);
+
+  irq_withdraw_vseq = uvme_cv32e20_irq_withdraw_c::type_id::create("irq_withdraw_vseqr", vsequencer);
+  assert(irq_withdraw_vseq.randomize());
+  irq_withdraw_vseq.start(vsequencer);
+endtask : irq_withdraw
+
+task uvmt_cv32e20_general_purpose_test_c::irq_single_cycle();
+  uvme_cv32e20_irq_single_cycle_vseq_c irq_single_cycle_vseq;
+
+  `uvm_info("TEST", "Starting IRQ Single-Cycle Withdraw thread in UVM test", UVM_NONE);
+
+  irq_single_cycle_vseq = uvme_cv32e20_irq_single_cycle_vseq_c::type_id::create("irq_single_cycle_vseqr", vsequencer);
+  assert(irq_single_cycle_vseq.randomize());
+  irq_single_cycle_vseq.start(vsequencer);
+endtask : irq_single_cycle
 
 task uvmt_cv32e20_general_purpose_test_c::random_fetch_toggle();
   `uvm_info("TEST", "Starting random_fetch_toggle thread in UVM test", UVM_NONE);

@@ -27,6 +27,8 @@ volatile int glb_hart_status  = 0; // Written by main code only, read by debug c
 volatile int glb_debug_status = 0; // Written by debug code only, read by main code
 volatile int glb_illegal_insn_status = 0; // Written by illegal instruction code only, read by main code
 
+volatile int wait_cnt = 0;
+
 // Expectation flags. Raise an error if handler or routine is enterred when not expected,
 volatile int glb_expect_illegal_insn    = 0;
 volatile int glb_expect_debug_entry     = 0;
@@ -94,6 +96,18 @@ int main(int argc, char *argv[])
 
     while(glb_debug_status != glb_hart_status){
         printf("Wait for Debugger\n");
+        // Hang guard only: without this a debug entry that never happens spun
+        // here until the harness timeout.  The failed value is written once and
+        // then this spins: every write to the status port is a separate
+        // uvm_error in the testbench, and leaving the loop would let main()
+        // fall through to the TEST_PASSED at its end.
+        if (wait_cnt++ > 100) {
+            printf("ERROR! Halt Request did not happen as expected\n");
+            TEST_FAILED;
+            for (;;) {
+                wait_cnt = 101; // volatile write: keeps the loop alive at -O2
+            }
+        }
     }
 
     check_debug_status(11, glb_hart_status);
@@ -103,5 +117,6 @@ int main(int argc, char *argv[])
 
     printf("------------------------\n");
     printf("Finished \n");
+    TEST_PASSED;
     return EXIT_SUCCESS;
-}
+    }

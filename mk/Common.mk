@@ -79,10 +79,9 @@ ifndef COMPLIANCE_REPO
 $(error Must define a COMPLIANCE_REPO to use the common makefile)
 endif
 
-# TODO: uncomment when Spike is integrated
-#ifndef DPI_DASM_SPIKE_REPO
-#$(warning Must define a DPI_DASM_SPIKE_REPO to use the common makefile)
-#endif
+ifndef DPI_DASM_SPIKE_REPO
+$(warning Must define a DPI_DASM_SPIKE_REPO to use the common makefile)
+endif
 
 ###############################################################################
 # Generate command to clone or symlink the core RTL
@@ -97,7 +96,7 @@ ifeq ($(CV_CORE_PATH),)
   ifeq ($(CV_CORE_HASH), head)
     CLONE_CV_CORE_CMD = $(TMP)
   else
-      CLONE_CV_CORE_CMD = $(TMP); cd $(CV_CORE_PKG); git checkout $(CV_CORE_HASH)
+      CLONE_CV_CORE_CMD = $(TMP) && cd $(CV_CORE_PKG) && git checkout $(CV_CORE_HASH)
   endif
 else
   CLONE_CV_CORE_CMD = ln -s $(CV_CORE_PATH) $(CV_CORE_PKG)
@@ -114,7 +113,7 @@ endif
 ifeq ($(RISCVDV_HASH), head)
   CLONE_RISCVDV_CMD = $(TMP3)
 else
-  CLONE_RISCVDV_CMD = $(TMP3); cd $(RISCVDV_PKG); git checkout $(RISCVDV_HASH)
+  CLONE_RISCVDV_CMD = $(TMP3) && cd $(RISCVDV_PKG) && git checkout $(RISCVDV_HASH)
 endif
 # RISCV-DV repo var end
 
@@ -129,7 +128,7 @@ endif
 ifeq ($(COMPLIANCE_HASH), head)
   CLONE_COMPLIANCE_CMD = $(TMP4)
 else
-  CLONE_COMPLIANCE_CMD = $(TMP4); cd $(COMPLIANCE_PKG); sleep 2; git checkout $(COMPLIANCE_HASH)
+  CLONE_COMPLIANCE_CMD = $(TMP4) && cd $(COMPLIANCE_PKG) && sleep 2 && git checkout $(COMPLIANCE_HASH)
 endif
 # RISCV Compliance repo var end
 
@@ -144,7 +143,7 @@ endif
 ifeq ($(EMBENCH_HASH), head)
   CLONE_EMBENCH_CMD = $(TMP5)
 else
-  CLONE_EMBENCH_CMD = $(TMP5); cd $(EMBENCH_PKG); git checkout $(EMBENCH_HASH)
+  CLONE_EMBENCH_CMD = $(TMP5) && cd $(EMBENCH_PKG) && git checkout $(EMBENCH_HASH)
 endif
 # EMBench repo var end
 
@@ -159,7 +158,7 @@ endif
 ifeq ($(DPI_DASM_SPIKE_HASH), head)
   CLONE_DPI_DASM_SPIKE_CMD = $(TMP7)
 else
-  CLONE_DPI_DASM_SPIKE_CMD = $(TMP7); cd $(DPI_DASM_SPIKE_PKG); git checkout $(DPI_DASM_SPIKE_HASH)
+   CLONE_DPI_DASM_SPIKE_CMD = $(TMP7) && cd $(DPI_DASM_SPIKE_PKG) && git checkout $(DPI_DASM_SPIKE_HASH)
 endif
 # DPI_DASM Spike repo var end
 
@@ -174,7 +173,7 @@ endif
 ifeq ($(SVLIB_HASH), head)
   CLONE_SVLIB_CMD = $(TMP8)
 else
-  CLONE_SVLIB_CMD = $(TMP8); cd $(SVLIB_PKG); git checkout $(SVLIB_HASH)
+  CLONE_SVLIB_CMD = $(TMP8) && cd $(SVLIB_PKG) && git checkout $(SVLIB_HASH)
 endif
 # SVLIB repo var end
 
@@ -191,7 +190,7 @@ endif
 ifeq ($(CV_VERIF_HASH), head)
   CLONE_CV_VERIF_CMD = $(TMP9)
 else
-  CLONE_CV_VERIF_CMD = $(TMP9); cd $(CV_VERIF_PKG); git checkout $(CV_VERIF_HASH)
+  CLONE_CV_VERIF_CMD = $(TMP9) && cd $(CV_VERIF_PKG) && git checkout $(CV_VERIF_HASH)
 endif
 # CORE-V-VERIF repo var end
 
@@ -206,7 +205,7 @@ endif
 ifeq ($(ACT4_HASH), head)
   CLONE_ACT4_CMD = $(TMP10)
 else
-  CLONE_ACT4_CMD = $(TMP10); cd $(ACT4_PKG); git checkout $(ACT4_HASH)
+  CLONE_ACT4_CMD = $(TMP10) && cd $(ACT4_PKG) && git checkout $(ACT4_HASH)
 endif
 # ACT4 repo var end
 
@@ -559,6 +558,19 @@ ifeq ($(TEST_ACT),1)
 
 else
 %.elf: $(TEST_FILES) $(wildcard $(BSP)/*.S $(BSP)/*.c $(BSP)/*.h $(BSP)/link.ld)
+	@test -n "$(strip $(TEST_FILES))" || { \
+		echo "ERROR: no sources for $(TEST): nothing to compile into $@."; \
+		case "$(TEST)" in \
+		corev_*) echo "       A corev-dv program is generated, not committed. Run:"; \
+			echo "         make comp_corev-dv SIMULATOR=<sim>              (once)"; \
+			echo "         make gen_corev-dv test TEST=$(TEST) SIMULATOR=<sim>"; \
+			echo "       (looked for: $(SIM_TEST_PROGRAM_RESULTS)/$(TEST_NAME)$(OPT_RUN_INDEX_SUFFIX).S)"; \
+			;; \
+		*) echo "       Expected .S/.c sources in $(TEST_TEST_DIR)."; \
+			;; \
+		esac; \
+		exit 1; \
+	}
 	mkdir -p $(SIM_TEST_PROGRAM_RESULTS)
 	make bsp
 	@echo "$(BANNER)"
@@ -749,8 +761,8 @@ vcs-unit-test:  vcs-run
 ###############################################################################
 # Clone CORE-V-VERIF
 
-core-v-verif:
-	$(CLONE_CV_VERIF_CMD)
+# core-v-verif:
+# 	$(CLONE_CV_VERIF_CMD)
 
 ###############################################################################
 # Build disassembler

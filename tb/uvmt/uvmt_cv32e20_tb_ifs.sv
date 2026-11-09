@@ -321,4 +321,23 @@ interface uvmt_cv32e20_debug_cov_assert_if
 
 endinterface : uvmt_cv32e20_debug_cov_assert_if
 
+// CV-X-IF interface
+interface uvmt_cv32e20_cvx_if (input logic clk, input logic reset_n);
+   import cve2_pkg::*;
+   // Issue channel
+   logic x_issue_valid;
+   x_issue_req_t x_issue_req;
+   logic x_issue_ready;
+   x_issue_resp_t x_issue_resp;
+   // Register channel
+   x_register_t x_register;
+   // Commit channel
+   logic x_commit_valid;
+   x_commit_t x_commit;
+   // Result channel
+   logic x_result_valid;
+   x_result_t x_result;
+   logic x_result_ready;
+endinterface : uvmt_cv32e20_cvx_if
+
 `endif // __UVMT_CV32E20_TB_IFS_SV__

@@ -1,0 +1,8 @@
+{
+  "comment": "Style rules for this repository's Markdown. Deliberately permissive: the documentation predates any linter, part of it is vendored, and CI runs markdownlint as an advisory (continue-on-error) job. Every rule disabled here is disabled for a stated reason -- tighten this file by deleting entries, never by adding new ones. See docs/regression.md.",
+  "line-length": false,
+  "no-inline-html": false,
+  "first-line-heading": false,
+  "no-emphasis-as-heading": false,
+  "fenced-code-language": false
+}

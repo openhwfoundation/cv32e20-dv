@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal stand-in for a `vcover report -xml -details -cvg` export, used by
+     bin/tests/test_converters.py.
+
+     Questa writes each covergroup *type* of a package as a flat sequence of
+     siblings under the package's <instanceData>: the summary <bin> naming the
+     type, its <type_option>, the type-level <coverpoint>/<cross> summaries
+     (which report only a percentage and three bin counts, and whose <bins> is
+     always empty), and then one <coverinstance> per instantiated copy. Only the
+     instances name the bins and say how often each was hit, so they are what the
+     UCIS converter reads; the summaries above it are kept here to prove it
+     ignores them.
+
+     Shaped to cover every path the converter takes: bins that were hit and bins
+     that were not, an ignore and an illegal bin, a coverpoint with no bins at all
+     (unrepresentable in UCIS), a cross naming it (so that cross has to go), a cross
+     naming its bins by the pair they combine (so they are written), a cross bin
+     over a * bin of a crossed coverpoint and a cross-level ignore bin (neither
+     names one combination, so both have to go), and a package with no bins anywhere
+     (so that instance has to go).
+
+     Shapes taken from the real export it stands in for, so the tests are not testing
+     an invention: Questa crosses two or more coverpoints (never one, and this file
+     keeps one anyway to pin that path), it names a cross bin by the tuple of the
+     crossed bins in the order the coverpoints are crossed, it writes no <bin_rhs>
+     under a counted cross bin but does under an ignore bin of the cross, and the
+     tuple of a cross bin of this export is never a bare "<*>".
+
+     __REPO__ is replaced with the repository root by the test. -->
+<coverage_report questa_version="2025.3"
+                 command="vcover report -xml -details -cvg">
+  <functional_coverage_report>
+    <instanceData path="/uvme_cv32e20_pkg">
+      <sourceTable files="2">
+        <fileMap fn="0" path="__REPO__/env/uvme/cov/uvme_rv32isa_covg.sv"/>
+        <fileMap fn="1" path="__REPO__/env/uvme/uvme_cv32e20_pkg.sv"/>
+      </sourceTable>
+      <cover_group_types active="2" hits="na" percent="70.00"/>
+      <coverpoints_crosses active="4" hits="na" percent="na"/>
+      <cvgbins active="6" hits="4" percent="66.67"/>
+
+      <bin>
+        <name>/uvme_cv32e20_pkg/uvme_rv32isa_covg/cg_instr</name>
+        <metric>40.00</metric><goal>100</goal><status>Uncovered</status>
+      </bin>
+      <type_option>
+        <weight>1</weight><goal>100</goal><comment/><per_instance>1</per_instance>
+      </type_option>
+      <!-- Type-level summaries: names and percentages, no bins. -->
+      <coverpoint>
+        <bin><name>cp_opcode</name><metric>40.00</metric><goal>100</goal><status>Uncovered</status></bin>
+        <coveredbins>4</coveredbins><missingbins>6</missingbins>
+        <totalbins>10</totalbins><percenthit>40.000000</percenthit>
+        <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+        <bins></bins>
+      </coverpoint>
+      <coverpoint>
+        <bin><name>cp_rd</name><metric>0.00</metric><goal>100</goal><status>ZERO</status></bin>
+        <coveredbins>0</coveredbins><missingbins>32</missingbins>
+        <totalbins>32</totalbins><percenthit>0.000000</percenthit>
+        <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+        <bins></bins>
+      </coverpoint>
+
+      <coverinstance>
+        <path>/uvme_cv32e20_pkg</path>
+        <bin>
+          <name>/uvme_cv32e20_pkg/uvme_rv32isa_covg/cg_instr/rv32i_instr_cg</name>
+          <metric>40.00</metric><goal>100</goal><status>Uncovered</status>
+        </bin>
+        <coveredbins>2</coveredbins><missingbins>1</missingbins>
+        <totalbins>3</totalbins><percenthit>66.666667</percenthit>
+        <option>
+          <name>rv32i_instr_cg</name>
+          <weight>1</weight><goal>100</goal><comment/><at_least>1</at_least>
+          <auto_bin_max>64</auto_bin_max><per_instance>1</per_instance>
+        </option>
+        <coverpoint>
+          <bin><name>cp_opcode</name><metric>66.67</metric><goal>100</goal><status>Uncovered</status></bin>
+          <coveredbins>2</coveredbins><missingbins>1</missingbins>
+          <totalbins>3</totalbins><percenthit>66.666667</percenthit>
+          <option>
+            <weight>1</weight><goal>100</goal><comment/><at_least>1</at_least>
+            <auto_bin_max>64</auto_bin_max>
+          </option>
+          <bins>
+            <bin>
+              <name>ADD</name><metric>7</metric><goal>1</goal><status>Covered</status>
+              <bin_rhs><![CDATA[ADD;SUB]]></bin_rhs>
+            </bin>
+            <bin>
+              <name>LS</name><metric>0</metric><goal>1</goal><status>ZERO</status>
+              <bin_rhs><![CDATA[LB;LH;LW]]></bin_rhs>
+            </bin>
+            <ignore_bins>
+              <name>RESERVED</name><metric>0</metric><goal>1</goal><status>ZERO</status>
+              <bin_rhs><![CDATA[31]]></bin_rhs>
+            </ignore_bins>
+          </bins>
+        </coverpoint>
+        <!-- A second coverpoint, so that the cross below crosses two of them the
+             way Questa does. Its bins are deliberately keyed in a different order
+             from the cross bins. -->
+        <coverpoint>
+          <bin><name>cp_rs1</name><metric>66.67</metric><goal>100</goal><status>Uncovered</status></bin>
+          <coveredbins>2</coveredbins><missingbins>0</missingbins>
+          <totalbins>2</totalbins><percenthit>100.000000</percenthit>
+          <option><weight>1</weight><goal>100</goal><comment/></option>
+          <bins>
+            <bin><name>R0</name><metric>3</metric><goal>1</goal><status>Covered</status>
+              <bin_rhs><![CDATA[0]]></bin_rhs></bin>
+            <bin><name>R1</name><metric>1</metric><goal>1</goal><status>Covered</status>
+              <bin_rhs><![CDATA[1]]></bin_rhs></bin>
+          </bins>
+        </coverpoint>
+        <!-- This coverpoint has no bins, so neither it nor any cross naming it
+             can be written. -->
+        <coverpoint>
+          <bin><name>cp_rd</name><metric>0.00</metric><goal>100</goal><status>ZERO</status></bin>
+          <coveredbins>0</coveredbins><missingbins>0</missingbins>
+          <totalbins>0</totalbins><percenthit>0.000000</percenthit>
+          <option><weight>1</weight><goal>100</goal><comment/></option>
+          <bins></bins>
+        </coverpoint>
+        <cross>
+          <bin><name>cx_op_rs1</name><metric>0.00</metric><goal>100</goal><status>ZERO</status></bin>
+          <coveredbins>0</coveredbins><missingbins>0</missingbins>
+          <totalbins>0</totalbins><percenthit>0.000000</percenthit>
+          <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+          <!-- The real shape: every counted cross bin is named by the tuple of the
+               bins it combines, in the order the coverpoints are crossed, and
+               Questa writes no <bin_rhs> for it. The order of the bins below is
+               deliberately not the order of the bins of either coverpoint, so a
+               converter that indexed a cross bin by its own ordinal instead of
+               looking the named bins up cannot pass for an honest one. A * bin (of
+               a crossed coverpoint, which is how Questa writes one) and ALL_OPS (a
+               bin of the testbench's own naming, legal SystemVerilog but absent from
+               this export) name no one combination, so both of them have to go. -->
+          <bins>
+            <bin><name>&lt;LS,R0&gt;</name><metric>2</metric><goal>1</goal><status>Covered</status></bin>
+            <bin><name>&lt;ADD,R1&gt;</name><metric>5</metric><goal>1</goal><status>Covered</status></bin>
+            <bin><name>&lt;ADD,*&gt;</name><metric>4</metric><goal>1</goal><status>Covered</status></bin>
+            <bin><name>ALL_OPS</name><metric>9</metric><goal>1</goal><status>Covered</status></bin>
+          </bins>
+          <cross_coverpoints>
+            <cross_coverpoint>cp_opcode</cross_coverpoint>
+            <cross_coverpoint>cp_rs1</cross_coverpoint>
+          </cross_coverpoints>
+        </cross>
+        <cross>
+          <bin><name>cx_instr_opcode</name><metric>0.00</metric><goal>100</goal><status>ZERO</status></bin>
+          <coveredbins>0</coveredbins><missingbins>0</missingbins>
+          <totalbins>0</totalbins><percenthit>0.000000</percenthit>
+          <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+          <!-- One coverpoint crossed alone, which nothing in this export looks like
+               but which the converter has to answer the same way: bins named by
+               name, looked up in the coverpoint. -->
+          <bins>
+            <bin><name>&lt;ADD&gt;</name><metric>2</metric><goal>1</goal><status>Covered</status></bin>
+            <bin><name>&lt;LS&gt;</name><metric>0</metric><goal>1</goal><status>ZERO</status></bin>
+          </bins>
+          <cross_coverpoints>
+            <cross_coverpoint>cp_opcode</cross_coverpoint>
+          </cross_coverpoints>
+        </cross>
+        <cross>
+          <bin><name>cx_instr_rd</name><metric>0.00</metric><goal>100</goal><status>ZERO</status></bin>
+          <coveredbins>0</coveredbins><missingbins>0</missingbins>
+          <totalbins>0</totalbins><percenthit>0.000000</percenthit>
+          <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+          <bins></bins>
+          <cross_coverpoints>
+            <cross_coverpoint>cp_rd</cross_coverpoint>
+          </cross_coverpoints>
+        </cross>
+      </coverinstance>
+
+      <!-- A second instance of the same type: UCIS keeps it as an instance and
+           lets the consumer merge the type. -->
+      <coverinstance>
+        <path>/uvme_cv32e20_pkg</path>
+        <bin>
+          <name>/uvme_cv32e20_pkg/uvme_rv32isa_covg/cg_instr/rv32i_branch_cg</name>
+          <metric>100.00</metric><goal>100</goal><status>OK</status>
+        </bin>
+        <coveredbins>1</coveredbins><missingbins>0</missingbins>
+        <totalbins>1</totalbins><percenthit>100.000000</percenthit>
+        <option>
+          <name>rv32i_branch_cg</name>
+          <weight>1</weight><goal>100</goal><comment/><at_least>1</at_least>
+        </option>
+        <coverpoint>
+          <bin><name>cp_opcode</name><metric>100.00</metric><goal>100</goal><status>OK</status></bin>
+          <coveredbins>1</coveredbins><missingbins>0</missingbins>
+          <totalbins>1</totalbins><percenthit>100.000000</percenthit>
+          <option><weight>1</weight><goal>100</goal><comment/></option>
+          <bins>
+            <bin><name>BRANCH</name><metric>3</metric><goal>1</goal><status>Covered</status>
+              <bin_rhs><![CDATA[BEQ;BNE]]></bin_rhs></bin>
+          </bins>
+        </coverpoint>
+      </coverinstance>
+
+      <bin>
+        <name>/uvme_cv32e20_pkg/uvme_interrupt_covg/cg_irq</name>
+        <metric>50.00</metric><goal>100</goal><status>Uncovered</status>
+      </bin>
+      <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+      <coverinstance>
+        <path>/uvme_cv32e20_pkg</path>
+        <bin>
+          <name>/uvme_cv32e20_pkg/uvme_interrupt_covg/cg_irq/env_irq_cg</name>
+          <metric>50.00</metric><goal>100</goal><status>Uncovered</status>
+        </bin>
+        <coveredbins>1</coveredbins><missingbins>1</missingbins>
+        <totalbins>2</totalbins><percenthit>50.000000</percenthit>
+        <option><name>env_irq_cg</name><weight>1</weight><goal>100</goal><comment/></option>
+        <coverpoint>
+          <bin><name>cp_irq</name><metric>50.00</metric><goal>100</goal><status>Uncovered</status></bin>
+          <coveredbins>1</coveredbins><missingbins>1</missingbins>
+          <totalbins>2</totalbins><percenthit>50.000000</percenthit>
+          <option><weight>1</weight><goal>100</goal><comment/></option>
+          <bins>
+            <bin><name>MEIC</name><metric>2</metric><goal>1</goal><status>Covered</status>
+              <bin_rhs><![CDATA[meic]]></bin_rhs></bin>
+            <bin><name>CRITICAL</name><metric>0</metric><goal>1</goal><status>ZERO</status>
+              <bin_rhs><![CDATA[critical]]></bin_rhs></bin>
+            <illegal_bins>
+              <name>ILLEGAL_IRQ</name><metric>0</metric><goal>1</goal><status>ZERO</status>
+              <bin_rhs><![CDATA[reserved]]></bin_rhs>
+            </illegal_bins>
+          </bins>
+        </coverpoint>
+        <cross>
+          <bin><name>cx_irq_source</name><metric>50.00</metric><goal>100</goal><status>Uncovered</status></bin>
+          <coveredbins>1</coveredbins><missingbins>1</missingbins>
+          <totalbins>2</totalbins><percenthit>50.000000</percenthit>
+          <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+          <!-- Two cross bins Questa counts without naming one combination: the * bin
+               it uses for "whatever else cp_irq was crossed with", which names no
+               bin of cp_irq at all, and an ignore bin of the cross itself, whose
+               <bin_rhs> is a list of combinations and whose count is not a hit. -->
+          <bins>
+            <bin><name>&lt;MEIC&gt;</name><metric>5</metric><goal>1</goal><status>Covered</status></bin>
+            <bin><name>&lt;*&gt;</name><metric>0</metric><goal>1</goal><status>ZERO</status></bin>
+            <ignore_bins>
+              <name>IGN_OFF</name><metric>3</metric><goal>None</goal><status>Occurred</status>
+              <bin_rhs><![CDATA[<MEIC,OFF>;<CRITICAL,OFF>]]></bin_rhs>
+            </ignore_bins>
+          </bins>
+          <cross_coverpoints>
+            <cross_coverpoint>cp_irq</cross_coverpoint>
+          </cross_coverpoints>
+        </cross>
+      </coverinstance>
+    </instanceData>
+
+    <!-- A package whose covergroups Questa instantiated but never sampled: with
+         no bins anywhere there is nothing a UCIS document may say about it. -->
+    <instanceData path="/uvme_unsampled_pkg">
+      <sourceTable files="1">
+        <fileMap fn="0" path="__REPO__/env/uvme/cov/uvme_unsampled_covg.sv"/>
+      </sourceTable>
+      <cover_group_types active="1" hits="na" percent="0.00"/>
+      <cvgbins active="0" hits="0" percent="0.00"/>
+      <bin>
+        <name>/uvme_unsampled_pkg/cg_never</name>
+        <metric>0.00</metric><goal>100</goal><status>ZERO</status>
+      </bin>
+      <type_option><weight>1</weight><goal>100</goal><comment/></type_option>
+      <coverinstance>
+        <path>/uvme_unsampled_pkg</path>
+        <bin><name>/uvme_unsampled_pkg/cg_never/never_inst</name>
+          <metric>0.00</metric><goal>100</goal><status>ZERO</status>
+        </bin>
+        <option><name>never_inst</name><weight>1</weight><goal>100</goal><comment/></option>
+        <coverpoint>
+          <bin><name>cp_never</name><metric>0.00</metric><goal>100</goal><status>ZERO</status></bin>
+          <coveredbins>0</coveredbins><missingbins>0</missingbins>
+          <totalbins>0</totalbins><percenthit>0.000000</percenthit>
+          <option><weight>1</weight><goal>100</goal><comment/></option>
+          <bins></bins>
+        </coverpoint>
+      </coverinstance>
+    </instanceData>
+  </functional_coverage_report>
+</coverage_report>

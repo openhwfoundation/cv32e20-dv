@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal stand-in for a DUT-scoped `vcover report -xml -details -code scb`
+     export, used by bin/tests/test_converters.py. The per-line items below are
+     the same 3 statements / 2 branches / 1 condition the rollup fixture counts,
+     so the converters' consistency cross-check has to pass on them.
+
+     Line 57 has hits="0" on purpose: a converter that only carried exported-and-
+     covered lines is how a report once came to publish a line rate of 1.0000.
+
+     __REPO__ is replaced with the repository root by the test. -->
+<coverage_report questa_version="2025.3"
+                 command="vcover report -xml -details -code scb">
+  <code_coverage_report byInstance="1">
+    <instanceData path="/uvmt_cv32e20_tb/dut_wrap/cv32e20_top_i/u_cve2_top/u_cve2_core/alu_i"
+                  du="cve2_alu">
+      <sourceTable files="1">
+        <fileMap fn="0" path="__REPO__/core-v-cores/cv32e20/rtl/cve2_alu.sv"/>
+      </sourceTable>
+      <branches active="2" hits="1" percent="50.00"/>
+      <if hasElse="1" active="2" hits="1" percent="50.00">
+        <ielem fn="0" ln="138" st="1" true="4" false="3"/>
+        <ielem fn="0" ln="140" st="1" true="0" false="0"/>
+      </if>
+      <fec_conditions active="1" hits="1" percent="100.00"/>
+      <!-- The <row body> is the sub-expression text; UCIS needs it to name the
+           expression, and Questa writes it only inside a results table. -->
+      <condition fn="0" ln="138" st="1" active="1" hits="1" percent="100.00">
+        <table rows="1" cols="0" unknown="0">
+          <row j="1" hits_0="9" hits_1="0" body="(opcode == ALU_ADD)"
+               input_patterns_0="-" input_patterns_1="-"/>
+        </table>
+      </condition>
+      <statements active="3" hits="2" percent="66.67"/>
+      <stmt fn="0" ln="56" st="1" hits="5"/>
+      <stmt fn="0" ln="57" st="1" hits="0"/>
+      <stmt fn="0" ln="138" st="1" hits="9"/>
+    </instanceData>
+  </code_coverage_report>
+</coverage_report>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV32E20 Coverage Analysis</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="https://openhwfoundation.org/wp-content/uploads/2025/11/OPENHW-logo_v1.png" alt="OpenHW Foundation Logo">
+            <div class="header-titles">
+                <h1>Coverage Analysis</h1>
+                <p>Waiver and open-hole triage behind the coverage report. List:
+                    <code>regress/cv32e20_ci_check.yaml</code>, measured on Questa One 2025.3_2.</p>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="summary-bar">
+            <!-- Four counts out of the review sheet, no more. The numbers are
+                 the sheet's own rows, not a re-triage: every verdict a cell
+                 shows was decided by bin/coverage_review.py's rules and its
+                 HOLE_TRIAGE table, and this page deliberately does not
+                 duplicate either. -->
+            <div class="card" id="sheet-rows">
+                <h2>Review Rows</h2>
+                <div class="value">Loading...</div>
+                <div class="status">cov.tcl waivers and open holes</div>
+            </div>
+            <div class="card" id="sheet-waivers">
+                <h2>Waivers</h2>
+                <div class="value">Loading...</div>
+                <div class="status">coverage exclude statements audited</div>
+            </div>
+            <div class="card" id="sheet-open">
+                <h2>Open</h2>
+                <div class="value">Loading...</div>
+                <div class="status">no verdict recorded yet</div>
+            </div>
+            <div class="card" id="sheet-waived">
+                <h2>Waived</h2>
+                <div class="value">Loading...</div>
+                <div class="status">in force and measured</div>
+            </div>
+        </section>
+
+        <section class="stats-container">
+            <h2>Unwaived holes by design unit</h2>
+            <p>Every bin still missed with <code>cov.tcl</code>'s exclusions in force, counted per design unit
+                and metric. From <code>raw/holes.csv</code>; the same count
+                <code>bin/coverage_holes.py</code>'s <code>write_by_du_csv()</code> writes to
+                <code>raw/holes_by_du.csv</code>.</p>
+            <div class="table-wrap">
+                <table id="holes-table">
+                    <thead>
+                        <tr>
+                            <th>Design Unit</th>
+                            <th>Metric</th>
+                            <th>Missed Bins</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holes-body">
+                        <tr class="empty"><td colspan="3">No hole dump published.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="stats-container">
+            <h2>The review sheet</h2>
+            <p>One row per <code>cov.tcl</code> waiver and per open hole, with the triage verdict
+                and the exclusion it proposes. Hover a row for its justification; the full sheet,
+                including the Reviewer and Notes columns a human fills in, is
+                <code>coverage_review.csv</code> below.</p>
+            <div class="table-wrap">
+                <table id="sheet-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Design Unit</th>
+                            <th>Metric</th>
+                            <th>Target</th>
+                            <th>cov.tcl</th>
+                            <th>Hits / Misses</th>
+                            <th>Classification</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sheet-body">
+                        <tr class="empty"><td colspan="9">No review sheet published.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="stats-container">
+            <h2>Phase C acceptance</h2>
+            <p>The 16 reset-transition bins and the <code>cve2_controller.sv:514</code> branch,
+                as the two directed tests' own databases report them, per seed. 14 of the 16
+                still carry a <code>cov.tcl</code> waiver; the two whose transitions the
+                merged batch measured as covered carry none. <code>E-hit</code>
+                means the waiver now hides achieved coverage and is a candidate to retire.</p>
+            <div class="table-wrap">
+                <table id="phase-c-table">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Design Unit</th>
+                            <th>Metric</th>
+                            <th>Target</th>
+                            <th>cov.tcl</th>
+                            <th>Status</th>
+                            <th>Hit Seeds</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="phase-c-body">
+                        <tr class="empty"><td colspan="8">No Phase C acceptance dump published.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="links-container">
+            <a href="../index.html" class="btn" id="coverage-link">Coverage report</a>
+            <a href="../regression/index.html" class="btn" id="regression-link">Regression results</a>
+            <a href="coverage_review.csv" class="btn" id="sheet-download" download>Download review sheet</a>
+            <a href="raw/holes.csv" class="btn" id="holes-download" download>Download holes CSV</a>
+            <a href="raw/holes_parked.csv" class="btn" id="parked-holes-download" download>Download parked-scope holes CSV</a>
+            <a href="raw/waiver_audit.csv" class="btn" id="waiver-audit-download" download>Download waiver audit CSV</a>
+            <a href="raw/phase_c_acceptance.csv" class="btn" id="phase-c-download" download>Download Phase C CSV</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>Generated by the CV32E20 CI pipeline &bull; mirrored one-way from <code>docs/coverage/</code></p>
+    </footer>
+
+    <script>
+        // Reading these files means reading the CSVs, and the CSVs are written by
+        // bin/coverage_review.py and bin/coverage_holes.py, not by this page. Three
+        // properties of those writers are leaned on here and nowhere invented:
+        //
+        //   * UTF-8 with a BOM, CRLF endings, and an optional leading block of
+        //     `# source:` provenance lines -- readRawCsv() below drops the BOM and
+        //     the comments, exactly like read_raw_csv() in bin/coverage_review.py.
+        //   * csv.QUOTE_MINIMAL and no cell ever containing a newline (the
+        //     writer's own promise), so a line is a record and the parser below
+        //     needs no state across lines.
+        //   * a header row that names every column, so nothing here is positional.
+        //
+        // What the columns *mean* is stated once, in docs/coverage/coverage_review.md
+        // and in the two tools' docstrings; the triage rules and the HOLE_TRIAGE
+        // verdicts live there too. This page renders the sheet, it does not
+        // re-derive any verdict in it.
+        function stripBom(text) {
+            return text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text;
+        }
+
+        function parseCsvLine(line) {
+            const fields = [];
+            let field = '';
+            let quoted = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (quoted) {
+                    if (ch === '"') {
+                        if (line[i + 1] === '"') {
+                            field += '"';
+                            i++;
+                        } else {
+                            quoted = false;
+                        }
+                    } else {
+                        field += ch;
+                    }
+                } else if (ch === '"') {
+                    quoted = true;
+                } else if (ch === ',') {
+                    fields.push(field);
+                    field = '';
+                } else {
+                    field += ch;
+                }
+            }
+            fields.push(field);
+            return fields;
+        }
+
+        // Fetch one published dump and resolve to an array of {column: value}
+        // objects. Rejects only on a fetch failure, never on an empty file: a dump
+        // with no data rows is an analysis that was run and found nothing, which
+        // renders as an empty table rather than an error.
+        function readRawCsv(url) {
+            return fetch(url).then(resp => {
+                if (!resp.ok) {
+                    throw new Error(url + ': HTTP ' + resp.status);
+                }
+                return resp.text();
+            }).then(text => {
+                const lines = stripBom(text).split(/\r?\n/)
+                    .filter(line => line.length && !line.startsWith('#'));
+                if (lines.length < 2) {
+                    return [];
+                }
+                const header = parseCsvLine(lines[0]);
+                return lines.slice(1).map(line => {
+                    const values = parseCsvLine(line);
+                    const row = {};
+                    header.forEach((name, i) => {
+                        row[name] = values[i] === undefined ? '' : values[i];
+                    });
+                    return row;
+                });
+            });
+        }
+
+        function setText(id, text) {
+            const card = document.getElementById(id);
+            if (card) {
+                card.querySelector('.value').textContent = text;
+            }
+        }
+
+        function count(n) {
+            return Number.isFinite(n) ? n.toLocaleString('en-US') : 'N/A';
+        }
+
+        function cell(row, name) {
+            return (row[name] === undefined ? '' : String(row[name])).trim();
+        }
+
+        function addRow(bodyId, values, title) {
+            const body = document.getElementById(bodyId);
+            const tr = document.createElement('tr');
+            values.forEach(entry => {
+                const td = document.createElement('td');
+                if (typeof entry === 'string') {
+                    td.textContent = entry;
+                } else {
+                    td.textContent = entry.text;
+                    if (entry.className) {
+                        td.className = entry.className;
+                    }
+                }
+                tr.appendChild(td);
+            });
+            if (title) {
+                tr.title = title;
+            }
+            body.appendChild(tr);
+        }
+
+        function clearTable(bodyId, colspan) {
+            const body = document.getElementById(bodyId);
+            body.innerHTML = '';
+            const tr = document.createElement('tr');
+            tr.className = 'empty';
+            const td = document.createElement('td');
+            td.colSpan = colspan;
+            td.textContent = 'Not published by this run.';
+            tr.appendChild(td);
+            body.appendChild(tr);
+        }
+
+        // The sheet: counts first, then the rows. Status comes from the sheet's
+        // own Status column ("open", "triaged", "waived"), which is what
+        // bin/coverage_review.py's triage_waiver()/triage_hole() decided.
+        readRawCsv('coverage_review.csv').then(rows => {
+            const by = column => rows.filter(row => cell(row, column) === 'WAIVER').length;
+            const tally = status => rows.filter(row => cell(row, 'Status') === status).length;
+            setText('sheet-rows', count(rows.length));
+            setText('sheet-waivers', count(by('Type')));
+            setText('sheet-open', count(tally('open')));
+            setText('sheet-waived', count(tally('waived')));
+            if (!rows.length) {
+                return;
+            }
+            const sheetBody = document.getElementById('sheet-body');
+            sheetBody.innerHTML = '';
+            rows.forEach(row => {
+                const hits = cell(row, 'Hits');
+                const misses = cell(row, 'Misses');
+                addRow('sheet-body', [
+                    { text: cell(row, 'ID'), className: 'mono' },
+                    { text: cell(row, 'Type'), className: cell(row, 'Type') === 'HOLE' ? 'status-hole' : 'status-waiver' },
+                    cell(row, 'Design Unit'),
+                    { text: cell(row, 'Metric'), className: 'mono' },
+                    { text: cell(row, 'Target'), className: 'target' },
+                    { text: cell(row, 'cov.tcl Line'), className: 'mono' },
+                    hits + ' / ' + misses,
+                    cell(row, 'Classification') || 'unclassified',
+                    { text: cell(row, 'Status'), className: 'status ' + cell(row, 'Status') },
+                ], cell(row, 'Justification') || cell(row, 'Proposed cov.tcl Exclusion'));
+            });
+            // A row's tooltip is the justification, so say so once.
+            sheetBody.title = 'Hover a row for its justification';
+        }).catch(err => {
+            console.log(err.message);
+            clearTable('sheet-body', 9);
+            setText('sheet-rows', 'N/A');
+            setText('sheet-waivers', 'N/A');
+            setText('sheet-open', 'N/A');
+            setText('sheet-waived', 'N/A');
+        });
+
+        // Missed bins per design unit and metric: one per row of holes.csv,
+        // grouped by (Design Unit, Metric) in first-seen order. Deliberately not
+        // read out of raw/holes_by_du.csv: that file is this same count written by
+        // the tool, and a page that reads a dump and shows the dump teaches
+        // nothing, while a page that recomputes it proves the dump it ships is the
+        // one its own table came from.
+        readRawCsv('raw/holes.csv').then(rows => {
+            if (!rows.length) {
+                return;
+            }
+            const holesBody = document.getElementById('holes-body');
+            holesBody.innerHTML = '';
+            const perDu = new Map();
+            rows.forEach(row => {
+                const key = cell(row, 'Design Unit') + '\u0000' + cell(row, 'Metric');
+                perDu.set(key, (perDu.get(key) || 0) + 1);
+            });
+            perDu.forEach((bins, key) => {
+                const [du, metric] = key.split('\u0000');
+                addRow('holes-body', [du, { text: metric, className: 'mono' }, count(bins)]);
+            });
+        }).catch(err => {
+            console.log(err.message);
+            clearTable('holes-body', 3);
+        });
+
+        // Phase C acceptance: read straight out of the vcover reports the dump's
+        // own `# reading:` header explains, so the only thing done to it here is
+        // rendering. Status keeps its E-hit / E / ***0*** spelling because that is
+        // what the report says, not a word this page invented.
+        readRawCsv('raw/phase_c_acceptance.csv').then(rows => {
+            if (!rows.length) {
+                return;
+            }
+            const phaseCBody = document.getElementById('phase-c-body');
+            phaseCBody.innerHTML = '';
+            rows.forEach(row => {
+                const status = cell(row, 'Status');
+                addRow('phase-c-body', [
+                    { text: cell(row, 'Test'), className: 'target' },
+                    cell(row, 'Design Unit'),
+                    { text: cell(row, 'Metric'), className: 'mono' },
+                    { text: cell(row, 'Target'), className: 'target' },
+                    { text: cell(row, 'cov.tcl Line'), className: 'mono' },
+                    { text: status, className: 'status ' + (status === 'HIT' ? 'triaged' : 'open') },
+                    cell(row, 'Hit Seeds'),
+                    { text: cell(row, 'Reason'), className: 'reason' },
+                ]);
+            });
+        }).catch(err => {
+            console.log(err.message);
+            clearTable('phase-c-body', 8);
+        });
+
+        // Same probe as the coverage dashboard: a link whose target this run did
+        // not publish is dropped rather than left to 404. Useful because
+        // coverage_report/analysis/ is a mirror -- copy the tree without
+        // regression/ and the link to it disappears with it.
+        function hideIfMissing(url, id) {
+            const hide = () => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            };
+            fetch(url, { method: 'HEAD' })
+                .then(resp => {
+                    if (!resp.ok) {
+                        hide();
+                    }
+                })
+                .catch(hide);
+        }
+
+        hideIfMissing('../index.html', 'coverage-link');
+        hideIfMissing('../regression/index.html', 'regression-link');
+        hideIfMissing('coverage_review.csv', 'sheet-download');
+        hideIfMissing('raw/holes.csv', 'holes-download');
+        // Both dumps the sheet's own justifications cite by name: the parked one
+        // is the evidence behind every stimulus-gap row, the audit one the
+        // measured verdict behind every waiver. A tree that published only the
+        // default merge has no parked dump, and the button goes with it.
+        hideIfMissing('raw/holes_parked.csv', 'parked-holes-download');
+        hideIfMissing('raw/waiver_audit.csv', 'waiver-audit-download');
+        hideIfMissing('raw/phase_c_acceptance.csv', 'phase-c-download');
+    </script>
+</body>
+</html>

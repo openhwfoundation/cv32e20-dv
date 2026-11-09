@@ -52,6 +52,7 @@
 ${DV_UVMT_PATH}/uvmt_cv32e20_pkg.sv
 
 // CV32E20 test bench files
+${DV_UVMT_PATH}/uvmt_cv32e20_irq_single_cycle_injector.sv
 ${DV_UVMT_PATH}/uvmt_cv32e20_dut_wrap.sv
 ${DV_UVMT_PATH}/uvmt_cv32e20_tb.sv
 ${TBSRC_HOME}/uvmt/uvmt_cv32e20_tb.sv

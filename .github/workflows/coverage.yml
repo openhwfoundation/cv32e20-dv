@@ -1,0 +1,252 @@
+name: Coverage Report
+
+# Manual-only trigger. The push/pull_request triggers are commented out because
+# this workflow requires a self-hosted runner with Questa Sim + licensing and the
+# CORE-V RISC-V toolchain installed on the host, so it must be invoked explicitly.
+on:
+  # push:
+  #   branches: [ main, master ]
+  # pull_request:
+  #   branches: [ main, master ]
+  workflow_dispatch:
+
+# Release creation needs contents:write; Pages deploy needs pages/id-token.
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  coverage:
+    # Self-hosted runner with Questa Sim (incl. licensing) and the CORE-V RISC-V
+    # toolchain installed on the host.
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python virtual environment
+        run: |
+          python3.12 -m venv venv_cv32e20-dv/
+          source venv_cv32e20-dv/bin/activate
+          pip install --upgrade pip
+          pip install -r bin/requirements.txt
+          source venv_cv32e20-dv/bin/activate
+
+      - name: Set up RISC-V Toolchain
+        run: |
+          export CV_SW_TOOLCHAIN=/opt/riscv
+          echo "Ensuring RISC-V toolchain is present at $CV_SW_TOOLCHAIN"
+          if [ ! -f $CV_SW_TOOLCHAIN/bin/riscv32-corev-elf-gcc ]; then
+            echo "Toolchain not found at $CV_SW_TOOLCHAIN/bin/riscv32-corev-elf-gcc. Please ensure it is installed on the host."
+            exit 1
+          fi
+
+      # The self-hosted runner keeps core-v-cores/ and vendor_lib/ as gitignored
+      # checkouts that survive between runs -- and can therefore sit on years-old
+      # RTL without anything saying so. Provision both from sim/ExternalRepos.mk's
+      # pins here, so the numbers are provably built from the pinned RTL: a
+      # silently different checkout mis-aims every line-number waiver in
+      # sim/tools/vsim/cov.tcl, and Questa accepts a non-matching exclusion
+      # target without complaining. Unknown revisions fail the step (set -e).
+      - name: Provision pinned external repositories
+        run: |
+          set -eu
+          provision() {
+            local var_prefix="$1" dir="$2"
+            local repo branch hash
+            repo=$(sed -n "s/^${var_prefix}_REPO[[:space:]]*?=[[:space:]]*\\([^[:space:]]*\\).*/\\1/p" sim/ExternalRepos.mk)
+            branch=$(sed -n "s/^${var_prefix}_BRANCH[[:space:]]*?=[[:space:]]*\\([^[:space:]]*\\).*/\\1/p" sim/ExternalRepos.mk)
+            hash=$(sed -n "s/^${var_prefix}_HASH[[:space:]]*?=[[:space:]]*\\([^[:space:]]*\\).*/\\1/p" sim/ExternalRepos.mk)
+            if [ -z "$repo" ] || [ -z "$hash" ]; then
+              echo "error: no live ${var_prefix}_REPO/_HASH pin in sim/ExternalRepos.mk"
+              exit 1
+            fi
+            if [ ! -d "$dir/.git" ]; then
+              echo "Cloning $repo ($branch) into $dir"
+              git clone -b "$branch" --single-branch "$repo" "$dir"
+            else
+              git -C "$dir" fetch --quiet origin "$branch" || true
+            fi
+            git -C "$dir" checkout -f "$hash"
+            echo "$dir checked out at $(git -C "$dir" rev-parse HEAD) (pin $hash)"
+          }
+          provision CV_CORE core-v-cores/cv32e20
+          provision CV_VERIF vendor_lib/openhwgroup_core-v-verif
+
+      # Single runner for the whole coverage job. --cov-report merges this
+      # batch's PASSing .ucdb files (the parked tests into the separate
+      # merged_parked/ database) and publishes coverage_report/; --all-custom
+      # picks up every test program under tests/programs/custom without a list
+      # maintained here as well, and brings the parked tests along for the
+      # including-parked report. --allow-failures makes the step exit 0 even if
+      # some tests FAIL/ERROR, so the report/publish steps below (and the
+      # github-pages job) still run; genuine setup errors still fail the job.
+      - name: Run UVM Tests and Generate Coverage
+        run: |
+          source venv_cv32e20-dv/bin/activate
+          export CV_SW_TOOLCHAIN=/opt/riscv
+          set_questa_one_2025
+          export SIMULATOR=vsim
+          echo "Simulator: $(vsim -version | head -n 1)"
+          echo "RTL under test: $(git -C core-v-cores/cv32e20 rev-parse HEAD)"
+          python3 bin/run_tests.py --tb uvmt --include-corev-dv --all-custom --timeout 7200 --cov-report --allow-failures
+
+      # Validate the chosen report formats: 
+      # - Cobertura and UCIS: vendor-neutral XML formats to report Code Coverage
+      # - summary.json: Summary of the Code and Functional coverage and latest regression numbers
+      - name: Validate the published report formats
+        run: |
+          source venv_cv32e20-dv/bin/activate
+          if command -v xmllint >/dev/null 2>&1; then
+            SGML_CATALOG_FILES="$PWD/schemas" xmllint --noout --nonet --catalogs \
+              --dtdvalid schemas/coverage-04.dtd coverage_report/cobertura.xml
+            xmllint --noout --nonet \
+              --schema schemas/ucis.xsd coverage_report/merged.ucis.xml
+          else
+            echo "::warning::xmllint is not on this runner, so the Cobertura DTD and UCIS schema checks were skipped (python-ci.yml's reports-schema job runs them on a hosted runner)"
+          fi
+          pycobertura show coverage_report/cobertura.xml > /dev/null
+          # versions (the Build Versions table's data) and including_parked (the
+          # report's second view) are required here: this workflow provisions
+          # the pinned RTL on purpose, and --cov-report always runs the parked
+          # tests, so a batch missing either published an incomplete report.
+          python3 -c "import json,sys; d=json.load(open('coverage_report/summary.json')); sys.exit(0 if all(k in d for k in ('code_coverage', 'versions', 'including_parked', 'test_sets')) else 1)"
+
+      # The regression document is written by bin/regression_report.py into the
+      # testbench's sim directory. The dashboard next to it is a copy of the same
+      # data, which is also included in the Pages artifact. All of 
+      # coverage_report/ is included.
+      - name: Check the regression results document
+        run: |
+          python3 - <<'PY'
+          import json
+          import sys
+
+          document = json.load(open("sim/uvmt/regression_results.json"))
+          print(f"{document['summary']['passed']}/{document['summary']['total']} "
+                f"test(s) passed on {document['tb']} "
+                f"(testlist: {document.get('testlist')})")
+          if document.get("schema_version") not in (1, 2):
+              sys.exit(f"error: unsupported schema_version "
+                       f"{document.get('schema_version')}")
+          PY
+
+      - name: Upload regression results
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results
+          path: |
+            coverage_report/regression/
+            sim/uvmt/regression_results.json
+            sim/uvmt/test_results.log
+
+      # Bundle the browsable report, comprising dashboard, Questa HTML and vendor-neutral
+      # formats, into one archive for the release asset.
+      - name: Archive coverage report
+        run: |
+          cd coverage_report
+          tar -czf "$GITHUB_WORKSPACE/coverage_report.tar.gz" .
+          cd ..
+
+      # Retained as a workflow artifact so the Pages job can consume it without
+      # touching the source tree.
+      - name: Upload report artifact (for Pages)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage_report/
+
+      # A flat, dereferenced copy of the published tree, staged for download.
+      # `coverage-report` above has to stay exactly what coverage_report/ is,
+      # because the Pages job publishes it verbatim; this one is for the reviewer
+      # who wants the pages and the analysis without unpacking the release
+      # tarball, so the Questa HTML trees stay in the tarball and only what the
+      # pages fetch is copied here. cp -rL because an artifact drops a symlink it
+      # cannot resolve and a Questa HTML export may hold them; a missing item is
+      # a warning and not a failed step, because on a failed run some of these
+      # were never written.
+      - name: Stage the release file set
+        if: always()
+        run: |
+          mkdir -p release-files
+          for item in index.html common.css style.css summary.json analysis regression; do
+            if [ -e "coverage_report/$item" ]; then
+              cp -rL "coverage_report/$item" release-files/
+            else
+              echo "::warning::coverage_report/$item is not in this run, skipped"
+            fi
+          done
+          if [ -f sim/uvmt/test_results.log ]; then
+            cp -L sim/uvmt/test_results.log release-files/
+          else
+            echo "::warning::sim/uvmt/test_results.log was never written, skipped"
+          fi
+          ls -l release-files
+
+      # The job's second artifact, deliberately: the Pages payload above must stay
+      # the verbatim tree, this is the browsable subset of it. if: always() so the
+      # failing run, whose report is the only thing anybody reads, still yields
+      # it. Named without the branch because an artifact name may not contain a
+      # slash; Actions records the run's git ref beside every artifact anyway.
+      - name: Upload the release file set
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cv32e20-dv-coverage-release-files
+          path: release-files/
+
+      # Rolling release: a single "coverage-latest" release overwritten each run,
+      # so history isn't spammed. Only cut on the default branch / manual runs,
+      # never for pull requests.
+      - name: Remove previous rolling release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete coverage-latest --yes --cleanup-tag || true
+          git push origin :refs/tags/coverage-latest || true
+
+      - name: Publish rolling release with report assets
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: coverage-latest
+          name: Coverage Report (latest)
+          body: Auto-generated CV32E20 UVM testbench coverage report. Overwritten on every run.
+          make_latest: false
+          files: |
+            coverage_report.tar.gz
+            coverage_report/cobertura.xml
+            coverage_report/summary.json
+
+  # GitHub Pages deployment via the official actions. The site is published from
+  # a workflow artifact, so no report file ever lands on the repository branch.
+  # Requires the repo's Pages "Build and deployment" source to be set to
+  # "GitHub Actions".
+  github-pages:
+    needs: coverage
+    if: github.event_name != 'pull_request'
+    # Pages deploy does not need Questa, so it can run on a hosted runner.
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Download the report into an isolated directory so only the report files
+      # are published -- never the repository source.
+      - name: Download report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: site
+
+      - name: Upload Pages artifact
+        id: pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

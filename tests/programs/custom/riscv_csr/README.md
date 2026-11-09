@@ -19,7 +19,7 @@ The following files should be present:
       current privilege level.
     - Hand edited.
   * gen_csr_test.py
-    - A python script that reads a .yaml file defining the CSR's.
+    - Forked from riscv-dv's gen_csr_test.py; reads a .yaml file defining the CSR's.
     - Generates riscv_csr_test_0.h and riscv_csr_test_0.S.
     - Hand edited.
   * lib.py
@@ -55,6 +55,23 @@ be accomplished by running this command in the same directory as this file:
 ```
 python3 gen_csr_test.py --csr_file ../../../../env/corev-dv/cv32e20_csr_template.yaml
 ```
+
+Pass `--seed <n>` for a reproducible file: the random stimulus values come from
+`random`, and without a seed they differ on every run (the checked-in file was
+generated with `--seed 1`, which the generated banner does not record). The
+banner does copy the `--csr_file` argument verbatim, so pass the same path
+spelling as above if you want a diff that contains only the stimulus.
+
+Two of the differences from upstream that change the generated program:
+
+* `gen_csr_check_func()` emits the `ret` that ends each generated check function.
+  Upstream omits it, so `machine_mode_check` fell through into
+  `csr_check_unimplemented` and `user_mode_check` ran off the end of the section;
+  the generated file checked in before this fix carried two hand-added `ret`s.
+* The definition file it reads here, `env/corev-dv/cv32e20_csr_template.yaml`,
+  models *this* core: CSR addresses the RTL does not answer are left out of it
+  (see the comment above the CSR entries in that file), so they are swept by
+  `csr_check_unimplemented()` and are expected to trap.
 
 Future Improvements:
   * Automate regeneration of riscv_csr_test_0.S in the Makefile.

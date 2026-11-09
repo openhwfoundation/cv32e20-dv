@@ -1,0 +1,6 @@
+name: irq_single_cycle_test
+uvm_test: uvmt_$(CV_CORE_LC)_firmware_test_c
+description: >
+    Interrupt withdrawn in the single commit cycle (IRQ_TAKEN false-arm coverage, self-checking)
+plusargs: >
+    +irq_single_cycle +irq_single_cycle_shots=3

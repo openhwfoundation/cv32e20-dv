@@ -55,6 +55,24 @@ _start:
 	li a2, 0
 
 	call main
+
+	; /* capture return value of main in a0 and signal test result */
+	; li t0, 0
+	; beq a0, t0, passed
+
+	; /* TEST_FAILED: write 1 to MM_TESTSTATUS_ADDR (0x20000000) */
+	; li t0, 1
+	; li t1, 0x20000000
+	; sw t0, 0(t1)
+	; j do_exit
+
+	; passed:
+	; /* TEST_PASSED: write 123456789 to MM_TESTSTATUS_ADDR (0x20000000) */
+	; li t0, 123456789
+	; li t1, 0x20000000
+	; sw t0, 0(t1)
+
+	; do_exit:
 	tail exit
 
 .size  _start, .-_start

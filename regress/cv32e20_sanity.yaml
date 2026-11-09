@@ -1,0 +1,72 @@
+# CV32E20 blocking sanity regression.
+#
+# Copyright (c) 2026 Eclipse Foundation
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Consumed by:  bin/run_tests.py --testlist regress/cv32e20_sanity.yaml
+#
+# The point of this list is that it finishes in minutes on one machine and every
+# test in it is self-checking, so it can gate a change. No corev-dv test is
+# listed: each of those needs a gen_corev-dv generation step and routinely takes
+# 10-15 minutes on its own (see regress/cv32e20_ci_check.yaml for the full set).
+#
+# Verified as a set: all 12 tests below reported SIMULATION PASSED (with
+# WARNINGS) with Questa One 2025.3_2 (vsim 2025.11 build), USE_ISS=NO, seed 1
+# at --jobs 4: 12 passed, 0 failed, 0 error(s). The timings are that run's
+# own published regression_results.json, a coverage-instrumented batch
+# (--cov --cov-report): 1154 s for the batch, slowest being the
+# irq_withdraw_test pulse sweep at 996.8 s, then illegal_instr_test at
+# 903.1 s (whose simulation alone runs 11 us of virtual time) and the rest
+# between 26.0 s and 151.6 s. Instrumentation roughly doubles the loop, so
+# the batch is priced here for the coverage job that consumes it, not as a
+# plain-sanity budget. Either way the window is the test loop only: it
+# excludes the one-time `make comp` that --jobs > 1 does up front, so it
+# is not what the CI job costs end to end. Nothing here is a guess: a
+# test whose verdict nobody has watched does not belong on a blocking
+# list.
+#
+# NOT consumable by the legacy bin/cv_regress / bin/ci_check utilities: they
+# import the absent bin/lib/cv_regression.py and expect the old
+# core-v-verif/<core>/... checkout, so they cannot run in this repository at
+# all. See bin/README.md.
+
+name: cv32e20_sanity
+description: >
+  Fast blocking sanity on the Questa UVMT testbench: directed C and assembly
+  test-programs only, no random-program generation.
+tb: uvmt
+cfg: default
+timeout: 3600
+jobs: 4
+
+tests:
+  # Boot and the most basic program-execution path.
+  - name: hello-world
+    description: Boot, execute, and signal pass through the virtual peripheral
+  # Arithmetic and control flow.
+  - name: fibonacci
+    description: Compute the fibonacci sequence
+  - name: branch_zero
+    description: Branch with a zero offset (functional coverage hole filler)
+  # CSR access from both instruction sets.
+  - name: csr_instructions
+    description: Execute every CSR access instruction
+  # Exception and debug-adjacent exception paths.
+  - name: illegal
+    description: Detect illegal instructions
+  - name: illegal_instr_test
+    description: Illegal-instruction trap, assembly version
+  - name: generic_exception_test
+    description: Generic exception entry and return
+  # LSU.
+  - name: misalign
+    description: Misaligned load/store handling
+  - name: load_store_rs1_zero
+    description: Loads and stores with rs1 == x0
+  # Interrupts (the uvmt environment drives these, so they need --tb uvmt).
+  - name: interrupt_test
+    description: External timer and software interrupts
+  - name: nmi_test
+    description: Non-maskable interrupt stimulus
+  - name: irq_withdraw_test
+    description: Interrupt-withdrawal pulse sweep (harness for the :514 window analysis)

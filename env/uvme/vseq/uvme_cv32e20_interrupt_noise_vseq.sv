@@ -35,7 +35,10 @@ class uvme_cv32e20_interrupt_noise_c extends uvme_cv32e20_base_vseq_c;
    //    the two are cosmetically mislabeled, see uvma_interrupt_drv.sv) drives a line high and
    //    releases its tracking semaphore immediately with no self-clear
    //    (uvma_interrupt_drv_c::assert_irq()); the line only clears via a later DEASSERT lucky
-   //    enough to target the same bit, or the DUT's irq_ack handshake. Left running past the
+   //    enough to target the same bit, or the driver's ack-clear thread seeing
+   //    an ack -- on this testbench that ack is the probe
+   //    `ctrl_fsm_cs == 4'h7` (tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107), because
+   //    CVE2 has no interrupt acknowledge of its own. Left running past the
    //    cutoff, one of these can leave a line stuck pending indefinitely, which -- combined with
    //    a WFI-only interrupt-vector handler that does no masking -- produces a self-sustaining
    //    wfi -> mret -> re-take same still-pending line -> wfi livelock with no forward progress
@@ -49,10 +52,12 @@ class uvme_cv32e20_interrupt_noise_c extends uvme_cv32e20_base_vseq_c;
    //    wfi_monitor()/wait_for_noise_slot() below) instead of being cut off entirely -- a total
    //    cutoff strands any test whose generated program relies on an interrupt to wake a WFI
    //    forever asleep (observed as a 100ms watchdog timeout on corev_rand_interrupt_debug).
-   //    This action self-clears via the real irq_ack handshake
-   //    (uvma_interrupt_drv_c::assert_irq_until_ack()) -- *if* the DUT ever takes that specific
-   //    cause. If the generated test program's own CSR content permanently masks a cause off in
-   //    mie, the DUT never acks it, and assert_irq_until_ack() blocks forever holding that
+   //    This action self-clears via the agent's irq_ack handshake
+   //    (uvma_interrupt_drv_c::assert_irq_until_ack()) -- and on this testbench the
+   //    ack it waits for is the `ctrl_fsm_cs == 4'h7` probe named above, so it fires
+   //    only *if* the core ever takes that specific cause. If the generated test
+   //    program's own CSR content permanently masks a cause off in
+   //    mie, the ack never goes high for it, and assert_irq_until_ack() blocks forever holding that
    //    index's semaphore -- every later request that includes that bit is silently dropped (see
    //    "already in flight" in uvma_interrupt_drv_c::assert_irq_until_ack()). That's harmless as
    //    long as some other, live bit is also in the same request, but once enough bits go stuck
@@ -337,9 +342,12 @@ task uvme_cv32e20_interrupt_noise_c::body();
       // gen_deassert's plain ASSERT actions have no self-clear (see class-level comment
       // above): assert_irq() releases its per-bit semaphore immediately after driving the
       // edge, so a bit it set can only ever clear via a later DEASSERT lucky enough to hit
-      // the same bit, or a DUT irq_ack for that exact id. Once both threads above stop at
+      // the same bit, or an ack for that exact id -- which on this testbench is
+      // the `ctrl_fsm_cs == 4'h7` probe at tb/uvmt/uvmt_cv32e20_dut_wrap.sv:107
+      // keyed on exc_cause_o, not a CVE2 output. Once both threads above stop at
       // the cutoff, nothing is left running that will ever issue that lucky DEASSERT, and if
-      // irq_ack never comes (e.g. the generated ISR doesn't ack that specific cause), the bit
+      // the ack for that id never comes (e.g. the interrupt the core actually takes
+      // reports a different cause), the bit
       // stays pending forever -- observed as a 100ms watchdog timeout on
       // corev_rand_interrupt, with the core endlessly re-taking the same still-pending fast
       // interrupt and never returning to the test program.

@@ -30,7 +30,7 @@ class uvme_cv32e20_cfg_c extends uvma_core_cntrl_cfg_c;
 
     rand int unsigned                sys_clk_period;
    // Random knobs
-   rand bit                   zero_stall_sim; // When randomized to 1, clears is_stall_sim in step and compare
+   rand bit                   zero_stall_sim; // Pinned to 1 by +rand_stall_obi_disable; expressed by zero_stall_sim_cons below
    bit                        max_data_zero_instr_stall; // state variable set by plusarg +max_data_zero_instr_stall
    bit                        max_both_stall; // state variable set by plusarg +max_both_stall
 
@@ -326,16 +326,15 @@ function void uvme_cv32e20_cfg_c::pre_randomize();
    `uvm_info("CFG", "Executing pre_randomize() of env cfg.", UVM_DEBUG)
 
    if ($test$plusargs("rand_stall_obi_disable")) begin
-      int retval;
-
       zero_stall_sim = 1;
       zero_stall_sim.rand_mode(0);
 
-      // Hack-set is_stall_sim bit in step_compare
-      retval = uvm_hdl_deposit("uvmt_cv32e20_tb.step_compare.is_stall_sim", 0);
-      if (!retval) begin
-         `uvm_fatal("ZEROSTALL", "Cannot set is_stall_sim in step_compare")
-      end
+      // Zero-stall is expressed by the zero_stall_sim_cons constraint alone.
+      // The legacy uvmt_cv32e20_step_compare module, whose is_stall_sim bit an
+      // earlier revision deposited a 0 into with uvm_hdl_deposit(), is neither
+      // instantiated nor compiled into this testbench (tb/uvmt/
+      // uvmt_cv32e20.flist lists only the step_compare_if interface), so the
+      // deposit could only ever fail.
    end
    else if ($test$plusargs("max_data_zero_instr_stall")) begin
       // No stalls on the I bus, max on D bus

@@ -1,0 +1,43 @@
+                        Focus On: Hierarchical/Instance Coverage
+
+=============================================================================
+                          Unit Coverage Report
+=============================================================================
+
+=== Design Unit: work.cve2_controller
+=== Instance: /tb/dut/ctrl_i
+
+Statement Coverage:
+-----------------------------------------------------------------------------
+    File /compile/host/work/rtl/cve2_controller.sv
+    ---------------------------------------------------------------------
+    Line Item     Hit Count Source
+    ---------------------------------------------------------------------
+     258   1    ***0***    assign irq_asym_i = 1'b0;
+Statements     10      9      1     90.00%
+
+Branch Coverage:
+-----------------------------------------------------------------------------
+    File /compile/host/work/rtl/cve2_controller.sv
+    ---------------------------------------------------------------------
+    Line Item     Hit Count Source
+    ---------------------------------------------------------------------
+     514   433      Count coming in to IF
+               ***0***  All False Count
+Branches      4      3      1     75.00%
+
+Condition Coverage:
+-----------------------------------------------------------------------------
+-------------------- Focused Condition View --------------------
+    Line 312 Item 1 (handle_irq & do_irq)
+    Input Term     Covered  Reason  Hint
+      handle_irq      N            never
+    Rows:
+    Row 1: ***0***    handle_irq_0    -
+Conditions      2      1      1     50.00%
+
+Assertion Coverage:
+-----------------------------------------------------------------------------
+/tb/dut/ctrl_i/CVE2NoDoubleSpecialReqPCSet
+     0     0
+Assertions      1      0      1      0.00%
