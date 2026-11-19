@@ -70,20 +70,6 @@ module dp_ram
         end
     end
 
-    // TODO: find out if these are used - if not, delete.
-    //export "DPI-C" function read_byte;
-    //export "DPI-C" task write_byte;
-
-    //function int read_byte(input logic [ADDR_WIDTH-1:0] byte_addr);
-    //    read_byte = mem[byte_addr];
-    //endfunction
-
-    //task write_byte(input logic [ADDR_WIDTH-1:0] byte_addr, logic [7:0] val, output logic [7:0] other);
-    //    mem[byte_addr] = val;
-    //    other          = mem[byte_addr];
-
-    //endtask
-
 endmodule // dp_ram
 
 //@DVT_LINTER_WAIVER_END "MT20210811_0"
